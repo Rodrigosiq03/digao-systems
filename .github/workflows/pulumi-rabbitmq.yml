@@ -25,15 +25,16 @@ jobs:
 
       - name: Prepare venv
         run: |
-          python3.14 --version
-          python3.14 -m venv /data/apps/.venvs/pulumi-rabbitmq
-          source /data/apps/.venvs/pulumi-rabbitmq/bin/activate
-          python -m pip install --upgrade pip
+          PY=python3.14
+          if ! command -v "$PY" >/dev/null 2>&1; then
+            PY=python3
+          fi
+          "$PY" --version
+          "$PY" -m venv /data/apps/.venvs/pulumi-rabbitmq
+          /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --upgrade pip
 
       - name: Install dependencies
-        run: |
-          source /data/apps/.venvs/pulumi-rabbitmq/bin/activate
-          pip install -r requirements.txt
+        run: /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install -r requirements.txt
 
       - name: Pulumi login
         run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
