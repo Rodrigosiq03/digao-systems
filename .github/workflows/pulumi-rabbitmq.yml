@@ -23,13 +23,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
+      - name: Use system Python
+        run: |
+          python3 --version
+          python3 -m pip --version
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: python3 -m pip install --user -r requirements.txt
 
       - name: Pulumi login
         run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
