@@ -44,7 +44,20 @@ jobs:
       - name: Pulumi login
         run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
 
+      - name: Apply secrets
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+        run: |
+          /data/apps/.venvs/pulumi-rabbitmq/bin/python \
+            /data/apps/pulumi/scripts/apply-secrets.py \
+            --project rabbitmq \
+            --stack "${{ inputs.stack }}" \
+            --env "${{ inputs.stack }}" \
+            --create
+
       - name: Select stack
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
         run: pulumi stack select "${{ inputs.stack }}"
 
       - name: Deploy
