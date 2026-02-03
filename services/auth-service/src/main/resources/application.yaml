@@ -1,0 +1,47 @@
+server:
+  port: 8081
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: digao-oauth-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/digao-oauth-dev
+  rabbitmq:
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER:user}
+    password: ${RABBIT_PASS:password}
+    host: ${RABBIT_HOST:localhost}
+
+  web:
+    error:
+      include-message: always
+      include-binding-errors: always
+
+keycloak:
+  admin:
+    server-url: http://localhost:8080
+    realm: digao-oauth-dev
+    client-id: digao-oauth-backend-admin
+    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:9gFZYhgDykv0QQvieUgd4yMOXRlpgcx0}
+
+digao:
+  rabbitmq:
+    exchange: ${RABBIT_EXCHANGE:notification.exchange}
+    routing-key: ${RABBIT_ROUTING_KEY:digao.auth.email.send}
+  notification:
+    login-url: ${DIGAO_PORTAL_URL:http://localhost:3000}
+  cors:
+    allowed-origins: ${DIGAO_PORTAL_ORIGINS:http://localhost:3000}
+
+logging:
+  level:
+    com.digao.digao_oauth_service.infra.identity.keycloak: DEBUG
+    org.keycloak.admin: DEBUG
+    org.jboss.resteasy.client: DEBUG
+
+  

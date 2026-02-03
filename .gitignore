@@ -14,6 +14,44 @@ pulumi/**/.pytest_cache/
 # Maven cache
 .m2/
 
+# Java/Maven build outputs & IDEs
+**/target/
+.mvn/wrapper/maven-wrapper.jar
+**/.classpath
+**/.project
+**/.settings/
+**/.idea/
+**/*.iws
+**/*.iml
+**/*.ipr
+**/.vscode/
+
+# Node/Vite build outputs & caches
+**/node_modules/
+**/dist/
+**/.vite/
+**/.cache/
+**/.parcel-cache/
+**/coverage/
+**/.eslintcache
+**/.stylelintcache
+**/.pnp*
+**/.pnpm-store/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# Local env files
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.sample
+
+# OS files
+.DS_Store
+Thumbs.db
+
 # Local services not in Git (for now)
 npm/
 portainer/

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digão OAuth</title>
+    <style>
+        /* --- ESTILOS GERAIS --- */
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f1116; color: #e6e7eb; }
+        table { border-spacing: 0; width: 100%; }
+        td { padding: 0; }
+        img { border: 0; }
+        
+        /* --- PALETA & ESTRUTURA --- */
+        .wrapper { width: 100%; table-layout: fixed; background-color: #0f1116; padding-bottom: 40px; }
+        .main-container { background-color: #171a22; margin: 0 auto; width: 100%; max-width: 640px; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(5,6,10,0.45); border: 1px solid #2a2f3a; }
+        .header { background: linear-gradient(135deg, #1b2230, #111723); padding: 26px; text-align: center; border-bottom: 1px solid #2a2f3a; }
+        .header-title { color: #f9fafb; font-size: 22px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 2px; display:inline-block; vertical-align:middle; margin-left:10px; }
+        .content { padding: 36px 32px; text-align: left; font-size: 16px; line-height: 1.7; color: #e6e7eb; }
+        .footer { background-color: #11151f; padding: 20px; text-align: center; font-size: 12px; color: #8e97a7; border-top: 1px solid #2a2f3a; }
+        .footer a { color: #d2b96d; text-decoration: none; }
+        .accent { color: #d2b96d; }
+        .card { background-color: #0f1420; border: 1px solid #2a2f3a; border-radius: 10px; padding: 16px; margin: 16px 0; }
+        .code { font-family: 'Courier New', monospace; background: #0b0f19; color: #f6e4a6; padding: 10px 12px; border-radius: 8px; display: inline-block; letter-spacing: 1px; border: 1px dashed #2f3846; }
+        .btn { background-color:#d2b96d; color:#1a1f2b; padding:12px 26px; text-decoration:none; border-radius:8px; display:inline-block; font-weight: 700; letter-spacing: 0.5px; }
+        .muted { color: #9aa3b2; font-size: 13px; }
+
+        /* --- DARK MODE --- */
+        @media (prefers-color-scheme: dark) {
+            .wrapper { background-color: #0f1116 !important; }
+            .main-container { background-color: #171a22 !important; }
+            .content { color: #e6e7eb !important; }
+            .header { background: linear-gradient(135deg, #1b2230, #111723) !important; }
+            .footer { background-color: #11151f !important; color: #8e97a7 !important; }
+            .footer a { color: #d2b96d !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <center>
+            <table class="main-container" width="100%">
+                <tr>
+                    <td class="header">
+                        <img src="cid:logoImage" 
+                             alt="Digão OAuth Logo" 
+                             width="50" 
+                             style="vertical-align: middle; border-radius: 50%;">
+                        
+                        <h1 class="header-title" th:text="${title}">
+                            Digão OAuth
+                        </h1>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="content">
+                        <p th:if="${fullName != null}">
+                            Olá, <strong th:text="${fullName}">Usuário</strong>!
+                        </p>
+
+                        <div th:if="${emailType == 'RESET_PASSWORD'}">
+                            <p>Recebemos uma solicitação para redefinir sua senha.</p>
+                            <p>Clique no botão abaixo para criar uma nova senha:</p>
+
+                            <div style="text-align: center; margin: 24px 0;">
+                                <a th:href="${resetLink}" class="btn">
+                                    Redefinir senha
+                                </a>
+                            </div>
+
+                            <p>
+                                Este link expira em
+                                <strong th:text="${expiresIn}">30 minutos</strong>.
+                            </p>
+                            <p>Se você não solicitou essa alteração, ignore este e-mail.</p>
+
+                            <p th:if="${resetLink != null}">
+                                Se o botão não funcionar, copie e cole este link no navegador:
+                                <br>
+                                <span th:text="${resetLink}">https://exemplo.com/reset</span>
+                            </p>
+                        </div>
+
+                        <div th:if="${emailType == 'FIRST_ACCESS'}">
+                            <p>Seu acesso ao <span class="accent">Digão OAuth</span> foi criado com sucesso.</p>
+                            <div class="card">
+                                <p><strong>Usuário:</strong> <span th:text="${username}">usuario</span></p>
+                                <p><strong>Senha temporária:</strong></p>
+                                <div class="code" th:text="${temporaryPassword}">SENHA</div>
+                            </div>
+                            <p>Use a senha temporária apenas no primeiro acesso. Você será solicitado a criar uma nova senha.</p>
+                            <div style="text-align: center; margin: 24px 0;">
+                                <a th:href="${loginUrl}" class="btn">
+                                    Acessar Digão OAuth
+                                </a>
+                            </div>
+                            <p class="muted">
+                                Se o botão não funcionar, copie e cole no navegador:
+                                <br>
+                                <span th:text="${loginUrl}">https://app.digao.dev</span>
+                            </p>
+                        </div>
+
+                        <div th:if="${emailType != 'RESET_PASSWORD' && emailType != 'FIRST_ACCESS'}">
+                            <div th:if="${messageBody != null}" th:utext="${messageBody}"></div>
+                            <div th:if="${messageBody == null}">
+                                <p>Conteúdo do email não carregado.</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="footer">
+                        <p>Este é um e-mail automático do sistema <strong>Digão OAuth</strong>.</p>
+                        <p>
+                            &copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span> Digão Systems.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+
+</body>
+</html>
