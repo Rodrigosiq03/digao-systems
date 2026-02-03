@@ -32,4 +32,4 @@ Non-secret config is stored in:
 
 ## Notes
 - If you run multiple stacks on the same host, change ports in the stack config.
-- Runtime files are rendered to `/srv/pulumi/rabbitmq`.
+- The container bootstraps `rabbitmq.conf` and `definitions.json` from env vars at startup.
