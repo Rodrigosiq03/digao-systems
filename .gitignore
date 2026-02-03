@@ -24,5 +24,6 @@ pulumi/keycloak/backup/
 pulumi/keycloak/keycloak-email-spi/target/
 pulumi/keycloak/keycloak-email-spi/.github/java-upgrade/
 pulumi/keycloak/keycloak-email-spi/.DS_Store
+pulumi/keycloak/keycloak-email-spi/.github/
 pulumi/keycloak/kc-export/
 pulumi/keycloak/extensions/*.jar
