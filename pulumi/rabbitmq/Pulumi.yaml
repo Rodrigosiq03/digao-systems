@@ -1,0 +1,7 @@
+name: rabbitmq
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: RabbitMQ stack on Docker (single broker, multi-vhost)

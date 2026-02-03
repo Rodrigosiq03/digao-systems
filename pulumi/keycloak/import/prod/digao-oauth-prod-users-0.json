@@ -1,0 +1,27 @@
+{
+  "realm" : "digao-oauth-prod",
+  "users" : [ {
+    "id" : "48f8b217-2597-4a67-b6d1-3f85c0dfe658",
+    "username" : "testing_user",
+    "firstName" : "Test Rodrigo",
+    "lastName" : "User",
+    "email" : "rodrigo.siqueira+testing@intelicity.com.br",
+    "emailVerified" : true,
+    "createdTimestamp" : 1769517854688,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "a25bb773-4be8-485f-99c4-8f3561c25a48",
+      "type" : "password",
+      "userLabel" : "Teste123@",
+      "createdDate" : 1769518542307,
+      "secretData" : "{\"value\":\"pnP4rSlt1xb4Dnpt/Ikb6uuT3uVebzH2yaZ5pUaZLFAfzf2XAUo+j/OyEi6JGypYcLmGkFTRw99j02Qi5ZKKpA==\",\"salt\":\"WuVKsKJEYvmt6DYd1uXXmw==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-digao-oauth-prod" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  } ]
+}

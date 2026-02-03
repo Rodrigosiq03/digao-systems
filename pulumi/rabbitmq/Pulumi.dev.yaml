@@ -1,0 +1,20 @@
+config:
+  rabbitmq:runtimeDir: /srv/pulumi
+  rabbitmq:imageTag: "3.12-management"
+  rabbitmq:amqpPort: 5672
+  rabbitmq:httpPort: 15672
+  rabbitmq:memoryWatermark: "0.4"
+  rabbitmq:diskFreeLimit: "1GB"
+  rabbitmq:collectStatisticsInterval: 30000
+  rabbitmq:vhosts:
+    - /dev
+    - /homolog
+    - /prod
+  rabbitmq:users:
+    - name: dev
+      vhost: /dev
+    - name: homolog
+      vhost: /homolog
+    - name: prod
+      vhost: /prod
+  rabbitmq:adminUser: admin

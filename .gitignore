@@ -1,0 +1,28 @@
+# Local infra state & secrets
+pulumi/.secrets.local
+pulumi/.pulumi-state/
+
+# Pulumi pg_database files
+pulumi/keycloak/backup/**
+
+# Python virtualenv/cache (Pulumi projects)
+pulumi/**/venv/
+pulumi/**/.venv/
+pulumi/**/__pycache__/
+pulumi/**/.pytest_cache/
+
+# Maven cache
+.m2/
+
+# Local services not in Git (for now)
+npm/
+portainer/
+actions-runner/
+
+# Pulumi Keycloak local artifacts/backups
+pulumi/keycloak/backup/
+pulumi/keycloak/keycloak-email-spi/target/
+pulumi/keycloak/keycloak-email-spi/.github/java-upgrade/
+pulumi/keycloak/keycloak-email-spi/.DS_Store
+pulumi/keycloak/kc-export/
+pulumi/keycloak/extensions/*.jar

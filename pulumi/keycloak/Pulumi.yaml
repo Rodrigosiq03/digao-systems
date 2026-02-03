@@ -1,0 +1,7 @@
+name: keycloak
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: Keycloak stack on Docker (Postgres per environment)

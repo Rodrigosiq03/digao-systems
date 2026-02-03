@@ -1,0 +1,22 @@
+config:
+  keycloak:imageTag: "26.0.8"
+  keycloak:dbImageTag: "15"
+  keycloak:proxy: none
+  keycloak:httpEnabled: "true"
+  keycloak:attachToNpm: "true"
+  keycloak:npmNetworkName: "npm_default"
+  keycloak:themesPath: /data/apps/pulumi/keycloak/themes
+  keycloak:importPath: /data/apps/pulumi/keycloak/import/dev
+  keycloak:importRealm: "true"
+  keycloak:adminUser: keycloak
+  keycloak:dbUser: postgres
+  keycloak:dbName: keycloak
+  keycloak:startMode: dev
+  keycloak:httpPort: "8081"
+  keycloak:spiJarPath: /data/apps/pulumi/keycloak/extensions/digao-keycloak-email-spi.jar
+  keycloak:dbPassword:
+    secure: v1:bb5uoelet2iwsWn4:ypqNHrHkkj8FexUl/LQBKnlOAUzhLF1WDHWR9WI5e2sDlNG+g/CP9wZ/sYwHZ5Eu
+  keycloak:adminPassword:
+    secure: v1:f8LausPTSiB4Zv4j:AXPnWHUtSNSik0rphr3Mblv/MfnjaWtwr3s/DvP5It+l1h4NjimUmvzEoMhrgI9v
+  keycloak:hostnameStrict: "false"
+encryptionsalt: v1:bi0Sz/6gMSo=:v1:OkFLMfyZedCmvspF:4CKAMdkgOEJc25Wbx3bCcuovAaQK5w==

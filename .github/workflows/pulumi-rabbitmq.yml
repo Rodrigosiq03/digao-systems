@@ -1,0 +1,43 @@
+name: pulumi-rabbitmq
+
+on:
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: "Pulumi stack select (dev|homolog|prod)"
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - homolog
+          - prod
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: pulumi/rabbitmq
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Pulumi login
+        run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
+
+      - name: Select stack
+        run: pulumi stack select "${{ inputs.stack }}"
+
+      - name: Deploy
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+        run: pulumi up --yes
