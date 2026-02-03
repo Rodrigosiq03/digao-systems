@@ -12,6 +12,10 @@ on:
           - dev
           - homolog
           - prod
+      ref:
+        description: "Git ref to deploy (branch or SHA)"
+        required: false
+        default: "main"
 
 jobs:
   deploy:
@@ -22,19 +26,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
 
       - name: Prepare venv
         run: |
           PY=python3.14
           if ! command -v "$PY" >/dev/null 2>&1; then
-            PY=python3
+            echo "python3.14 not found on runner. Install it or change the workflow."
+            exit 1
           fi
           "$PY" --version
+          rm -rf /data/apps/.venvs/pulumi-rabbitmq
           "$PY" -m venv /data/apps/.venvs/pulumi-rabbitmq
           /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --upgrade pip
 
       - name: Install dependencies
-        run: /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install -r requirements.txt
+        run: /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
+
+      - name: Show requirements
+        run: cat requirements.txt
 
       - name: Pulumi login
         run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
