@@ -1,11 +1,11 @@
 config:
   rabbitmq:runtimeDir: /srv/pulumi
   rabbitmq:imageTag: "3.12-management"
-  rabbitmq:amqpPort: 5672
-  rabbitmq:httpPort: 15672
+  rabbitmq:amqpPort: "5672"
+  rabbitmq:httpPort: "15672"
   rabbitmq:memoryWatermark: "0.4"
   rabbitmq:diskFreeLimit: "1GB"
-  rabbitmq:collectStatisticsInterval: 30000
+  rabbitmq:collectStatisticsInterval: "30000"
   rabbitmq:vhosts:
     - /dev
     - /homolog
@@ -17,4 +17,15 @@ config:
       vhost: /homolog
     - name: prod
       vhost: /prod
-  rabbitmq:adminUser: admin
+  rabbitmq:adminUser: rabbitmq
+  rabbitmq:adminPassword:
+    secure: v1:jfJ8DuZfo8M/HEL9:1iyfzGhG+y6LXVSzB1RMDF4ZlkhGzyQ7WYVfh0Bh3z1yj+I6p+LaQnJOEU5dixgt
+  rabbitmq:erlangCookie:
+    secure: v1:zT7OQMNVrAZ0QG//:+ndQHizQ57m1+oDcHhj0gfqGI8tb10wDk3V+fthHkjBMksbn+n3bypQeTL5imqEFsBgryBwRGqMHhJ6NpQYPIw==
+  rabbitmq:devPassword:
+    secure: v1:ECs+JwogJEDoKje5:tcmfQXJ6tHG0iGoVhUkqQD10ZNwH9Vihn2daVezGUrPXPwY6fUQNgc653qZvbpdY
+  rabbitmq:homologPassword:
+    secure: v1:KKBGJhl6D5NGHKAr:XbriLxGWjTpLV7Z4UPZas2w+89NSwtwcL93EL8h4w7DSZp7fxbfwleW/Wve6bNDD
+  rabbitmq:prodPassword:
+    secure: v1:FZc2FhsVPJo23jBn:y5A2afKZFvvME44/05mE5/I8KKWlmfVzcraSswauS0/KnVlorEtIna38rR/wdxzZ
+encryptionsalt: v1:FXmw4uAEnXU=:v1:cMOLzPpm9PRnvioO:4RK9hr+gxd4rC1F272JB73VdNuSv7Q==

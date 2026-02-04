@@ -1,13 +1,10 @@
 import json
+import os
 import pulumi
 import pulumi_docker as docker
-import pulumi_command as command
 
 config = pulumi.Config()
 stack = pulumi.get_stack()
-
-runtime_dir = config.get("runtimeDir") or "/srv/pulumi"
-stack_dir = f"{runtime_dir}/rabbitmq"
 
 image_tag = config.get("imageTag") or "3.12-management"
 amqp_port = int(config.get("amqpPort") or 5672)
@@ -117,36 +114,13 @@ definitions_json = pulumi.Output.all(
     passwords["prod"],
 ).apply(build_definitions)
 
-write_config = command.local.Command(
-    "rabbitmq-config",
-    create="""bash -c 'set -euo pipefail
-mkdir -p "$STACK_DIR"
-install -m 0600 /dev/null "$STACK_DIR/definitions.json"
-printf "%s" "$DEFINITIONS_JSON" > "$STACK_DIR/definitions.json"
-install -m 0644 /dev/null "$STACK_DIR/rabbitmq.conf"
-printf "%s" "$RABBITMQ_CONF" > "$STACK_DIR/rabbitmq.conf"
-'""",
-    update="""bash -c 'set -euo pipefail
-mkdir -p "$STACK_DIR"
-install -m 0600 /dev/null "$STACK_DIR/definitions.json"
-printf "%s" "$DEFINITIONS_JSON" > "$STACK_DIR/definitions.json"
-install -m 0644 /dev/null "$STACK_DIR/rabbitmq.conf"
-printf "%s" "$RABBITMQ_CONF" > "$STACK_DIR/rabbitmq.conf"
-'""",
-    delete="""bash -c 'set -euo pipefail
-rm -f "$STACK_DIR/definitions.json" "$STACK_DIR/rabbitmq.conf"
-'""",
-    environment={
-        "STACK_DIR": stack_dir,
-        "RABBITMQ_CONF": rabbitmq_conf,
-        "DEFINITIONS_JSON": definitions_json,
-    },
-    triggers=[rabbitmq_conf, definitions_json, stack_dir],
-)
-
 image = docker.RemoteImage("rabbitmq-image", name=f"rabbitmq:{image_tag}")
 
 data_volume = docker.Volume("rabbitmq-data", name=f"rabbitmq-data-{stack}")
+
+entrypoint_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "entrypoint.sh")
+)
 
 container = docker.Container(
     "rabbitmq",
@@ -154,28 +128,27 @@ container = docker.Container(
     name=f"rabbitmq-{stack}",
     hostname="rabbitmq",
     restart="unless-stopped",
+    command=["/bin/sh", "-c", "/entrypoint.sh"],
     ports=[
         docker.ContainerPortArgs(internal=5672, external=amqp_port),
         docker.ContainerPortArgs(internal=15672, external=http_port),
     ],
-    envs=[pulumi.Output.concat("RABBITMQ_ERLANG_COOKIE=", erlang_cookie)],
+    envs=[
+        pulumi.Output.concat("RABBITMQ_ERLANG_COOKIE=", erlang_cookie),
+        pulumi.Output.concat("RABBITMQ_DEFINITIONS_JSON=", definitions_json),
+        pulumi.Output.concat("RABBITMQ_CONF=", rabbitmq_conf),
+    ],
     volumes=[
         docker.ContainerVolumeArgs(
             volume_name=data_volume.name,
             container_path="/var/lib/rabbitmq",
         ),
         docker.ContainerVolumeArgs(
-            host_path=f"{stack_dir}/rabbitmq.conf",
-            container_path="/etc/rabbitmq/rabbitmq.conf",
-            read_only=True,
-        ),
-        docker.ContainerVolumeArgs(
-            host_path=f"{stack_dir}/definitions.json",
-            container_path="/etc/rabbitmq/definitions.json",
+            host_path=entrypoint_path,
+            container_path="/entrypoint.sh",
             read_only=True,
         ),
     ],
-    depends_on=[write_config],
 )
 
 pulumi.export("amqpPort", amqp_port)
