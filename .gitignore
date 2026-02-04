@@ -59,9 +59,8 @@ artifacts/
 Thumbs.db
 
 # Local services not in Git (for now)
-npm/
-portainer/
-actions-runner/
+/npm/
+/actions-runner/
 
 # Pulumi Keycloak local artifacts/backups
 pulumi/keycloak/backup/
