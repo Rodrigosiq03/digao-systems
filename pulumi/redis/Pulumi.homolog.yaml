@@ -5,4 +5,4 @@ config:
   redis:redisUser: "redis"
   redis:appendOnly: "yes"
   redis:attachToNpm: "true"
-  redis:npmNetworkName: "npm_default"
+  redis:npmNetworkName: "npm_homolog"

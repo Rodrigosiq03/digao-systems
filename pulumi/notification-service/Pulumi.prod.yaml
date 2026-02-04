@@ -2,7 +2,7 @@ config:
   notification-service:imageTag: prod
   notification-service:httpPort: "8082"
   notification-service:attachToNpm: "true"
-  notification-service:npmNetworkName: "npm_default"
+  notification-service:npmNetworkName: "npm_prod"
   notification-service:rabbitHost: "rabbitmq-prod"
   notification-service:rabbitUser: "prod"
   notification-service:rabbitVhost: "/prod"

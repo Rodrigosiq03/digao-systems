@@ -4,4 +4,4 @@ config:
   redis:authEnabled: "false"
   redis:appendOnly: "yes"
   redis:attachToNpm: "true"
-  redis:npmNetworkName: "npm_default"
+  redis:npmNetworkName: "npm_dev"

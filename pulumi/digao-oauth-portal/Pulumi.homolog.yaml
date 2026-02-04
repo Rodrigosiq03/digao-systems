@@ -2,7 +2,7 @@ config:
   digao-oauth-portal:imageTag: homolog
   digao-oauth-portal:exposePort: "false"
   digao-oauth-portal:attachToNpm: "true"
-  digao-oauth-portal:npmNetworkName: "npm_default"
+  digao-oauth-portal:npmNetworkName: "npm_homolog"
   digao-oauth-portal:viteKcUrl: "http://localhost:8080"
   digao-oauth-portal:viteKcRealm: "digao-oauth-homolog"
   digao-oauth-portal:viteKcClientId: "digao-oauth-portal"

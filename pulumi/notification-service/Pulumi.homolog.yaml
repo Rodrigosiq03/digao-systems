@@ -2,7 +2,7 @@ config:
   notification-service:imageTag: homolog
   notification-service:httpPort: "8082"
   notification-service:attachToNpm: "true"
-  notification-service:npmNetworkName: "npm_default"
+  notification-service:npmNetworkName: "npm_homolog"
   notification-service:rabbitHost: "rabbitmq-homolog"
   notification-service:rabbitUser: "homolog"
   notification-service:rabbitVhost: "/homolog"
