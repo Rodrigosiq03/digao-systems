@@ -1,0 +1,7 @@
+config:
+  redis:imageTag: "7.2"
+  redis:port: "6379"
+  redis:authEnabled: "false"
+  redis:appendOnly: "yes"
+  redis:attachToNpm: "true"
+  redis:npmNetworkName: "npm_default"

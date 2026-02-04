@@ -95,6 +95,22 @@ def apply_auth(config: configparser.ConfigParser, env: str, project_dir: Path, s
     pulumi_set(project_dir, stack, "auth-service:keycloakAdminClientSecret", env_block[kc_client_secret_key], True)
 
 
+def apply_redis(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
+    env_block = config[env]
+    user_key = f"REDIS_USER_{env.upper()}"
+    pass_key = f"REDIS_PASS_{env.upper()}"
+
+    if env == "dev":
+        if user_key in env_block:
+            pulumi_set(project_dir, stack, "redis:redisUser", env_block[user_key], False)
+        if pass_key in env_block:
+            pulumi_set(project_dir, stack, "redis:redisPassword", env_block[pass_key], True)
+        return
+
+    pulumi_set(project_dir, stack, "redis:redisUser", env_block[user_key], False)
+    pulumi_set(project_dir, stack, "redis:redisPassword", env_block[pass_key], True)
+
+
 def main() -> None:
     base_dir = Path(__file__).resolve().parents[1]
 
@@ -131,6 +147,8 @@ def main() -> None:
         apply_notification(config, args.env, project_dir, args.stack)
     elif project_name == "auth-service":
         apply_auth(config, args.env, project_dir, args.stack)
+    elif project_name == "redis":
+        apply_redis(config, args.env, project_dir, args.stack)
     else:
         raise SystemExit(f"Unknown project: {project_name}")
 
