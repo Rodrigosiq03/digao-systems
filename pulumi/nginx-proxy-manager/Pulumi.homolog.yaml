@@ -1,0 +1,6 @@
+config:
+  nginx-proxy-manager:imageTag: "latest"
+  nginx-proxy-manager:httpPort: "8083"
+  nginx-proxy-manager:httpsPort: "8444"
+  nginx-proxy-manager:adminPort: "8182"
+  nginx-proxy-manager:npmNetworkName: "npm_homolog"

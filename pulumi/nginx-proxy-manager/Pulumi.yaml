@@ -1,0 +1,7 @@
+name: nginx-proxy-manager
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: Nginx Proxy Manager on Docker
