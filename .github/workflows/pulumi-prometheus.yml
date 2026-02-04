@@ -1,0 +1,90 @@
+name: pulumi-prometheus
+
+permissions:
+  contents: read
+  issues: write
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - "pulumi/prometheus/**"
+      - ".github/workflows/pulumi-prometheus.yml"
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: "Pulumi stack select (dev|homolog|prod)"
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - homolog
+          - prod
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: pulumi/prometheus
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decide stack
+        id: stack
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "value=${{ inputs.stack }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "value=homolog" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Gate production
+        if: ${{ steps.stack.outputs.value == 'prod' }}
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ${{ github.actor }}
+          minimum-approvals: 1
+          issue-title: "Approve production deploy for prometheus"
+          issue-body: "Approve to deploy prometheus to prod."
+
+      - name: Prepare venv
+        run: |
+          PY="$HOME/.pyenv/versions/3.12.8/bin/python"
+          if [[ ! -x "$PY" ]]; then
+            echo "pyenv Python 3.12.8 not found at $PY"
+            exit 1
+          fi
+          "$PY" --version
+          rm -rf /data/apps/.venvs/pulumi-prometheus
+          "$PY" -m venv /data/apps/.venvs/pulumi-prometheus
+          /data/apps/.venvs/pulumi-prometheus/bin/python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: /data/apps/.venvs/pulumi-prometheus/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
+
+      - name: Pulumi login
+        run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
+
+      - name: Select or init stack
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+        run: |
+          STACK="${{ steps.stack.outputs.value }}"
+          if pulumi stack select "$STACK" >/dev/null 2>&1; then
+            pulumi stack select "$STACK"
+          else
+            pulumi stack init "$STACK"
+          fi
+
+      - name: Deploy
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+        run: pulumi up --yes

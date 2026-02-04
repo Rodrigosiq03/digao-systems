@@ -1,0 +1,6 @@
+config:
+  prometheus:imageTag: "v2.53.1"
+  prometheus:httpPort: "9091"
+  prometheus:exposePort: "false"
+  prometheus:attachToNpm: "true"
+  prometheus:npmNetworkName: "npm_homolog"

@@ -1,0 +1,7 @@
+name: prometheus
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: Prometheus on Docker
