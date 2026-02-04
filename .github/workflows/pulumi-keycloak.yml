@@ -1,4 +1,4 @@
-name: pulumi-rabbitmq
+name: pulumi-keycloak
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
     runs-on: self-hosted
     defaults:
       run:
-        working-directory: pulumi/rabbitmq
+        working-directory: pulumi/keycloak
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,12 +31,12 @@ jobs:
             exit 1
           fi
           "$PY" --version
-          rm -rf /data/apps/.venvs/pulumi-rabbitmq
-          "$PY" -m venv /data/apps/.venvs/pulumi-rabbitmq
-          /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --upgrade pip
+          rm -rf /data/apps/.venvs/pulumi-keycloak
+          "$PY" -m venv /data/apps/.venvs/pulumi-keycloak
+          /data/apps/.venvs/pulumi-keycloak/bin/python -m pip install --upgrade pip
 
       - name: Install dependencies
-        run: /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
+        run: /data/apps/.venvs/pulumi-keycloak/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
 
       - name: Show requirements
         run: cat requirements.txt
@@ -52,9 +52,9 @@ jobs:
           if [[ -z "$SECRETS_FILE" ]]; then
             SECRETS_FILE="/data/apps/pulumi/.secrets.local"
           fi
-          /data/apps/.venvs/pulumi-rabbitmq/bin/python \
+          /data/apps/.venvs/pulumi-keycloak/bin/python \
             ../scripts/apply-secrets.py \
-            --project rabbitmq \
+            --project keycloak \
             --stack "${{ inputs.stack }}" \
             --env "${{ inputs.stack }}" \
             --secrets-file "$SECRETS_FILE" \
