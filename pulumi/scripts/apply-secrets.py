@@ -76,6 +76,25 @@ def apply_keycloak(config: configparser.ConfigParser, env: str, project_dir: Pat
     pulumi_set(project_dir, stack, "keycloak:adminPassword", env_block[admin_pass_key], True)
 
 
+def apply_notification(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
+    shared = config["shared"]
+    env_block = config[env]
+    rabbit_pass_key = f"RABBITMQ_{env.upper()}_PASS"
+
+    pulumi_set(project_dir, stack, "notification-service:rabbitPassword", env_block[rabbit_pass_key], True)
+    pulumi_set(project_dir, stack, "notification-service:mailUser", shared["MAIL_USERNAME"], False)
+    pulumi_set(project_dir, stack, "notification-service:mailPassword", shared["MAIL_PASSWORD"], True)
+
+
+def apply_auth(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
+    env_block = config[env]
+    rabbit_pass_key = f"RABBITMQ_{env.upper()}_PASS"
+    kc_client_secret_key = f"KEYCLOAK_ADMIN_CLIENT_SECRET_{env.upper()}"
+
+    pulumi_set(project_dir, stack, "auth-service:rabbitPassword", env_block[rabbit_pass_key], True)
+    pulumi_set(project_dir, stack, "auth-service:keycloakAdminClientSecret", env_block[kc_client_secret_key], True)
+
+
 def main() -> None:
     base_dir = Path(__file__).resolve().parents[1]
 
@@ -108,6 +127,10 @@ def main() -> None:
         apply_rabbitmq(config, args.env, project_dir, args.stack)
     elif project_name == "keycloak":
         apply_keycloak(config, args.env, project_dir, args.stack)
+    elif project_name == "notification-service":
+        apply_notification(config, args.env, project_dir, args.stack)
+    elif project_name == "auth-service":
+        apply_auth(config, args.env, project_dir, args.stack)
     else:
         raise SystemExit(f"Unknown project: {project_name}")
 

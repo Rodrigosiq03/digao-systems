@@ -1,0 +1,13 @@
+config:
+  notification-service:imageTag: homolog
+  notification-service:httpPort: "8082"
+  notification-service:attachToNpm: "true"
+  notification-service:npmNetworkName: "npm_default"
+  notification-service:rabbitHost: "rabbitmq-homolog"
+  notification-service:rabbitUser: "homolog"
+  notification-service:rabbitVhost: "/homolog"
+  notification-service:rabbitExchange: "notification.exchange"
+  notification-service:rabbitRoutingKey: "digao.notification.email.send"
+  notification-service:rabbitQueue: "notification.email.queue"
+  notification-service:redisHost: "redis"
+  notification-service:mailUser: ""

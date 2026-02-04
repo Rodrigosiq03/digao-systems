@@ -14,6 +14,9 @@ memory_watermark = config.get("memoryWatermark") or "0.4"
 disk_free_limit = config.get("diskFreeLimit") or "1GB"
 collect_statistics_interval = int(config.get("collectStatisticsInterval") or 30000)
 
+attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
+npm_network = config.get("npmNetworkName") or "npm_default"
+
 vhosts = config.get_object("vhosts") or ["/dev", "/homolog", "/prod"]
 users = config.get_object("users") or [
     {"name": "dev", "vhost": "/dev"},
@@ -122,8 +125,7 @@ entrypoint_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "entrypoint.sh")
 )
 
-container = docker.Container(
-    "rabbitmq",
+container_kwargs = dict(
     image=image.name,
     name=f"rabbitmq-{stack}",
     hostname="rabbitmq",
@@ -150,6 +152,13 @@ container = docker.Container(
         ),
     ],
 )
+
+if attach_npm:
+    container_kwargs["networks_advanced"] = [
+        docker.ContainerNetworksAdvancedArgs(name=npm_network)
+    ]
+
+container = docker.Container("rabbitmq", **container_kwargs)
 
 pulumi.export("amqpPort", amqp_port)
 pulumi.export("httpPort", http_port)

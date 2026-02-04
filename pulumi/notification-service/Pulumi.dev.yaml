@@ -1,0 +1,13 @@
+config:
+  notification-service:imageTag: dev
+  notification-service:httpPort: "8082"
+  notification-service:attachToNpm: "true"
+  notification-service:npmNetworkName: "npm_default"
+  notification-service:rabbitHost: "rabbitmq-dev"
+  notification-service:rabbitUser: "dev"
+  notification-service:rabbitVhost: "/dev"
+  notification-service:rabbitExchange: "notification.exchange"
+  notification-service:rabbitRoutingKey: "digao.notification.email.send"
+  notification-service:rabbitQueue: "notification.email.queue"
+  notification-service:redisHost: "redis"
+  notification-service:mailUser: ""
