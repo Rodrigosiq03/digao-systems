@@ -30,7 +30,10 @@ npm_network = config.get("npmNetworkName") or "npm_default"
 image = docker.Image(
     "notification-image",
     image_name=f"notification-service:{image_tag}",
-    build=docker.DockerBuildArgs(context=service_dir, dockerfile="Dockerfile"),
+    build=docker.DockerBuildArgs(
+        context=service_dir,
+        dockerfile=os.path.join(service_dir, "Dockerfile"),
+    ),
 )
 
 envs = [
