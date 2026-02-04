@@ -1,7 +1,7 @@
 import os
 import pulumi
 import pulumi_docker as docker
-
+# trigger cd
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
