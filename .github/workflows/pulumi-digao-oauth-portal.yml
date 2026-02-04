@@ -77,10 +77,16 @@ jobs:
       - name: Pulumi login
         run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
 
-      - name: Select stack
+      - name: Select or init stack
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
-        run: pulumi stack select "${{ steps.stack.outputs.value }}"
+        run: |
+          STACK="${{ steps.stack.outputs.value }}"
+          if pulumi stack select "$STACK" >/dev/null 2>&1; then
+            pulumi stack select "$STACK"
+          else
+            pulumi stack init "$STACK"
+          fi
 
       - name: Deploy
         env:
