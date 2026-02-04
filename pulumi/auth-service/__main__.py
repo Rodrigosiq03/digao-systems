@@ -30,7 +30,8 @@ npm_network = config.get("npmNetworkName") or "npm_default"
 
 image = docker.Image(
     "auth-image",
-    image_name=f"auth-service:{image_tag}",
+    image_name=f"docker.io/library/auth-service:{image_tag}",
+    skip_push=True,
     build=docker.DockerBuildArgs(
         context=service_dir,
         dockerfile=os.path.join(service_dir, "Dockerfile"),

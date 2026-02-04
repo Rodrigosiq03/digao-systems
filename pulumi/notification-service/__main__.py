@@ -29,7 +29,8 @@ npm_network = config.get("npmNetworkName") or "npm_default"
 
 image = docker.Image(
     "notification-image",
-    image_name=f"notification-service:{image_tag}",
+    image_name=f"docker.io/library/notification-service:{image_tag}",
+    skip_push=True,
     build=docker.DockerBuildArgs(
         context=service_dir,
         dockerfile=os.path.join(service_dir, "Dockerfile"),
