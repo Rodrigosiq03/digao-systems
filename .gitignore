@@ -17,6 +17,9 @@ pulumi/**/.pytest_cache/
 # Local Python venvs
 .venvs/
 
+# Local build artifacts
+artifacts/
+
 # Java/Maven build outputs & IDEs
 **/target/
 .mvn/wrapper/maven-wrapper.jar
