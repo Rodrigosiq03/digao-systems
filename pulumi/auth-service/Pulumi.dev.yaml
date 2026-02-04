@@ -1,0 +1,13 @@
+config:
+  auth-service:imageTag: dev
+  auth-service:httpPort: "8091"
+  auth-service:attachToNpm: "true"
+  auth-service:npmNetworkName: "npm_default"
+  auth-service:rabbitHost: "rabbitmq-dev"
+  auth-service:rabbitUser: "dev"
+  auth-service:rabbitVhost: "/dev"
+  auth-service:rabbitExchange: "notification.exchange"
+  auth-service:rabbitRoutingKey: "digao.auth.email.send"
+  auth-service:keycloakBaseUrl: "http://keycloak-dev:8080"
+  auth-service:keycloakRealm: "digao-oauth-dev"
+  auth-service:keycloakAdminClientId: "digao-oauth-backend-admin"

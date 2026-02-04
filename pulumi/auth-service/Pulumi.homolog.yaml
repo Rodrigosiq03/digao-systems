@@ -1,0 +1,13 @@
+config:
+  auth-service:imageTag: homolog
+  auth-service:httpPort: "8091"
+  auth-service:attachToNpm: "true"
+  auth-service:npmNetworkName: "npm_default"
+  auth-service:rabbitHost: "rabbitmq-homolog"
+  auth-service:rabbitUser: "homolog"
+  auth-service:rabbitVhost: "/homolog"
+  auth-service:rabbitExchange: "notification.exchange"
+  auth-service:rabbitRoutingKey: "digao.auth.email.send"
+  auth-service:keycloakBaseUrl: "http://keycloak-homolog:8080"
+  auth-service:keycloakRealm: "digao-oauth-homolog"
+  auth-service:keycloakAdminClientId: "digao-oauth-backend-admin"

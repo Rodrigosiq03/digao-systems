@@ -1,0 +1,7 @@
+name: auth-service
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: Auth service on Docker
