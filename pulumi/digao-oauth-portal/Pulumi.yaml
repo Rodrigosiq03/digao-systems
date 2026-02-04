@@ -1,0 +1,7 @@
+name: digao-oauth-portal
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: Digao OAuth Portal frontend on Docker
