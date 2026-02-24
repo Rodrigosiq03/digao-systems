@@ -42,7 +42,7 @@ if missing:
 
 rabbitmq_conf = "\n".join(
     [
-        f"vm_memory_high_watermark = {memory_watermark}",
+        f"vm_memory_high_watermark.relative = {memory_watermark}",
         f"disk_free_limit.absolute = {disk_free_limit}",
         f"collect_statistics_interval = {collect_statistics_interval}",
         "management.load_definitions = /etc/rabbitmq/definitions.json",
