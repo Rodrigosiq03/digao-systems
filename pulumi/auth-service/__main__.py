@@ -5,7 +5,9 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
-service_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "services", "auth-service"))
+service_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "services", "java", "auth-service")
+)
 
 image_tag = config.get("imageTag") or stack
 http_port = int(config.get("httpPort") or 8091)

@@ -10,8 +10,8 @@ on:
       - develop
       - main
     paths:
-      - "services/auth-service/**"
-      - "services/notification-service/**"
+      - "services/java/auth-service/**"
+      - "services/java/notification-service/**"
       - "pulumi/auth-service/**"
       - "pulumi/notification-service/**"
       - "pulumi/scripts/apply-secrets.py"
@@ -52,11 +52,11 @@ jobs:
         with:
           filters: |
             notification:
-              - "services/notification-service/**"
+              - "services/java/notification-service/**"
               - "pulumi/notification-service/**"
               - "pulumi/scripts/apply-secrets.py"
             auth:
-              - "services/auth-service/**"
+              - "services/java/auth-service/**"
               - "pulumi/auth-service/**"
               - "pulumi/scripts/apply-secrets.py"
 
@@ -73,10 +73,10 @@ jobs:
         include:
           - service: notification
             project: notification-service
-            dir: services/notification-service
+            dir: services/java/notification-service
           - service: auth
             project: auth-service
-            dir: services/auth-service
+            dir: services/java/auth-service
     steps:
       - name: Checkout
         uses: actions/checkout@v4
