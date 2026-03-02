@@ -1,0 +1,46 @@
+services:
+  digao-cloud-gaming-backend:
+    build:
+      context: ../../services/go/cloud-gaming
+    container_name: digao-cloud-gaming-backend
+    network_mode: host
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - PORT=8080
+      - FRAME_RATE=60
+      - STREAM_SOCKET_PATH=/tmp/digao-cloud-gaming/stream.sock
+      - DISPLAY=${DISPLAY}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/1000}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=video,compute,utility
+    volumes:
+      - cloud-gaming-ipc:/tmp/digao-cloud-gaming
+      - /run/user/1000/pipewire-0:/run/user/1000/pipewire-0
+      - /dev/uinput:/dev/uinput
+
+  digao-cloud-gaming-motor:
+    build:
+      context: ../../services/cpp/cloud-gaming-motor
+    container_name: digao-cloud-gaming-motor
+    network_mode: host
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - STREAM_SOCKET_PATH=/tmp/digao-cloud-gaming/stream.sock
+      - FPS=60
+      - WIDTH=1920
+      - HEIGHT=1080
+      - MOCK_MODE=true
+      - DISPLAY=${DISPLAY}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/1000}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=video,compute,utility
+    volumes:
+      - cloud-gaming-ipc:/tmp/digao-cloud-gaming
+      - /run/user/1000/pipewire-0:/run/user/1000/pipewire-0
+
+volumes:
+  cloud-gaming-ipc:

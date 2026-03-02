@@ -1,0 +1,134 @@
+name: cloud-gaming
+
+permissions:
+  contents: read
+  issues: write
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - "services/go/cloud-gaming/**"
+      - "services/cpp/cloud-gaming-motor/**"
+      - "deploy/cloud-gaming/**"
+      - ".github/workflows/cloud-gaming.yml"
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Run deploy step? (true|false)"
+        required: true
+        type: choice
+        default: "true"
+        options:
+          - "true"
+          - "false"
+      stack:
+        description: "Deploy stack (dev|homolog|prod)"
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - homolog
+          - prod
+
+jobs:
+  changes:
+    runs-on: self-hosted
+    outputs:
+      cloud_gaming: ${{ steps.filter.outputs.cloud_gaming }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            cloud_gaming:
+              - "services/go/cloud-gaming/**"
+              - "services/cpp/cloud-gaming-motor/**"
+              - "deploy/cloud-gaming/**"
+              - ".github/workflows/cloud-gaming.yml"
+
+  ci:
+    runs-on: self-hosted
+    needs: [changes]
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.changes.outputs.cloud_gaming == 'true' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Go tests
+        run: |
+          docker run --rm \
+            -u "$(id -u):$(id -g)" \
+            -e GOCACHE=/tmp/go-build \
+            -e GOPATH=/tmp/go \
+            -v "$PWD":/workspace \
+            -w /workspace/services/go/cloud-gaming \
+            golang:1.22 \
+            sh -lc 'export PATH=$PATH:/usr/local/go/bin && go test ./...'
+
+      - name: C++ build and tests
+        run: |
+          docker run --rm \
+            -v "$PWD":/workspace \
+            -w /workspace \
+            debian:bookworm \
+            bash -lc 'set -euo pipefail \
+              && apt-get update \
+              && apt-get install -y --no-install-recommends cmake g++ ninja-build \
+              && project_dir="$(mktemp -d /tmp/cloud-gaming-motor-XXXXXX)" \
+              && tar -C /workspace/services/cpp/cloud-gaming-motor --exclude=build -cf - . | tar -C "$project_dir" -xf - \
+              && cmake -S "$project_dir" -B "$project_dir/build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+              && cmake --build "$project_dir/build" \
+              && ctest --test-dir "$project_dir/build" --output-on-failure'
+
+      - name: Build backend image
+        run: docker build -t digao-cloud-gaming-backend:${{ github.sha }} services/go/cloud-gaming
+
+      - name: Build motor image
+        run: docker build -t digao-cloud-gaming-motor:${{ github.sha }} services/cpp/cloud-gaming-motor
+
+  deploy:
+    runs-on: self-hosted
+    needs: [changes, ci]
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.deploy == 'true') ||
+      (github.event_name != 'workflow_dispatch' && needs.changes.outputs.cloud_gaming == 'true')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decide stack
+        id: stack
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "value=${{ inputs.stack }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "value=homolog" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Gate production
+        if: ${{ steps.stack.outputs.value == 'prod' }}
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ${{ github.actor }}
+          minimum-approvals: 1
+          issue-title: "Approve production deploy for cloud-gaming"
+          issue-body: "Approve to deploy cloud-gaming to prod."
+
+      - name: Deploy cloud-gaming stack
+        run: |
+          set -euo pipefail
+          cd deploy/cloud-gaming
+          docker compose down || true
+          docker compose up -d --build
+          docker image prune -f
