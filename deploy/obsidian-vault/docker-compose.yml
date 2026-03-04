@@ -1,0 +1,35 @@
+name: obsidian-vault
+
+services:
+  couchdb:
+    image: couchdb:3.3
+    container_name: obsidian_db
+    environment:
+      COUCHDB_USER: ${DB_USER}
+      COUCHDB_PASSWORD: ${DB_PASS}
+    volumes:
+      - ./couchdb/data:/opt/couchdb/data
+      - ./couchdb/local.ini:/opt/couchdb/etc/local.ini:ro
+    networks:
+      - obsidian_net
+    restart: unless-stopped
+
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: obsidian_proxy
+    depends_on:
+      - couchdb
+    ports:
+      - "${TAILSCALE_IP:-127.0.0.1}:80:80"
+      - "${TAILSCALE_IP:-127.0.0.1}:443:443"
+      - "127.0.0.1:81:81"
+    volumes:
+      - ./npm/data:/data
+      - ./npm/letsencrypt:/etc/letsencrypt
+    networks:
+      - obsidian_net
+    restart: unless-stopped
+
+networks:
+  obsidian_net:
+    driver: bridge
