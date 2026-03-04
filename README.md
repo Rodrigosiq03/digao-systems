@@ -1,6 +1,6 @@
 # Digao Platform Monorepo
 
-Monorepo com servicos Java, stack de infraestrutura (RabbitMQ/Pulumi) e stack completa de cloud gaming (Go + C++).
+Monorepo com servicos Java, stack de infraestrutura (RabbitMQ/Pulumi), stack de cloud gaming (Go + C++) e stack de Obsidian self-hosted hardened.
 
 ## Estrutura principal
 
@@ -18,7 +18,8 @@ Monorepo com servicos Java, stack de infraestrutura (RabbitMQ/Pulumi) e stack co
 │   └── cpp/
 │       └── cloud-gaming-motor/
 ├── deploy/
-│   └── cloud-gaming/
+│   ├── cloud-gaming/
+│   └── obsidian-vault/
 ├── shared-kernel/
 ├── pulumi/
 │   ├── rabbitmq/
@@ -27,7 +28,8 @@ Monorepo com servicos Java, stack de infraestrutura (RabbitMQ/Pulumi) e stack co
 │   ├── keycloak/
 │   └── ...
 ├── documento_cloud_gaming.md
-└── documento_cloud_gaming_tecnico.md
+├── documento_cloud_gaming_tecnico.md
+└── documento_obsidian_self_hosted_vault.md
 ```
 
 ## Build Java (agregador)
@@ -72,3 +74,20 @@ Workflow dedicado em `.github/workflows/cloud-gaming.yml` com:
 ## Infra RabbitMQ (Pulumi)
 
 Projeto em `pulumi/rabbitmq`, mantendo provisioning isolado da camada de aplicacao.
+
+## Deploy Obsidian Vault (hardened)
+
+Arquivos em `deploy/obsidian-vault`:
+
+- `docker-compose.yml` com CouchDB isolado em rede interna e Nginx Proxy Manager na borda.
+- `tailscale/policy.sample.json` com ACL de privilegio minimo.
+- `firewall/iptables-obsidian.sh` para permitir 80/443 apenas via `tailscale0`.
+- `npm/advanced.conf` com allowlist de Tailnet e bloqueio opcional por User-Agent.
+
+Subida inicial:
+
+```bash
+cd deploy/obsidian-vault
+cp .env.example .env
+docker compose up -d
+```
