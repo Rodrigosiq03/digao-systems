@@ -1,6 +1,7 @@
 config:
   redis:imageTag: "7.2"
   redis:port: "6380"
+  redis:exposePort: "false"
   redis:authEnabled: "true"
   redis:redisUser: "redis"
   redis:appendOnly: "yes"

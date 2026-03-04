@@ -15,6 +15,13 @@ Pacote para preparar a malha de rede por ambiente antes da promocao completa par
 - homolog: `8083` (http), `8444` (https), `8182` (admin)
 - prod: `80` (http), `443` (https), `81` (admin)
 
+## Exposicao de portas dos servicos internos
+
+Para evitar conflito no mesmo host:
+
+- `dev`: servicos internos com porta exposta (facilita debug/smoke local).
+- `homolog` e `prod`: servicos internos sem porta no host; acesso apenas via NPM/rede Docker.
+
 ## Aplicacao das regras
 
 ```bash
