@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Obsidian Vault backup daily
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+RandomizedDelaySec=15min
+Unit=obsidian-vault-backup.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

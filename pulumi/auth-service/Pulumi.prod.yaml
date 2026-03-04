@@ -1,6 +1,7 @@
 config:
   auth-service:imageTag: prod
   auth-service:httpPort: "8091"
+  auth-service:exposePort: "false"
   auth-service:attachToNpm: "true"
   auth-service:npmNetworkName: "npm_prod"
   auth-service:rabbitHost: "rabbitmq-prod"

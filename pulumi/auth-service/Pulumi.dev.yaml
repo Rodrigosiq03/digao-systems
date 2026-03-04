@@ -1,6 +1,7 @@
 config:
   auth-service:imageTag: dev
   auth-service:httpPort: "8091"
+  auth-service:exposePort: "true"
   auth-service:attachToNpm: "true"
   auth-service:npmNetworkName: "npm_dev"
   auth-service:rabbitHost: "rabbitmq-dev"

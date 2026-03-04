@@ -3,6 +3,7 @@ config:
   rabbitmq:imageTag: "3.12-management"
   rabbitmq:amqpPort: "5672"
   rabbitmq:httpPort: "15672"
+  rabbitmq:exposePorts: "true"
   rabbitmq:memoryWatermark: "0.4"
   rabbitmq:diskFreeLimit: "1GB"
   rabbitmq:collectStatisticsInterval: "30000"

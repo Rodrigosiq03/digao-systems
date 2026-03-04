@@ -1,0 +1,28 @@
+name: network-baseline
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - "deploy/network/**"
+      - ".github/workflows/network-baseline.yml"
+  pull_request:
+    paths:
+      - "deploy/network/**"
+      - ".github/workflows/network-baseline.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Tailscale policy JSON
+        run: jq . deploy/network/tailscale/policy.multi-env.sample.json > /dev/null
+
+      - name: Validate firewall script syntax
+        run: bash -n deploy/network/firewall/iptables-multi-env.sh
