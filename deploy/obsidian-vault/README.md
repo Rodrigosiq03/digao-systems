@@ -1,143 +1,148 @@
 # Obsidian Self-Hosted Vault (Hardened)
 
-Stack para sincronizacao do Obsidian com CouchDB via subdominio, com acesso restrito ao Tailnet.
+Stack de producao para Obsidian LiveSync usando **CouchDB** atras do **NPM de prod existente** (`npm-prod`).
 
-Este deploy foi mantido como stack unica de `prod`.
+Nao cria novo NPM.
 
 ## Arquitetura
 
-- `couchdb` roda apenas na rede interna Docker (`obsidian_net`).
-- `nginx-proxy-manager` recebe 80/443 apenas no IP do Tailscale.
-- sem port-forward no roteador.
-- ACL do Tailscale controla quais dispositivos podem chegar no host.
-- firewall local bloqueia 80/443 fora de `tailscale0`.
+- `obsidian-couchdb-prod` sem porta exposta no host.
+- rede interna `obsidian_net` + anexo na rede externa `npm_prod`.
+- `npm-prod` (stack central) faz reverse proxy/TLS para o CouchDB.
+- acesso externo controlado por Tailscale ACL + firewall local.
 
 ## Estrutura
 
 ```text
 deploy/obsidian-vault
 ├── .env.example
-├── docker-compose.yml
 ├── couchdb/local.ini
+├── docker-compose.yml
 ├── firewall/iptables-obsidian.sh
 ├── npm/advanced.conf
-└── tailscale/policy.sample.json
+├── scripts/
+│   ├── bootstrap.sh
+│   ├── up.sh
+│   ├── healthcheck.sh
+│   ├── backup.sh
+│   ├── restore.sh
+│   └── status.sh
+└── systemd/
+    ├── install-timers.sh
+    ├── obsidian-vault-healthcheck.service
+    ├── obsidian-vault-healthcheck.timer
+    ├── obsidian-vault-backup.service
+    └── obsidian-vault-backup.timer
 ```
 
-## 1) Preparar variaveis e arquivos
+## 1) Subir NPM de prod (stack central)
+
+Se ainda nao estiver rodando:
 
 ```bash
-cd deploy/obsidian-vault
-cp .env.example .env
+PULUMI_CONFIG_PASSPHRASE='SUA_PASSPHRASE' \
+pulumi -C /data/apps/pulumi/nginx-proxy-manager up --stack prod --yes
 ```
 
-Edite `.env`:
-
-- `DB_USER` e `DB_PASS` com senha forte.
-- `TAILSCALE_IP` com o IPv4 do host (`tailscale ip -4`).
-- `OBSIDIAN_DOMAIN` com seu subdominio (`notas.seudominio.com`).
-
-Atualize o dominio em `couchdb/local.ini` na linha de `origins`.
-
-## 2) Subir stack
+## 2) Preparar `.env`
 
 ```bash
-cd deploy/obsidian-vault
-docker compose up -d
-docker compose ps
+cd /data/apps/deploy/obsidian-vault
+cp -n .env.example .env
 ```
 
-## 3) Configurar Nginx Proxy Manager
+Preencha:
 
-Abra painel admin:
+- `DB_USER`
+- `DB_PASS` (forte)
+- `OBSIDIAN_DOMAIN` (ex.: `notas.rodrigodsiqueira.dev.br`)
+- `BACKUP_RETENTION_DAYS` (opcional)
 
-```text
-http://127.0.0.1:81
+Atualize `couchdb/local.ini` em `cors.origins` com seu dominio.
+
+## 3) Subir CouchDB do Obsidian
+
+```bash
+cd /data/apps/deploy/obsidian-vault
+./scripts/up.sh
+./scripts/healthcheck.sh
 ```
 
-Crie Proxy Host:
+## 4) Configurar Proxy Host no `npm-prod`
+
+Painel admin do NPM prod: `http://SEU_HOST:81` (via Tailscale).
+
+Proxy Host:
 
 - Domain Names: `notas.seudominio.com`
 - Scheme: `http`
-- Forward Hostname/IP: `couchdb`
+- Forward Hostname/IP: `obsidian-couchdb-prod`
 - Forward Port: `5984`
 - Websockets Support: `on`
 - Block Common Exploits: `on`
 
-Em `Advanced` cole o conteudo de `npm/advanced.conf`.
+Em `Advanced`, cole `npm/advanced.conf`.
 
-### Certificado TLS (recomendado)
+TLS:
 
-Como o servico e tailnet-only, use DNS challenge:
+- Let's Encrypt via DNS challenge (Cloudflare)
+- Force SSL: `on`
+- HTTP/2: `on`
+- HSTS: `on`
 
-- SSL Certificates -> Add SSL Certificate -> Let's Encrypt
-- Use a DNS Challenge -> Cloudflare
-- informe token com permissao `Zone.DNS Edit` + `Zone.Zone Read`
-- ative `Force SSL`, `HTTP/2 Support`, `HSTS Enabled`
+## 5) Tailscale ACL + Firewall
 
-## 4) Tailscale ACL (privilegio minimo)
+ACL base:
 
-Use `tailscale/policy.sample.json` como base no painel Admin Console.
+- `tailscale/policy.sample.json`
 
-Para baseline multiambiente (`dev/homolog/prod`) use tambem:
-
-- `deploy/network/tailscale/policy.multi-env.sample.json`
-
-No servidor:
+No host:
 
 ```bash
 sudo tailscale set --advertise-tags=tag:obsidian-server
 ```
 
-## 5) Firewall local (iptables)
-
-Aplica regra para permitir 80/443 apenas via `tailscale0`:
+Firewall local para 80/443 via `tailscale0`:
 
 ```bash
-cd deploy/obsidian-vault
-sudo bash firewall/iptables-obsidian.sh
+sudo bash /data/apps/deploy/obsidian-vault/firewall/iptables-obsidian.sh
 ```
 
-Para baseline multiambiente (`dev/homolog/prod`):
+## 6) Operacao (Day-2)
+
+Status:
 
 ```bash
-cd /data/apps/deploy/network
-sudo bash firewall/iptables-multi-env.sh
+cd /data/apps/deploy/obsidian-vault
+./scripts/status.sh
 ```
 
-Persistencia (opcional):
+Healthcheck manual:
 
 ```bash
-sudo sh -c 'iptables-save > /etc/iptables/iptables.rules'
-sudo systemctl enable --now iptables.service
+./scripts/healthcheck.sh
 ```
 
-## 6) DNS (Registro.br + Cloudflare)
-
-1. Delegue o dominio no Registro.br para os nameservers Cloudflare.
-2. No Cloudflare DNS:
-   - tipo `A`
-   - host `notas`
-   - valor `TAILSCALE_IP` (`100.x.y.z`)
-   - proxy `DNS only` (nuvem cinza)
-
-Sem Tailnet, o host nao alcanca esse IP.
-
-## 7) Configurar Obsidian
-
-No plugin de sync/LiveSync:
-
-- URL: `https://notas.seudominio.com`
-- usuario/senha: `DB_USER` e `DB_PASS`
-- database: conforme plugin (ex: `obsidian`)
-
-## 8) Validacao rapida
-
-No servidor:
+Backup manual:
 
 ```bash
-docker compose -f deploy/obsidian-vault/docker-compose.yml logs -f couchdb npm
+./scripts/backup.sh
 ```
 
-De um dispositivo fora do Tailnet, `https://notas.seudominio.com` deve falhar.
-De um dispositivo autenticado no Tailnet, deve responder normalmente.
+Restore:
+
+```bash
+./scripts/restore.sh /data/apps/deploy/obsidian-vault/runtime/prod/backups/obsidian-vault-YYYYMMDDTHHMMSSZ.tar.gz --yes
+```
+
+Timers automáticos (health 5min + backup diario):
+
+```bash
+sudo bash /data/apps/deploy/obsidian-vault/systemd/install-timers.sh
+```
+
+Logs dos timers:
+
+```bash
+journalctl -u obsidian-vault-healthcheck.service -u obsidian-vault-backup.service -f
+```

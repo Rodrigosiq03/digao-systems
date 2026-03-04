@@ -1,33 +1,36 @@
 name: obsidian-vault
 
+x-logging-defaults: &logging-defaults
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   couchdb:
+    container_name: obsidian-couchdb-prod
     image: couchdb:3.3
     environment:
       COUCHDB_USER: ${DB_USER}
       COUCHDB_PASSWORD: ${DB_PASS}
     volumes:
       - ./runtime/prod/couchdb/data:/opt/couchdb/data
-      - ./couchdb/local.ini:/opt/couchdb/etc/local.ini:ro
+      - ./couchdb/local.ini:/opt/couchdb/etc/local.d/obsidian.ini
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -u \"$$COUCHDB_USER:$$COUCHDB_PASSWORD\" http://127.0.0.1:5984/_up | grep -q '\"status\":\"ok\"'"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - obsidian_net
+      - npm_prod
     restart: unless-stopped
-
-  npm:
-    image: jc21/nginx-proxy-manager:latest
-    depends_on:
-      - couchdb
-    ports:
-      - "${TAILSCALE_IP:-127.0.0.1}:80:80"
-      - "${TAILSCALE_IP:-127.0.0.1}:443:443"
-      - "127.0.0.1:81:81"
-    volumes:
-      - ./runtime/prod/npm/data:/data
-      - ./runtime/prod/npm/letsencrypt:/etc/letsencrypt
-    networks:
-      - obsidian_net
-    restart: unless-stopped
+    logging: *logging-defaults
 
 networks:
   obsidian_net:
     driver: bridge
+    internal: true
+  npm_prod:
+    external: true

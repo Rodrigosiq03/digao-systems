@@ -1,5 +1,4 @@
 .env
 
-couchdb/data/
-npm/data/
-npm/letsencrypt/
+runtime/
+logs/
