@@ -12,8 +12,8 @@
 
   <modules>
     <module>shared-kernel</module>
-    <module>services/auth-service</module>
-    <module>services/notification-service</module>
-    <module>services/keycloak-email-spi</module>
+    <module>services/java/auth-service</module>
+    <module>services/java/notification-service</module>
+    <module>services/java/keycloak-email-spi</module>
   </modules>
 </project>

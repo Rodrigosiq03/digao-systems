@@ -3,6 +3,7 @@ config:
   rabbitmq:imageTag: "3.12-management"
   rabbitmq:amqpPort: 5672
   rabbitmq:httpPort: 15672
+  rabbitmq:exposePorts: "false"
   rabbitmq:memoryWatermark: "0.4"
   rabbitmq:diskFreeLimit: "1GB"
   rabbitmq:collectStatisticsInterval: 30000
@@ -17,4 +18,6 @@ config:
       vhost: /homolog
     - name: prod
       vhost: /prod
+  rabbitmq:attachToNpm: "true"
+  rabbitmq:npmNetworkName: "npm_homolog"
   rabbitmq:adminUser: admin

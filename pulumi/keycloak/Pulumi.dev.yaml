@@ -4,7 +4,7 @@ config:
   keycloak:proxy: none
   keycloak:httpEnabled: "true"
   keycloak:attachToNpm: "true"
-  keycloak:npmNetworkName: "npm_default"
+  keycloak:npmNetworkName: "npm_dev"
   keycloak:themesPath: /data/apps/pulumi/keycloak/themes
   keycloak:importPath: /data/apps/pulumi/keycloak/import/dev
   keycloak:importRealm: "true"
@@ -13,6 +13,7 @@ config:
   keycloak:dbName: keycloak
   keycloak:startMode: dev
   keycloak:httpPort: "8081"
+  keycloak:exposePort: "true"
   keycloak:spiJarPath: /data/apps/pulumi/keycloak/extensions/digao-keycloak-email-spi.jar
   keycloak:dbPassword:
     secure: v1:bb5uoelet2iwsWn4:ypqNHrHkkj8FexUl/LQBKnlOAUzhLF1WDHWR9WI5e2sDlNG+g/CP9wZ/sYwHZ5Eu

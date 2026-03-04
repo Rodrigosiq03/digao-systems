@@ -1,6 +1,18 @@
 name: pulumi-rabbitmq
 
+permissions:
+  contents: read
+  issues: write
+
 on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - "pulumi/rabbitmq/**"
+      - "pulumi/scripts/apply-secrets.py"
+      - ".github/workflows/pulumi-rabbitmq.yml"
   workflow_dispatch:
     inputs:
       stack:
@@ -23,19 +35,68 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Decide stack
+        id: stack
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "value=${{ inputs.stack }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "value=homolog" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Gate production
+        if: ${{ steps.stack.outputs.value == 'prod' }}
+        uses: trstringer/manual-approval@v1
         with:
-          python-version: "3.x"
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ${{ github.actor }}
+          minimum-approvals: 1
+          issue-title: "Approve production deploy for rabbitmq"
+          issue-body: "Approve to deploy rabbitmq to prod."
+
+      - name: Prepare venv
+        run: |
+          PY="$HOME/.pyenv/versions/3.12.8/bin/python"
+          if [[ ! -x "$PY" ]]; then
+            echo "pyenv Python 3.12.8 not found at $PY"
+            exit 1
+          fi
+          "$PY" --version
+          rm -rf /data/apps/.venvs/pulumi-rabbitmq
+          "$PY" -m venv /data/apps/.venvs/pulumi-rabbitmq
+          /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --upgrade pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
+
+      - name: Show requirements
+        run: cat requirements.txt
 
       - name: Pulumi login
         run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
 
+      - name: Apply secrets
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+        run: |
+          SECRETS_FILE="${{ secrets.SECRETS_FILE_PATH }}"
+          if [[ -z "$SECRETS_FILE" ]]; then
+            SECRETS_FILE="/data/apps/pulumi/.secrets.local"
+          fi
+          /data/apps/.venvs/pulumi-rabbitmq/bin/python \
+            ../scripts/apply-secrets.py \
+            --project rabbitmq \
+            --stack "${{ steps.stack.outputs.value }}" \
+            --env "${{ steps.stack.outputs.value }}" \
+            --secrets-file "$SECRETS_FILE" \
+            --create
+
       - name: Select stack
-        run: pulumi stack select "${{ inputs.stack }}"
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+        run: pulumi stack select "${{ steps.stack.outputs.value }}"
 
       - name: Deploy
         env:

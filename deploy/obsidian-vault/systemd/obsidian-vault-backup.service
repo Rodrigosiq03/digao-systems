@@ -1,0 +1,14 @@
+[Unit]
+Description=Obsidian Vault backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=rodrigo
+Group=rodrigo
+WorkingDirectory=/data/apps/deploy/obsidian-vault
+ExecStart=/data/apps/deploy/obsidian-vault/scripts/backup.sh
+
+[Install]
+WantedBy=multi-user.target
