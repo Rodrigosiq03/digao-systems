@@ -97,3 +97,4 @@ docker compose up -d
 ## Baseline de rede por ambiente
 
 Templates em `deploy/network` para preparar ACL + firewall em `dev/homolog/prod` sem misturar com a stack unica de prod.
+Inclui smoke test de `dev` em `deploy/network/scripts/check-dev-stack.sh`.

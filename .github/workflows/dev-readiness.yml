@@ -1,0 +1,14 @@
+name: dev-readiness
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke-dev:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run dev stack smoke test
+        run: bash deploy/network/scripts/check-dev-stack.sh
