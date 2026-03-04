@@ -9,6 +9,7 @@ stack = pulumi.get_stack()
 image_tag = config.get("imageTag") or "3.12-management"
 amqp_port = int(config.get("amqpPort") or 5672)
 http_port = int(config.get("httpPort") or 15672)
+expose_ports = (config.get("exposePorts") or "true").lower() == "true"
 
 memory_watermark = config.get("memoryWatermark") or "0.4"
 disk_free_limit = config.get("diskFreeLimit") or "1GB"
@@ -131,10 +132,6 @@ container_kwargs = dict(
     hostname="rabbitmq",
     restart="unless-stopped",
     command=["/bin/sh", "-c", "/entrypoint.sh"],
-    ports=[
-        docker.ContainerPortArgs(internal=5672, external=amqp_port),
-        docker.ContainerPortArgs(internal=15672, external=http_port),
-    ],
     envs=[
         pulumi.Output.concat("RABBITMQ_ERLANG_COOKIE=", erlang_cookie),
         pulumi.Output.concat("RABBITMQ_DEFINITIONS_JSON=", definitions_json),
@@ -152,6 +149,12 @@ container_kwargs = dict(
         ),
     ],
 )
+
+if expose_ports:
+    container_kwargs["ports"] = [
+        docker.ContainerPortArgs(internal=5672, external=amqp_port),
+        docker.ContainerPortArgs(internal=15672, external=http_port),
+    ]
 
 if attach_npm:
     container_kwargs["networks_advanced"] = [

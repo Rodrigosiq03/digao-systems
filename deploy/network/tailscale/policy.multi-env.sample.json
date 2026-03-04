@@ -1,0 +1,64 @@
+{
+  "groups": {
+    "group:dev": [
+      "seu-email@dominio.com"
+    ],
+    "group:homolog": [
+      "seu-email@dominio.com"
+    ],
+    "group:prod-admin": [
+      "seu-email@dominio.com"
+    ]
+  },
+  "tagOwners": {
+    "tag:digao-dev": [
+      "group:dev"
+    ],
+    "tag:digao-homolog": [
+      "group:homolog"
+    ],
+    "tag:digao-prod": [
+      "group:prod-admin"
+    ],
+    "tag:obsidian-server": [
+      "group:prod-admin"
+    ]
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": [
+        "group:dev"
+      ],
+      "dst": [
+        "tag:digao-dev:8080",
+        "tag:digao-dev:8443",
+        "tag:digao-dev:8181"
+      ]
+    },
+    {
+      "action": "accept",
+      "src": [
+        "group:homolog"
+      ],
+      "dst": [
+        "tag:digao-homolog:8083",
+        "tag:digao-homolog:8444",
+        "tag:digao-homolog:8182"
+      ]
+    },
+    {
+      "action": "accept",
+      "src": [
+        "group:prod-admin"
+      ],
+      "dst": [
+        "tag:digao-prod:80",
+        "tag:digao-prod:443",
+        "tag:digao-prod:81",
+        "tag:obsidian-server:80",
+        "tag:obsidian-server:443"
+      ]
+    }
+  ]
+}

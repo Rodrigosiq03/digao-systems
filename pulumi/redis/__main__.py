@@ -7,6 +7,7 @@ stack = pulumi.get_stack()
 
 image_tag = config.get("imageTag") or "7.2"
 redis_port = int(config.get("port") or 6379)
+expose_port = (config.get("exposePort") or "true").lower() == "true"
 
 auth_enabled = (config.get("authEnabled") or "false").lower() == "true"
 redis_user = config.get("redisUser") or "redis"
@@ -47,7 +48,6 @@ container_kwargs = dict(
     name=f"redis-{stack}",
     restart="unless-stopped",
     command=["/bin/sh", "-c", "/entrypoint.sh"],
-    ports=[docker.ContainerPortArgs(internal=6379, external=redis_port)],
     envs=[
         f"REDIS_CONF={redis_conf}",
     ],
@@ -60,6 +60,9 @@ container_kwargs = dict(
         ),
     ],
 )
+
+if expose_port:
+    container_kwargs["ports"] = [docker.ContainerPortArgs(internal=6379, external=redis_port)]
 
 if redis_acl is not None:
     container_kwargs["envs"].append(pulumi.Output.concat("REDIS_ACL=", redis_acl))

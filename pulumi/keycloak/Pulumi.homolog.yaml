@@ -13,5 +13,6 @@ config:
   keycloak:dbName: keycloak
   keycloak:startMode: prod
   keycloak:httpPort: "8082"
+  keycloak:exposePort: "false"
   keycloak:spiJarPath: /data/apps/pulumi/keycloak/extensions/digao-keycloak-email-spi.jar
 encryptionsalt: v1:ehoSbJPOIlg=:v1:FceHVZIaZKc63drA:WUE+wYgAxiO5U0dhr/z1YHxZv5EZ6A==

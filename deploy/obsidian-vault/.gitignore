@@ -1,0 +1,5 @@
+.env
+
+couchdb/data/
+npm/data/
+npm/letsencrypt/

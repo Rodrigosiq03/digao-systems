@@ -1,0 +1,35 @@
+name: obsidian-vault
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - "deploy/obsidian-vault/**"
+      - ".github/workflows/obsidian-vault.yml"
+  pull_request:
+    paths:
+      - "deploy/obsidian-vault/**"
+      - ".github/workflows/obsidian-vault.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Render compose file
+        run: |
+          set -euo pipefail
+          cd deploy/obsidian-vault
+          cp .env.example .env
+          docker compose config > /tmp/obsidian-compose.rendered.yml
+
+      - name: Validate Tailscale policy JSON
+        run: jq . deploy/obsidian-vault/tailscale/policy.sample.json > /dev/null
+
+      - name: Validate firewall script syntax
+        run: bash -n deploy/obsidian-vault/firewall/iptables-obsidian.sh

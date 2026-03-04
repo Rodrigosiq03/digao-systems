@@ -13,6 +13,7 @@ config:
   keycloak:dbName: keycloak
   keycloak:startMode: dev
   keycloak:httpPort: "8081"
+  keycloak:exposePort: "true"
   keycloak:spiJarPath: /data/apps/pulumi/keycloak/extensions/digao-keycloak-email-spi.jar
   keycloak:dbPassword:
     secure: v1:bb5uoelet2iwsWn4:ypqNHrHkkj8FexUl/LQBKnlOAUzhLF1WDHWR9WI5e2sDlNG+g/CP9wZ/sYwHZ5Eu

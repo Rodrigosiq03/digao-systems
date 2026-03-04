@@ -1,0 +1,24 @@
+{
+  "groups": {
+    "group:admin": [
+      "seu-email@dominio.com"
+    ]
+  },
+  "tagOwners": {
+    "tag:obsidian-server": [
+      "group:admin"
+    ]
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": [
+        "group:admin"
+      ],
+      "dst": [
+        "tag:obsidian-server:80",
+        "tag:obsidian-server:443"
+      ]
+    }
+  ]
+}

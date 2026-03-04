@@ -1,6 +1,7 @@
 config:
   notification-service:imageTag: dev
   notification-service:httpPort: "8082"
+  notification-service:exposePort: "true"
   notification-service:attachToNpm: "true"
   notification-service:npmNetworkName: "npm_dev"
   notification-service:rabbitHost: "rabbitmq-dev"

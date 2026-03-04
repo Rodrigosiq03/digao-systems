@@ -12,6 +12,7 @@ start_mode = (config.get("startMode") or "prod").lower()
 command = ["start-dev"] if start_mode == "dev" else ["start"]
 
 http_port = int(config.get("httpPort") or 8080)
+expose_port = (config.get("exposePort") or "true").lower() == "true"
 
 admin_user = config.get("adminUser") or "keycloak"
 admin_password = config.require_secret("adminPassword")
@@ -121,18 +122,21 @@ networks_advanced = [docker.ContainerNetworksAdvancedArgs(name=network.name)]
 if attach_npm:
     networks_advanced.append(docker.ContainerNetworksAdvancedArgs(name=npm_network))
 
-keycloak = docker.Container(
-    "keycloak",
+container_kwargs = dict(
     image=docker.RemoteImage("keycloak-image", name=f"quay.io/keycloak/keycloak:{image_tag}").name,
     name=f"keycloak-{stack}",
     restart="unless-stopped",
     command=command,
     envs=envs,
-    ports=[docker.ContainerPortArgs(internal=8080, external=http_port)],
     networks_advanced=networks_advanced,
     volumes=volumes,
     opts=pulumi.ResourceOptions(depends_on=[postgres]),
 )
+
+if expose_port:
+    container_kwargs["ports"] = [docker.ContainerPortArgs(internal=8080, external=http_port)]
+
+keycloak = docker.Container("keycloak", **container_kwargs)
 
 pulumi.export("httpPort", http_port)
 pulumi.export("containerName", keycloak.name)

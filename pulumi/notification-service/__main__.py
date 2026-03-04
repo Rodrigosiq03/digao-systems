@@ -5,10 +5,13 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
-service_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "services", "notification-service"))
+service_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "services", "java", "notification-service")
+)
 
 image_tag = config.get("imageTag") or stack
 http_port = int(config.get("httpPort") or 8082)
+expose_port = (config.get("exposePort") or "true").lower() == "true"
 
 rabbit_host = config.get("rabbitHost") or f"rabbitmq-{stack}"
 rabbit_user = config.get("rabbitUser") or stack
@@ -54,9 +57,11 @@ container_kwargs = dict(
     image=image.image_name,
     name=f"notification-{stack}",
     restart="unless-stopped",
-    ports=[docker.ContainerPortArgs(internal=8082, external=http_port)],
     envs=envs,
 )
+
+if expose_port:
+    container_kwargs["ports"] = [docker.ContainerPortArgs(internal=8082, external=http_port)]
 
 if attach_npm:
     container_kwargs["networks_advanced"] = [
