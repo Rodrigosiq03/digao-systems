@@ -2,6 +2,8 @@
 
 Stack para sincronizacao do Obsidian com CouchDB via subdominio, com acesso restrito ao Tailnet.
 
+Este deploy foi mantido como stack unica de `prod`.
+
 ## Arquitetura
 
 - `couchdb` roda apenas na rede interna Docker (`obsidian_net`).
@@ -77,6 +79,10 @@ Como o servico e tailnet-only, use DNS challenge:
 
 Use `tailscale/policy.sample.json` como base no painel Admin Console.
 
+Para baseline multiambiente (`dev/homolog/prod`) use tambem:
+
+- `deploy/network/tailscale/policy.multi-env.sample.json`
+
 No servidor:
 
 ```bash
@@ -90,6 +96,13 @@ Aplica regra para permitir 80/443 apenas via `tailscale0`:
 ```bash
 cd deploy/obsidian-vault
 sudo bash firewall/iptables-obsidian.sh
+```
+
+Para baseline multiambiente (`dev/homolog/prod`):
+
+```bash
+cd /data/apps/deploy/network
+sudo bash firewall/iptables-multi-env.sh
 ```
 
 Persistencia (opcional):
