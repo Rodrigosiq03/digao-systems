@@ -19,7 +19,8 @@ Monorepo com servicos Java, stack de infraestrutura (RabbitMQ/Pulumi), stack de 
 │       └── cloud-gaming-motor/
 ├── deploy/
 │   ├── cloud-gaming/
-│   └── obsidian-vault/
+│   ├── obsidian-vault/
+│   └── network/
 ├── shared-kernel/
 ├── pulumi/
 │   ├── rabbitmq/
@@ -29,7 +30,8 @@ Monorepo com servicos Java, stack de infraestrutura (RabbitMQ/Pulumi), stack de 
 │   └── ...
 ├── documento_cloud_gaming.md
 ├── documento_cloud_gaming_tecnico.md
-└── documento_obsidian_self_hosted_vault.md
+├── documento_obsidian_self_hosted_vault.md
+└── documento_prod_online_minimo_digao_oauth.md
 ```
 
 ## Build Java (agregador)
@@ -91,3 +93,7 @@ cd deploy/obsidian-vault
 cp .env.example .env
 docker compose up -d
 ```
+
+## Baseline de rede por ambiente
+
+Templates em `deploy/network` para preparar ACL + firewall em `dev/homolog/prod` sem misturar com a stack unica de prod.
