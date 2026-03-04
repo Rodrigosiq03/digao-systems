@@ -1,4 +1,4 @@
-name: pulumi-keycloak
+name: pulumi-digao-oauth-portal
 
 permissions:
   contents: read
@@ -10,9 +10,9 @@ on:
       - develop
       - main
     paths:
-      - "pulumi/keycloak/**"
-      - "pulumi/scripts/apply-secrets.py"
-      - ".github/workflows/pulumi-keycloak.yml"
+      - "clients/web/digao-oauth-portal/**"
+      - "pulumi/digao-oauth-portal/**"
+      - ".github/workflows/pulumi-digao-oauth-portal.yml"
   workflow_dispatch:
     inputs:
       stack:
@@ -30,7 +30,7 @@ jobs:
     runs-on: self-hosted
     defaults:
       run:
-        working-directory: pulumi/keycloak
+        working-directory: pulumi/digao-oauth-portal
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,8 +53,8 @@ jobs:
           secret: ${{ secrets.GITHUB_TOKEN }}
           approvers: ${{ github.actor }}
           minimum-approvals: 1
-          issue-title: "Approve production deploy for keycloak"
-          issue-body: "Approve to deploy keycloak to prod."
+          issue-title: "Approve production deploy for digao-oauth-portal"
+          issue-body: "Approve to deploy digao-oauth-portal to prod."
 
       - name: Prepare venv
         run: |
@@ -64,12 +64,12 @@ jobs:
             exit 1
           fi
           "$PY" --version
-          rm -rf /data/apps/.venvs/pulumi-keycloak
-          "$PY" -m venv /data/apps/.venvs/pulumi-keycloak
-          /data/apps/.venvs/pulumi-keycloak/bin/python -m pip install --upgrade pip
+          rm -rf /data/apps/.venvs/pulumi-portal
+          "$PY" -m venv /data/apps/.venvs/pulumi-portal
+          /data/apps/.venvs/pulumi-portal/bin/python -m pip install --upgrade pip
 
       - name: Install dependencies
-        run: /data/apps/.venvs/pulumi-keycloak/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
+        run: /data/apps/.venvs/pulumi-portal/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
 
       - name: Show requirements
         run: cat requirements.txt
@@ -77,26 +77,16 @@ jobs:
       - name: Pulumi login
         run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
 
-      - name: Apply secrets
+      - name: Select or init stack
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
         run: |
-          SECRETS_FILE="${{ secrets.SECRETS_FILE_PATH }}"
-          if [[ -z "$SECRETS_FILE" ]]; then
-            SECRETS_FILE="/data/apps/pulumi/.secrets.local"
+          STACK="${{ steps.stack.outputs.value }}"
+          if pulumi stack select "$STACK" >/dev/null 2>&1; then
+            pulumi stack select "$STACK"
+          else
+            pulumi stack init "$STACK"
           fi
-          /data/apps/.venvs/pulumi-keycloak/bin/python \
-            ../scripts/apply-secrets.py \
-            --project keycloak \
-            --stack "${{ steps.stack.outputs.value }}" \
-            --env "${{ steps.stack.outputs.value }}" \
-            --secrets-file "$SECRETS_FILE" \
-            --create
-
-      - name: Select stack
-        env:
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
-        run: pulumi stack select "${{ steps.stack.outputs.value }}"
 
       - name: Deploy
         env:

@@ -1,4 +1,4 @@
-name: pulumi-keycloak
+name: pulumi-redis
 
 permissions:
   contents: read
@@ -10,9 +10,9 @@ on:
       - develop
       - main
     paths:
-      - "pulumi/keycloak/**"
+      - "pulumi/redis/**"
       - "pulumi/scripts/apply-secrets.py"
-      - ".github/workflows/pulumi-keycloak.yml"
+      - ".github/workflows/pulumi-redis.yml"
   workflow_dispatch:
     inputs:
       stack:
@@ -30,7 +30,7 @@ jobs:
     runs-on: self-hosted
     defaults:
       run:
-        working-directory: pulumi/keycloak
+        working-directory: pulumi/redis
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,8 +53,8 @@ jobs:
           secret: ${{ secrets.GITHUB_TOKEN }}
           approvers: ${{ github.actor }}
           minimum-approvals: 1
-          issue-title: "Approve production deploy for keycloak"
-          issue-body: "Approve to deploy keycloak to prod."
+          issue-title: "Approve production deploy for redis"
+          issue-body: "Approve to deploy redis to prod."
 
       - name: Prepare venv
         run: |
@@ -64,12 +64,12 @@ jobs:
             exit 1
           fi
           "$PY" --version
-          rm -rf /data/apps/.venvs/pulumi-keycloak
-          "$PY" -m venv /data/apps/.venvs/pulumi-keycloak
-          /data/apps/.venvs/pulumi-keycloak/bin/python -m pip install --upgrade pip
+          rm -rf /data/apps/.venvs/pulumi-redis
+          "$PY" -m venv /data/apps/.venvs/pulumi-redis
+          /data/apps/.venvs/pulumi-redis/bin/python -m pip install --upgrade pip
 
       - name: Install dependencies
-        run: /data/apps/.venvs/pulumi-keycloak/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
+        run: /data/apps/.venvs/pulumi-redis/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
 
       - name: Show requirements
         run: cat requirements.txt
@@ -85,9 +85,9 @@ jobs:
           if [[ -z "$SECRETS_FILE" ]]; then
             SECRETS_FILE="/data/apps/pulumi/.secrets.local"
           fi
-          /data/apps/.venvs/pulumi-keycloak/bin/python \
+          /data/apps/.venvs/pulumi-redis/bin/python \
             ../scripts/apply-secrets.py \
-            --project keycloak \
+            --project redis \
             --stack "${{ steps.stack.outputs.value }}" \
             --env "${{ steps.stack.outputs.value }}" \
             --secrets-file "$SECRETS_FILE" \

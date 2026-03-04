@@ -1,0 +1,2 @@
+pulumi==3.218.0
+pulumi-docker==4.11.0

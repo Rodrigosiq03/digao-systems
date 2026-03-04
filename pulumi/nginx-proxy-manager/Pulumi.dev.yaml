@@ -1,0 +1,6 @@
+config:
+  nginx-proxy-manager:imageTag: "latest"
+  nginx-proxy-manager:httpPort: "8080"
+  nginx-proxy-manager:httpsPort: "8443"
+  nginx-proxy-manager:adminPort: "8181"
+  nginx-proxy-manager:npmNetworkName: "npm_dev"

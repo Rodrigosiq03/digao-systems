@@ -1,0 +1,7 @@
+name: redis
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: Redis on Docker

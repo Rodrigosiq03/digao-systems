@@ -4,7 +4,7 @@ config:
   keycloak:proxy: edge
   keycloak:httpEnabled: "true"
   keycloak:attachToNpm: "true"
-  keycloak:npmNetworkName: "npm_default"
+  keycloak:npmNetworkName: "npm_prod"
   keycloak:themesPath: /data/apps/pulumi/keycloak/themes
   keycloak:importPath: /data/apps/pulumi/keycloak/import/prod
   keycloak:importRealm: "true"

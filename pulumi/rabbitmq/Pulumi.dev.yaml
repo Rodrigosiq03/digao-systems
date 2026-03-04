@@ -17,6 +17,8 @@ config:
       vhost: /homolog
     - name: prod
       vhost: /prod
+  rabbitmq:attachToNpm: "true"
+  rabbitmq:npmNetworkName: "npm_dev"
   rabbitmq:adminUser: rabbitmq
   rabbitmq:adminPassword:
     secure: v1:jfJ8DuZfo8M/HEL9:1iyfzGhG+y6LXVSzB1RMDF4ZlkhGzyQ7WYVfh0Bh3z1yj+I6p+LaQnJOEU5dixgt
