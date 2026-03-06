@@ -8,6 +8,9 @@ fi
 
 TARGET_USER="${1:-rodrigo}"
 
+mkdir -p /etc/systemd/logind.conf.d
+mkdir -p /etc/systemd/sleep.conf.d
+
 cat >/etc/systemd/logind.conf.d/99-lid.conf <<'EOF'
 [Login]
 HandleLidSwitch=ignore
