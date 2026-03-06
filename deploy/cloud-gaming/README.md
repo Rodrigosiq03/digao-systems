@@ -41,6 +41,22 @@ cd deploy/cloud-gaming
 docker compose logs -f digao-cloud-gaming-backend digao-cloud-gaming-motor
 ```
 
+## Notebook tampa fechada (host hardening)
+
+Scripts de suporte em `deploy/cloud-gaming/host/`:
+
+- `enable-lid-closed-mode.sh`: aplica config de logind/sleep + linger/ssh/tailscale.
+- `preflight.sh`: valida prontidao de sessao grafica, monitor e backend.
+
+Fluxo:
+
+```bash
+cd /data/apps/worktrees/cloud-gaming/deploy/cloud-gaming/host
+sudo bash ./enable-lid-closed-mode.sh rodrigo
+systemctl --user enable --now sunshine
+./preflight.sh
+```
+
 ## Catalogo de jogos
 
 A variavel `GAME_CATALOG` no compose usa formato:
