@@ -7,7 +7,13 @@ require github.com/gorilla/websocket v1.5.3
 require github.com/pion/webrtc/v4 v4.1.6
 
 require (
-	github.com/google/uuid v1.6.0 // indirect
+	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
+	golang.org/x/oauth2 v0.21.0 // indirect
+)
+
+require (
+	github.com/coreos/go-oidc/v3 v3.12.0
+	github.com/google/uuid v1.6.0
 	github.com/pion/datachannel v1.5.10 // indirect
 	github.com/pion/dtls/v3 v3.0.7 // indirect
 	github.com/pion/ice/v4 v4.0.10 // indirect

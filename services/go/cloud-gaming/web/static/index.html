@@ -3,40 +3,181 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Digao Cloud Gaming MVP</title>
+    <title>Digao Cloud Gaming Hub (Dev)</title>
     <style>
       html,
       body {
         height: 100%;
         margin: 0;
-        background: #020617;
+        background: radial-gradient(circle at 10% 20%, #0b1220 0, #030712 55%, #000 100%);
         color: #e2e8f0;
         font-family: "JetBrains Mono", "Fira Code", monospace;
       }
 
-      #game-stream {
-        width: 100vw;
+      * {
+        box-sizing: border-box;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(320px, 420px) 1fr;
         height: 100vh;
+      }
+
+      .panel {
+        border-right: 1px solid rgba(148, 163, 184, 0.2);
+        background: rgba(2, 6, 23, 0.78);
+        padding: 18px;
+        overflow-y: auto;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+
+      .muted {
+        font-size: 12px;
+        color: #94a3b8;
+      }
+
+      .section {
+        margin-top: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 10px;
+        padding: 12px;
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .status {
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background: rgba(2, 6, 23, 0.6);
+      }
+
+      .control-row {
+        display: grid;
+        gap: 8px;
+      }
+
+      .game-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .game-item {
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        border-radius: 10px;
+        padding: 10px;
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .game-title {
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .game-description {
+        margin-top: 4px;
+        color: #a5b4fc;
+        font-size: 12px;
+      }
+
+      input,
+      button {
+        border: 1px solid rgba(148, 163, 184, 0.45);
+        background: rgba(2, 6, 23, 0.9);
+        color: #e2e8f0;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:hover {
+        border-color: rgba(59, 130, 246, 0.8);
+      }
+
+      .stream-container {
+        position: relative;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      #stream-status {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 10;
+        font-size: 12px;
+        background: rgba(2, 6, 23, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+
+      #game-stream {
+        width: 100%;
+        height: 100%;
         object-fit: contain;
         background: #000;
       }
 
-      #status {
-        position: fixed;
-        top: 12px;
-        left: 12px;
-        z-index: 10;
-        padding: 8px 12px;
-        border-radius: 8px;
-        background: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        font-size: 12px;
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+          grid-template-rows: 48% 52%;
+        }
+        .panel {
+          border-right: none;
+          border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
       }
     </style>
   </head>
   <body>
-    <div id="status">initializing...</div>
-    <video autoplay muted playsinline id="game-stream"></video>
+    <main class="layout">
+      <aside class="panel">
+        <h1>Digao Cloud Gaming Hub</h1>
+        <div class="muted">MVP dev com limite de sessoes e selecao de jogos</div>
+
+        <section class="section control-row">
+          <label for="token">Bearer token (somente se AUTH_MODE=oidc)</label>
+          <input id="token" placeholder="eyJhbGciOi..." />
+          <div class="control-row">
+            <button id="save-token">Salvar token</button>
+            <button id="refresh-hub">Atualizar hub</button>
+          </div>
+          <div id="auth-status" class="status">auth: pending</div>
+        </section>
+
+        <section class="section">
+          <div><strong>Sessao ativa</strong></div>
+          <div id="session-info" class="status">nenhuma sessao ativa</div>
+          <div class="control-row" style="margin-top: 8px">
+            <button id="connect-stream">Conectar stream</button>
+            <button id="stop-session">Parar sessao</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <div><strong>Jogos</strong></div>
+          <div id="games" class="game-list" style="margin-top: 8px"></div>
+        </section>
+      </aside>
+
+      <section class="stream-container">
+        <div id="stream-status">stream: idle</div>
+        <video autoplay muted playsinline id="game-stream"></video>
+      </section>
+    </main>
     <script src="/app.js"></script>
   </body>
 </html>
