@@ -72,13 +72,26 @@ else
   warning "sunshine user service nao habilitado"
 fi
 
-if loginctl | awk 'NR>1{print $0}' | grep -qE '\b(wayland|x11)\b'; then
+session_types="$(
+  loginctl list-sessions --no-legend 2>/dev/null \
+    | awk '{print $1}' \
+    | while read -r sid; do
+        loginctl show-session "$sid" -p Type --value 2>/dev/null || true
+      done
+)"
+if echo "${session_types}" | grep -qE '^(wayland|x11)$'; then
   pass "sessao grafica detectada (wayland/x11)"
 else
   warning "nenhuma sessao grafica detectada (somente tty?)"
 fi
 
-connected_count="$(find /sys/class/drm -maxdepth 2 -name status -print0 2>/dev/null | xargs -0 -I{} sh -c 'grep -q connected "{}" && echo 1 || true' | wc -l | tr -d ' ')"
+connected_count=0
+for status_file in /sys/class/drm/card*-*/status; do
+  [[ -e "${status_file}" ]] || continue
+  if [[ "$(cat "${status_file}" 2>/dev/null)" == "connected" ]]; then
+    connected_count=$((connected_count + 1))
+  fi
+done
 if [[ "${connected_count}" -ge 1 ]]; then
   pass "monitor conectado detectado (${connected_count})"
 else
