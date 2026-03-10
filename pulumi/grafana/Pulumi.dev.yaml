@@ -1,0 +1,7 @@
+config:
+  grafana:imageTag: "11.1.4"
+  grafana:httpPort: "3001"
+  grafana:exposePort: "false"
+  grafana:attachToNpm: "true"
+  grafana:npmNetworkName: "npm_dev"
+  grafana:adminUser: "admin"

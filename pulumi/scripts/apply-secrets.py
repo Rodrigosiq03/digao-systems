@@ -95,6 +95,15 @@ def apply_auth(config: configparser.ConfigParser, env: str, project_dir: Path, s
     pulumi_set(project_dir, stack, "auth-service:keycloakAdminClientSecret", env_block[kc_client_secret_key], True)
 
 
+def apply_grafana(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
+    shared = config["shared"]
+    env_block = config[env]
+    password_key = f"GRAFANA_ADMIN_PASS_{env.upper()}"
+
+    pulumi_set(project_dir, stack, "grafana:adminUser", shared["GRAFANA_ADMIN_USER"], False)
+    pulumi_set(project_dir, stack, "grafana:adminPassword", env_block[password_key], True)
+
+
 def apply_redis(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
     env_block = config[env]
     user_key = f"REDIS_USER_{env.upper()}"
@@ -147,6 +156,8 @@ def main() -> None:
         apply_notification(config, args.env, project_dir, args.stack)
     elif project_name == "auth-service":
         apply_auth(config, args.env, project_dir, args.stack)
+    elif project_name == "grafana":
+        apply_grafana(config, args.env, project_dir, args.stack)
     elif project_name == "redis":
         apply_redis(config, args.env, project_dir, args.stack)
     else:

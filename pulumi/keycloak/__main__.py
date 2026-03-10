@@ -34,6 +34,20 @@ spi_jar_path = config.get("spiJarPath")
 import_path = config.get("importPath")
 import_realm = (config.get("importRealm") or "false").lower() == "true"
 
+email_template_provider = config.get("emailTemplateProvider")
+if not email_template_provider:
+    email_template_provider = "rabbitmq" if spi_jar_path else "freemarker"
+
+rabbit_host = config.get("rabbitHost") or f"rabbitmq-{stack}"
+rabbit_port = int(config.get("rabbitPort") or 5672)
+rabbit_user = config.get("rabbitUser") or stack
+rabbit_vhost = config.get("rabbitVhost") or f"/{stack}"
+rabbit_ssl = (config.get("rabbitSsl") or "false").lower()
+rabbit_exchange = config.get("rabbitExchange") or "notification.exchange"
+rabbit_routing_key = config.get("rabbitRoutingKey") or "digao.notification.email.send"
+rabbit_connection_timeout_ms = int(config.get("rabbitConnectionTimeoutMs") or 10000)
+rabbit_password = config.require_secret("rabbitPassword") if email_template_provider == "rabbitmq" else None
+
 network = docker.Network(
     "keycloak-net",
     name=f"keycloak-net-{stack}",
@@ -73,12 +87,30 @@ envs = [
     pulumi.Output.concat("KEYCLOAK_ADMIN_PASSWORD=", admin_password),
     f"KC_PROXY={proxy_mode}",
     f"KC_HTTP_ENABLED={http_enabled}",
+    "KC_HEALTH_ENABLED=true",
+    "KC_METRICS_ENABLED=true",
+    f"KC_SPI_EMAIL_TEMPLATE_PROVIDER={email_template_provider}",
 ]
 
 if hostname:
     envs.append(f"KC_HOSTNAME={hostname}")
 if hostname_strict is not None:
     envs.append(f"KC_HOSTNAME_STRICT={hostname_strict}")
+
+if email_template_provider == "rabbitmq":
+    envs.extend(
+        [
+            f"KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_HOST={rabbit_host}",
+            f"KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_PORT={rabbit_port}",
+            f"KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_USERNAME={rabbit_user}",
+            pulumi.Output.concat("KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_PASSWORD=", rabbit_password),
+            f"KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_VIRTUAL_HOST={rabbit_vhost}",
+            f"KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_SSL={rabbit_ssl}",
+            f"KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_EXCHANGE={rabbit_exchange}",
+            f"KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_ROUTING_KEY={rabbit_routing_key}",
+            f"KC_SPI_EMAIL_TEMPLATE_RABBITMQ_RABBIT_CONNECTION_TIMEOUT_MS={rabbit_connection_timeout_ms}",
+        ]
+    )
 
 volumes = [
     docker.ContainerVolumeArgs(

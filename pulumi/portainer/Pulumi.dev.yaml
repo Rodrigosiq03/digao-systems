@@ -1,0 +1,8 @@
+config:
+  portainer:imageTag: "2.27.1"
+  portainer:httpPort: "9000"
+  portainer:httpsPort: "9443"
+  portainer:exposePort: "false"
+  portainer:attachToNpm: "true"
+  portainer:npmNetworkName: "npm_dev"
+  portainer:containerName: "portainer-shared"

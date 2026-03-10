@@ -1,0 +1,7 @@
+name: portainer
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: Portainer CE on Docker

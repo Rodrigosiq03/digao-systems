@@ -4,3 +4,4 @@ config:
   prometheus:exposePort: "false"
   prometheus:attachToNpm: "true"
   prometheus:npmNetworkName: "npm_prod"
+  prometheus:extraNetworkNames: "observability"
