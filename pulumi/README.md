@@ -6,6 +6,10 @@ Each service is its own Pulumi project for isolation and clean stack separation.
 ## Layout
 - `pulumi/rabbitmq/`: RabbitMQ stack (single broker, multiple vhosts)
 - `pulumi/keycloak/`: Keycloak stack (Postgres per environment)
+- `pulumi/prometheus/`: Prometheus stack
+- `pulumi/host-exporters/`: node-exporter and cAdvisor for host-level monitoring
+- `pulumi/grafana/`: Grafana dashboards
+- `pulumi/portainer/`: Portainer CE for the single Docker host
 
 ## How to add a new service
 1. Create a new folder under `pulumi/` (e.g. `pulumi/postgres`).
@@ -21,6 +25,15 @@ Secrets are stored in `pulumi/.secrets.local` (gitignored). Use the helper scrip
 ```
 pulumi/scripts/apply-secrets.py --project rabbitmq --stack dev --env dev --create
 ```
+
+Projects currently supported by `apply-secrets.py`:
+
+- `rabbitmq`
+- `keycloak`
+- `notification-service`
+- `auth-service`
+- `grafana`
+- `redis`
 
 ## GitHub Actions
 The workflow uses a self-hosted runner and runs `pulumi up` on demand.

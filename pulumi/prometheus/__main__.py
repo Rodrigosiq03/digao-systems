@@ -11,8 +11,14 @@ expose_port = (config.get("exposePort") or "false").lower() == "true"
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
 npm_network = config.get("npmNetworkName") or "npm_default"
+extra_networks = [
+    name.strip()
+    for name in (config.get("extraNetworkNames") or "").split(",")
+    if name.strip()
+]
 
-config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "prometheus.yml"))
+config_filename = config.get("configFile") or "prometheus.yml"
+config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config_filename))
 
 image = docker.RemoteImage(
     "prometheus-image",
@@ -36,9 +42,14 @@ if expose_port:
     container_kwargs["ports"] = [docker.ContainerPortArgs(internal=9090, external=http_port)]
 
 if attach_npm:
-    container_kwargs["networks_advanced"] = [
+    container_kwargs.setdefault("networks_advanced", []).append(
         docker.ContainerNetworksAdvancedArgs(name=npm_network)
-    ]
+    )
+
+for network_name in extra_networks:
+    container_kwargs.setdefault("networks_advanced", []).append(
+        docker.ContainerNetworksAdvancedArgs(name=network_name)
+    )
 
 container = docker.Container("prometheus", **container_kwargs)
 

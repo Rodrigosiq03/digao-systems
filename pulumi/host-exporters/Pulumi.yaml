@@ -1,0 +1,7 @@
+name: host-exporters
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: Host and container exporters for observability

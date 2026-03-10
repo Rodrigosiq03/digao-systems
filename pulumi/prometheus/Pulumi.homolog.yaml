@@ -4,3 +4,4 @@ config:
   prometheus:exposePort: "false"
   prometheus:attachToNpm: "true"
   prometheus:npmNetworkName: "npm_homolog"
+  prometheus:configFile: "prometheus.homolog-observability.yml"
