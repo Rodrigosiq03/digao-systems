@@ -21,7 +21,13 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/health", "/password-reset").permitAll()
+            .requestMatchers(
+                "/health",
+                "/password-reset",
+                "/actuator/health",
+                "/actuator/info",
+                "/actuator/prometheus"
+            ).permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN_MASTER")
             .anyRequest().authenticated()
         ).oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(keycloakJwtAuthConverter())))
