@@ -4,5 +4,5 @@ config:
   portainer:httpsPort: "9443"
   portainer:exposePort: "false"
   portainer:attachToNpm: "true"
-  portainer:npmNetworkName: "npm_dev"
+  portainer:npmNetworkName: "npm_prod"
   portainer:containerName: "portainer-shared"
