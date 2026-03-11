@@ -35,6 +35,8 @@ That avoids circular auth and keeps break-glass access available.
 
 Use `oauth2-proxy` in front of internal web UIs.
 
+For the current `dev` rollout, prefer one small `oauth2-proxy` per admin UI and one shared OIDC client per environment. That keeps the NPM configuration simple: each proxy host points directly at its dedicated `oauth2-proxy` container.
+
 Flow:
 
 1. Browser hits service domain
@@ -48,6 +50,7 @@ Flow:
 - works well with Keycloak OIDC
 - simple for Prometheus, Grafana, Portainer and other HTTP apps
 - lets you centralize login without rewriting every service
+- keeps NPM host configuration simple when each UI gets its own small proxy
 
 ## Java services
 
