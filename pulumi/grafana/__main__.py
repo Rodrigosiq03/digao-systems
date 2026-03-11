@@ -40,6 +40,12 @@ container_kwargs = dict(
         pulumi.Output.concat("GF_SECURITY_ADMIN_PASSWORD=", admin_password),
         "GF_USERS_ALLOW_SIGN_UP=false",
         "GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/",
+        "GF_AUTH_PROXY_ENABLED=true",
+        "GF_AUTH_PROXY_HEADER_NAME=X-Forwarded-User",
+        "GF_AUTH_PROXY_HEADER_PROPERTY=username",
+        "GF_AUTH_PROXY_AUTO_SIGN_UP=true",
+        "GF_AUTH_DISABLE_LOGIN_FORM=true",
+        "GF_AUTH_BASIC_ENABLED=false",
     ],
     volumes=[
         docker.ContainerVolumeArgs(volume_name=volume.name, container_path="/var/lib/grafana"),
