@@ -1,10 +1,11 @@
 config:
   keycloak:imageTag: "26.0.8"
   keycloak:dbImageTag: "15"
-  keycloak:proxy: none
+  keycloak:proxy: edge
   keycloak:httpEnabled: "true"
   keycloak:attachToNpm: "true"
   keycloak:npmNetworkName: "npm_dev"
+  keycloak:hostname: "https://kc-dev.rodrigodsiqueira.dev.br:8443"
   keycloak:themesPath: /data/apps/pulumi/keycloak/themes
   keycloak:importPath: /data/apps/pulumi/keycloak/import/dev
   keycloak:importRealm: "true"

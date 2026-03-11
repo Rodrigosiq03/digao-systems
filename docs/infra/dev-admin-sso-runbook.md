@@ -37,6 +37,16 @@ Deploy:
 pulumi -C pulumi/oauth2-proxy up --stack dev --yes
 ```
 
+Before validating browser login, ensure `keycloak-dev` is redeployed with the correct public hostname:
+
+```bash
+pulumi -C pulumi/keycloak up --stack dev --yes
+```
+
+Expected public hostname for `dev`:
+
+- `https://kc-dev.rodrigodsiqueira.dev.br:8443`
+
 ## NPM configuration
 
 Replace each upstream target in NPM with the corresponding oauth2-proxy container:
