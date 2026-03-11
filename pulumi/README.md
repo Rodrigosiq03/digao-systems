@@ -10,6 +10,7 @@ Each service is its own Pulumi project for isolation and clean stack separation.
 - `pulumi/host-exporters/`: node-exporter and cAdvisor for host-level monitoring
 - `pulumi/grafana/`: Grafana dashboards
 - `pulumi/portainer/`: Portainer CE for the single Docker host
+- `pulumi/oauth2-proxy/`: oauth2-proxy frontends for admin UI SSO
 
 ## How to add a new service
 1. Create a new folder under `pulumi/` (e.g. `pulumi/postgres`).
@@ -34,6 +35,7 @@ Projects currently supported by `apply-secrets.py`:
 - `auth-service`
 - `grafana`
 - `redis`
+- `oauth2-proxy`
 
 ## GitHub Actions
 The workflow uses a self-hosted runner and runs `pulumi up` on demand.

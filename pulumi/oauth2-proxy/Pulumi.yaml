@@ -1,0 +1,7 @@
+name: oauth2-proxy
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+main: __main__.py
+description: oauth2-proxy instances for admin UIs
