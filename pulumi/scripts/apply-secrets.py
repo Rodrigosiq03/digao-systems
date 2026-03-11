@@ -122,6 +122,19 @@ def apply_redis(config: configparser.ConfigParser, env: str, project_dir: Path, 
     pulumi_set(project_dir, stack, "redis:redisPassword", env_block[pass_key], True)
 
 
+def apply_oauth2_proxy(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
+    shared = config["shared"]
+    env_block = config[env]
+    client_secret_key = f"OAUTH2_PROXY_CLIENT_SECRET_{env.upper()}"
+    cookie_secret_key = f"OAUTH2_PROXY_COOKIE_SECRET_{env.upper()}"
+    admin_password_key = f"KEYCLOAK_ADMIN_PASS_{env.upper()}"
+
+    pulumi_set(project_dir, stack, "oauth2-proxy:keycloakAdminUser", shared["KEYCLOAK_ADMIN_USER"], False)
+    pulumi_set(project_dir, stack, "oauth2-proxy:keycloakAdminPassword", env_block[admin_password_key], True)
+    pulumi_set(project_dir, stack, "oauth2-proxy:clientSecret", env_block[client_secret_key], True)
+    pulumi_set(project_dir, stack, "oauth2-proxy:cookieSecret", env_block[cookie_secret_key], True)
+
+
 def main() -> None:
     base_dir = Path(__file__).resolve().parents[1]
 
@@ -162,6 +175,8 @@ def main() -> None:
         apply_grafana(config, args.env, project_dir, args.stack)
     elif project_name == "redis":
         apply_redis(config, args.env, project_dir, args.stack)
+    elif project_name == "oauth2-proxy":
+        apply_oauth2_proxy(config, args.env, project_dir, args.stack)
     else:
         raise SystemExit(f"Unknown project: {project_name}")
 
