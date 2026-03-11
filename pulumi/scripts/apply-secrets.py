@@ -65,6 +65,7 @@ def apply_rabbitmq(config: configparser.ConfigParser, env: str, project_dir: Pat
 def apply_keycloak(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
     shared = config["shared"]
     env_block = config[env]
+    rabbit_pass_key = f"RABBITMQ_{env.upper()}_PASS"
 
     pulumi_set(project_dir, stack, "keycloak:dbUser", shared["KEYCLOAK_DB_USER"], False)
     pulumi_set(project_dir, stack, "keycloak:dbName", shared["KEYCLOAK_DB_NAME"], False)
@@ -74,6 +75,7 @@ def apply_keycloak(config: configparser.ConfigParser, env: str, project_dir: Pat
     admin_pass_key = f"KEYCLOAK_ADMIN_PASS_{env.upper()}"
     pulumi_set(project_dir, stack, "keycloak:dbPassword", env_block[db_pass_key], True)
     pulumi_set(project_dir, stack, "keycloak:adminPassword", env_block[admin_pass_key], True)
+    pulumi_set(project_dir, stack, "keycloak:rabbitPassword", env_block[rabbit_pass_key], True)
 
 
 def apply_notification(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
