@@ -8,8 +8,8 @@ Protect the admin UIs in `dev` with Keycloak login through `oauth2-proxy` while 
 
 - `oauth2-proxy-grafana-dev` -> upstream `grafana-dev:3000`
 - `oauth2-proxy-metrics-dev` -> upstream `prometheus-dev:9090`
-- `oauth2-proxy-portainer-dev` -> upstream `portainer-shared:9000`
 - shared Keycloak client: `admin-ui-dev`
+- shared cookie across admin UIs in `dev`
 
 ## Required local secrets
 
@@ -67,21 +67,25 @@ Replace each upstream target in NPM with the corresponding oauth2-proxy containe
 - Forward Port: `4180`
 - Websockets: `OFF`
 
-### Portainer
-
-- Domain: `portainer.rodrigodsiqueira.dev.br`
-- Scheme: `http`
-- Forward Hostname / IP: `oauth2-proxy-portainer-dev`
-- Forward Port: `4180`
-- Websockets: `ON`
-
 ## Validation
 
 1. Open `grafana-dev` in the browser.
 2. Confirm redirect to `kc-dev`.
 3. Login with the master user in the `digao-oauth-dev` realm.
 4. Confirm return to the original UI after callback.
-5. Repeat for `metrics-dev` and `portainer`.
+5. Repeat for `metrics-dev`.
+
+## Central sign-out link
+
+Use this URL for `dev` sign-out:
+
+`https://grafana-dev.rodrigodsiqueira.dev.br:8443/oauth2/sign_out?rd=https%3A%2F%2Fkc-dev.rodrigodsiqueira.dev.br%3A8443%2Frealms%2Fdigao-oauth-dev%2Fprotocol%2Fopenid-connect%2Flogout%3Fpost_logout_redirect_uri%3Dhttps%253A%252F%252Fgrafana-dev.rodrigodsiqueira.dev.br%253A8443%252F%26client_id%3Dadmin-ui-dev`
+
+That sign-out flow:
+
+1. clears the shared `oauth2-proxy` cookie used by `grafana-dev` and `metrics-dev`
+2. redirects to the Keycloak logout endpoint
+3. returns to `grafana-dev`
 
 ## Operational note
 

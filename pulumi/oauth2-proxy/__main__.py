@@ -1,5 +1,6 @@
 import json
 import os
+import urllib.parse
 
 import pulumi
 import pulumi_docker as docker
@@ -14,11 +15,15 @@ keycloak_login_url = config.require("keycloakLoginUrl")
 keycloak_redeem_url = config.require("keycloakRedeemUrl")
 keycloak_profile_url = config.require("keycloakProfileUrl")
 keycloak_validate_url = config.require("keycloakValidateUrl")
+keycloak_logout_url = config.require("keycloakLogoutUrl")
 keycloak_client_id = config.get("keycloakClientId") or f"admin-ui-{stack}"
 keycloak_admin_user = config.require("keycloakAdminUser")
 keycloak_admin_password = config.require_secret("keycloakAdminPassword")
 keycloak_client_secret = config.require_secret("clientSecret")
 cookie_secret = config.require_secret("cookieSecret")
+cookie_name = config.get("cookieName") or f"_oauth2_proxy_admin_{stack}"
+cookie_domain = config.require("cookieDomain")
+post_logout_redirect_url = config.require("postLogoutRedirectUrl")
 
 dev_network_name = config.get("devNetworkName") or "npm_dev"
 prod_network_name = config.get("prodNetworkName") or "npm_prod"
@@ -48,15 +53,15 @@ targets = {
         "upstream": config.require("metricsUpstream"),
         "networks": [dev_network_name],
     },
-    "portainer": {
-        "host": config.require("portainerHost"),
-        "upstream": config.require("portainerUpstream"),
-        "networks": [prod_network_name],
-    },
 }
 
 redirect_uris = [f"{item['host'].rstrip('/')}/oauth2/callback" for item in targets.values()]
 web_origins = sorted({item["host"].rstrip("/") for item in targets.values()})
+logout_redirect = (
+    f"{keycloak_logout_url}"
+    f"?post_logout_redirect_uri={urllib.parse.quote(post_logout_redirect_url, safe='')}"
+    f"&client_id={urllib.parse.quote(keycloak_client_id, safe='')}"
+)
 
 bootstrap = docker.Container(
     "oauth2-proxy-keycloak-bootstrap",
@@ -87,7 +92,6 @@ bootstrap = docker.Container(
 
 
 def build_proxy(target_name: str, target: dict[str, list[str] | str]) -> docker.Container:
-    cookie_name = f"_oauth2_proxy_{target_name}_{stack}".replace("-", "_")
     envs = [
         "OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180",
         "OAUTH2_PROXY_PROVIDER=keycloak",
@@ -95,6 +99,8 @@ def build_proxy(target_name: str, target: dict[str, list[str] | str]) -> docker.
         pulumi.Output.concat("OAUTH2_PROXY_CLIENT_SECRET=", keycloak_client_secret),
         pulumi.Output.concat("OAUTH2_PROXY_COOKIE_SECRET=", cookie_secret),
         f"OAUTH2_PROXY_COOKIE_NAME={cookie_name}",
+        f"OAUTH2_PROXY_COOKIE_DOMAINS={cookie_domain}",
+        f"OAUTH2_PROXY_WHITELIST_DOMAINS={cookie_domain}",
         "OAUTH2_PROXY_COOKIE_SECURE=true",
         "OAUTH2_PROXY_COOKIE_SAMESITE=lax",
         "OAUTH2_PROXY_EMAIL_DOMAINS=*",
@@ -133,4 +139,8 @@ containers = {
 pulumi.export(
     "containerNames",
     pulumi.Output.all(**{name: container.name for name, container in containers.items()}),
+)
+pulumi.export(
+    "logoutUrl",
+    f"{targets['grafana']['host'].rstrip('/')}/oauth2/sign_out?rd={urllib.parse.quote(logout_redirect, safe='')}",
 )
