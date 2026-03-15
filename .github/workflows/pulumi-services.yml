@@ -60,7 +60,7 @@ jobs:
             notification:
               - "services/java/notification-service/**"
               - "pulumi/notification-service/**"
-                    auth:
+            auth:
               - "services/java/auth-service/**"
               - "pulumi/auth-service/**"
 
