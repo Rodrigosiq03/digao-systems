@@ -14,6 +14,7 @@ network_name = config.get("npmNetworkName") or "npm_default"
 image = docker.RemoteImage(
     "npm-image",
     name=image_ref,
+    keep_locally=True,
 )
 
 network = docker.Network(
