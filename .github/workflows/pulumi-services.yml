@@ -63,7 +63,7 @@ jobs:
                     auth:
               - "services/java/auth-service/**"
               - "pulumi/auth-service/**"
-        
+
   deploy:
     runs-on: [self-hosted, infra-heavy]
     needs: [changes]
