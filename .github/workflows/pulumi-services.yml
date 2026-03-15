@@ -143,6 +143,11 @@ jobs:
             exit 1
           fi
           cp "$JAR" "${{ matrix.dir }}/target/app.jar"
+          CONTEXT_DIR="${{ matrix.dir }}/target/pulumi-image-context"
+          rm -rf "$CONTEXT_DIR"
+          mkdir -p "$CONTEXT_DIR"
+          cp "${{ matrix.dir }}/Dockerfile" "$CONTEXT_DIR/Dockerfile"
+          cp "${{ matrix.dir }}/target/app.jar" "$CONTEXT_DIR/app.jar"
           END_TS="$(date +%s)"
           echo "maven_package_seconds=$((END_TS - START_TS))"
 

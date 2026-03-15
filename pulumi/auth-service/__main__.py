@@ -8,6 +8,7 @@ stack = pulumi.get_stack()
 service_dir = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "services", "java", "auth-service")
 )
+image_context_dir = os.path.join(service_dir, "target", "pulumi-image-context")
 
 image_tag = config.get("imageTag") or stack
 http_port = int(config.get("httpPort") or 8091)
@@ -36,8 +37,8 @@ image = docker.Image(
     image_name=f"docker.io/library/auth-service:{image_tag}",
     skip_push=True,
     build=docker.DockerBuildArgs(
-        context=service_dir,
-        dockerfile=os.path.join(service_dir, "Dockerfile"),
+        context=image_context_dir,
+        dockerfile=os.path.join(image_context_dir, "Dockerfile"),
     ),
 )
 
