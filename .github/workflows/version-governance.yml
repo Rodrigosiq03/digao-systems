@@ -1,0 +1,33 @@
+name: version-governance
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - '.github/workflows/**'
+      - 'pulumi/**'
+      - 'services/**'
+      - 'deploy/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'pulumi/**'
+      - 'services/**'
+      - 'deploy/**'
+  workflow_dispatch:
+
+concurrency:
+  group: version-governance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Audit pinned versions and image references
+        run: bash pulumi/scripts/audit-version-governance.sh
