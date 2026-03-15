@@ -7,21 +7,52 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
+REALM_BY_STACK = {
+    "dev": "digao-oauth-dev",
+    "homolog": "digao-oauth-hml",
+    "prod": "digao-oauth-prod",
+}
+DEV_NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+PROD_NETWORK_NAME = "npm_prod"
+PUBLIC_BASE_BY_STACK = {
+    "dev": "https://kc-dev.rodrigodsiqueira.dev.br:8443",
+    "homolog": "https://kc-hml.rodrigodsiqueira.dev.br:8444",
+}
+SERVICE_BASES = {
+    "dev": {
+        "grafana": ("https://grafana-dev.rodrigodsiqueira.dev.br:8443", "http://grafana-dev:3000"),
+        "metrics": ("https://metrics-dev.rodrigodsiqueira.dev.br:8443", "http://prometheus-dev:9090"),
+    },
+    "homolog": {
+        "grafana": ("https://grafana-hml.rodrigodsiqueira.dev.br:8444", "http://grafana-homolog:3000"),
+        "metrics": ("https://metrics-hml.rodrigodsiqueira.dev.br:8444", "http://prometheus-homolog:9090"),
+    },
+}
+PORTAINER_HOST = "https://portainer.rodrigodsiqueira.dev.br"
+PORTAINER_UPSTREAM = "http://portainer-shared:9000"
+
 image_tag = config.get("imageTag") or "v7.7.1"
-keycloak_realm = config.get("keycloakRealm") or f"digao-oauth-{stack}"
+keycloak_realm = config.get("keycloakRealm") or REALM_BY_STACK.get(stack, f"digao-oauth-{stack}")
 keycloak_admin_base_url = config.get("keycloakAdminBaseUrl") or f"http://keycloak-{stack}:8080"
-keycloak_login_url = config.require("keycloakLoginUrl")
-keycloak_redeem_url = config.require("keycloakRedeemUrl")
-keycloak_profile_url = config.require("keycloakProfileUrl")
-keycloak_validate_url = config.require("keycloakValidateUrl")
+public_base = PUBLIC_BASE_BY_STACK.get(stack)
+keycloak_login_url = config.get("keycloakLoginUrl") or (f"{public_base}/realms/{keycloak_realm}/protocol/openid-connect/auth" if public_base else None)
+keycloak_redeem_url = config.get("keycloakRedeemUrl") or (f"{public_base}/realms/{keycloak_realm}/protocol/openid-connect/token" if public_base else None)
+keycloak_profile_url = config.get("keycloakProfileUrl") or (f"{public_base}/realms/{keycloak_realm}/protocol/openid-connect/userinfo" if public_base else None)
+keycloak_validate_url = config.get("keycloakValidateUrl") or keycloak_profile_url
+if not all([keycloak_login_url, keycloak_redeem_url, keycloak_profile_url, keycloak_validate_url]):
+    raise Exception(f"oauth2-proxy URLs must be configured for stack {stack}")
 keycloak_client_id = config.get("keycloakClientId") or f"admin-ui-{stack}"
 keycloak_admin_user = config.require("keycloakAdminUser")
 keycloak_admin_password = config.require_secret("keycloakAdminPassword")
 keycloak_client_secret = config.require_secret("clientSecret")
 cookie_secret = config.require_secret("cookieSecret")
 
-dev_network_name = config.get("devNetworkName") or "npm_dev"
-prod_network_name = config.get("prodNetworkName") or "npm_prod"
+dev_network_name = config.get("devNetworkName") or DEV_NETWORK_BY_STACK.get(stack, "npm_dev")
+prod_network_name = config.get("prodNetworkName") or PROD_NETWORK_NAME
 
 bootstrap_script = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "bootstrap_keycloak_client.py")
@@ -37,20 +68,27 @@ bootstrap_image = docker.RemoteImage(
     name="python:3.12-alpine",
 )
 
+grafana_host, grafana_upstream = SERVICE_BASES.get(stack, {}).get("grafana", (config.get("grafanaHost"), config.get("grafanaUpstream")))
+metrics_host, metrics_upstream = SERVICE_BASES.get(stack, {}).get("metrics", (config.get("metricsHost"), config.get("metricsUpstream")))
+portainer_host = config.get("portainerHost") or PORTAINER_HOST
+portainer_upstream = config.get("portainerUpstream") or PORTAINER_UPSTREAM
+if not all([grafana_host, grafana_upstream, metrics_host, metrics_upstream, portainer_host, portainer_upstream]):
+    raise Exception(f"oauth2-proxy target hosts/upstreams must be configured for stack {stack}")
+
 targets = {
     "grafana": {
-        "host": config.require("grafanaHost"),
-        "upstream": config.require("grafanaUpstream"),
+        "host": grafana_host,
+        "upstream": grafana_upstream,
         "networks": [dev_network_name],
     },
     "metrics": {
-        "host": config.require("metricsHost"),
-        "upstream": config.require("metricsUpstream"),
+        "host": metrics_host,
+        "upstream": metrics_upstream,
         "networks": [dev_network_name],
     },
     "portainer": {
-        "host": config.require("portainerHost"),
-        "upstream": config.require("portainerUpstream"),
+        "host": portainer_host,
+        "upstream": portainer_upstream,
         "networks": [prod_network_name],
     },
 }

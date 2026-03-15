@@ -5,6 +5,12 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
+NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+
 service_dir = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "services", "java", "auth-service")
 )
@@ -12,7 +18,7 @@ image_context_dir = os.path.join(service_dir, "target", "pulumi-image-context")
 
 image_tag = config.get("imageTag") or stack
 http_port = int(config.get("httpPort") or 8091)
-expose_port = (config.get("exposePort") or "true").lower() == "true"
+expose_port = (config.get("exposePort") or ("true" if stack == "dev" else "false")).lower() == "true"
 
 rabbit_host = config.get("rabbitHost") or f"rabbitmq-{stack}"
 rabbit_user = config.get("rabbitUser") or stack
@@ -30,7 +36,7 @@ keycloak_admin_client_secret = config.require_secret("keycloakAdminClientSecret"
 issuer_url = config.get("issuerUrl") or f"{keycloak_base_url}/realms/{keycloak_realm}"
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
-npm_network = config.get("npmNetworkName") or "npm_default"
+npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
 
 image = docker.Image(
     "auth-image",

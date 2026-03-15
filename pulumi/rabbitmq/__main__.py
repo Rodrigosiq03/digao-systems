@@ -6,17 +6,23 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
+NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+
 image_tag = config.get("imageTag") or "3.12-management"
 amqp_port = int(config.get("amqpPort") or 5672)
 http_port = int(config.get("httpPort") or 15672)
-expose_ports = (config.get("exposePorts") or "true").lower() == "true"
+expose_ports = (config.get("exposePorts") or ("true" if stack == "dev" else "false")).lower() == "true"
 
 memory_watermark = config.get("memoryWatermark") or "0.4"
 disk_free_limit = config.get("diskFreeLimit") or "1GB"
 collect_statistics_interval = int(config.get("collectStatisticsInterval") or 30000)
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
-npm_network = config.get("npmNetworkName") or "npm_default"
+npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
 
 vhosts = config.get_object("vhosts") or ["/dev", "/homolog", "/prod"]
 users = config.get_object("users") or [

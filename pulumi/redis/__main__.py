@@ -5,18 +5,29 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
-image_tag = config.get("imageTag") or "7.2"
-redis_port = int(config.get("port") or 6379)
-expose_port = (config.get("exposePort") or "true").lower() == "true"
+NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+PORT_BY_STACK = {
+    "dev": 6379,
+    "homolog": 6380,
+    "prod": 6381,
+}
 
-auth_enabled = (config.get("authEnabled") or "false").lower() == "true"
+image_tag = config.get("imageTag") or "7.2"
+redis_port = int(config.get("port") or PORT_BY_STACK.get(stack, 6379))
+expose_port = (config.get("exposePort") or ("true" if stack == "dev" else "false")).lower() == "true"
+
+auth_enabled = (config.get("authEnabled") or ("false" if stack == "dev" else "true")).lower() == "true"
 redis_user = config.get("redisUser") or "redis"
 redis_password = config.get_secret("redisPassword")
 
 appendonly = (config.get("appendOnly") or "yes").lower()
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
-npm_network = config.get("npmNetworkName") or "npm_default"
+npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
 
 redis_conf_lines = [
     "protected-mode yes",

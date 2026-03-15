@@ -5,6 +5,22 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
+NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+REALM_BY_STACK = {
+    "dev": "digao-oauth-dev",
+    "homolog": "digao-oauth-homolog",
+    "prod": "digao-oauth-prod",
+}
+API_URL_BY_STACK = {
+    "dev": "http://localhost:8081",
+    "homolog": "http://localhost:8091",
+    "prod": "http://localhost:8091",
+}
+
 portal_dir = os.path.abspath(
     os.path.join(
         os.path.dirname(__file__), "..", "..", "clients", "web", "digao-oauth-portal"
@@ -19,12 +35,12 @@ http_port = int(cfg("httpPort", "8083"))
 expose_port = (cfg("exposePort", "false") or "false").lower() == "true"
 
 vite_kc_url = cfg("viteKcUrl", "http://localhost:8080")
-vite_kc_realm = cfg("viteKcRealm", "digao-oauth-dev")
+vite_kc_realm = cfg("viteKcRealm", REALM_BY_STACK.get(stack, f"digao-oauth-{stack}"))
 vite_kc_client_id = cfg("viteKcClientId", "digao-oauth-portal")
-vite_api_url = cfg("viteApiUrl", "http://localhost:8081")
+vite_api_url = cfg("viteApiUrl", API_URL_BY_STACK.get(stack, "http://localhost:8091"))
 
 attach_npm = (cfg("attachToNpm", "true") or "true").lower() == "true"
-npm_network = cfg("npmNetworkName", "npm_default")
+npm_network = cfg("npmNetworkName", NETWORK_BY_STACK.get(stack, "npm_default"))
 
 image = docker.Image(
     "portal-image",

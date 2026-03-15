@@ -4,6 +4,9 @@ permissions:
   contents: read
   issues: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches:
@@ -43,7 +46,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: self-hosted
+    runs-on: [self-hosted, infra-light]
     outputs:
       notification: ${{ steps.filter.outputs.notification }}
       auth: ${{ steps.filter.outputs.auth }}
@@ -65,7 +68,7 @@ jobs:
               - "pulumi/scripts/apply-secrets.py"
 
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, infra-heavy]
     needs: [changes]
     if: |
       (github.event_name == 'workflow_dispatch') ||

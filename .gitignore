@@ -71,3 +71,10 @@ pulumi/keycloak/keycloak-email-spi/.DS_Store
 pulumi/keycloak/keycloak-email-spi/.github/
 pulumi/keycloak/kc-export/
 pulumi/keycloak/extensions/*.jar
+
+# Local/runtime Pulumi stack config files are generated outside Git.
+pulumi/**/Pulumi.dev.yaml
+pulumi/**/Pulumi.homolog.yaml
+pulumi/**/Pulumi.prod.yaml
+!pulumi/**/Pulumi.yaml
+!pulumi/**/Pulumi.stack.template.yaml

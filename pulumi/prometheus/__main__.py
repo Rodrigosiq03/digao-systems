@@ -5,19 +5,38 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
+NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+HTTP_PORT_BY_STACK = {
+    "dev": 9090,
+    "homolog": 9091,
+    "prod": 9092,
+}
+CONFIG_FILE_BY_STACK = {
+    "dev": "prometheus.dev-observability.yml",
+    "homolog": "prometheus.homolog-observability.yml",
+    "prod": "prometheus.yml",
+}
+
 image_tag = config.get("imageTag") or "v2.53.1"
-http_port = int(config.get("httpPort") or 9090)
+http_port = int(config.get("httpPort") or HTTP_PORT_BY_STACK.get(stack, 9090))
 expose_port = (config.get("exposePort") or "false").lower() == "true"
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
-npm_network = config.get("npmNetworkName") or "npm_default"
+npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
+extra_networks_value = config.get("extraNetworkNames")
+if extra_networks_value is None and stack == "prod":
+    extra_networks_value = "observability"
 extra_networks = [
     name.strip()
-    for name in (config.get("extraNetworkNames") or "").split(",")
+    for name in (extra_networks_value or "").split(",")
     if name.strip()
 ]
 
-config_filename = config.get("configFile") or "prometheus.yml"
+config_filename = config.get("configFile") or CONFIG_FILE_BY_STACK.get(stack, "prometheus.yml")
 config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config_filename))
 
 image = docker.RemoteImage(
