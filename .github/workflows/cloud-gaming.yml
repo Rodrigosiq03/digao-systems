@@ -4,6 +4,9 @@ permissions:
   contents: read
   issues: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches:
@@ -34,9 +37,13 @@ on:
           - homolog
           - prod
 
+concurrency:
+  group: cloud-gaming-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   changes:
-    runs-on: self-hosted
+    runs-on: [self-hosted, infra-light]
     outputs:
       cloud_gaming: ${{ steps.filter.outputs.cloud_gaming }}
     steps:
@@ -55,7 +62,7 @@ jobs:
               - ".github/workflows/cloud-gaming.yml"
 
   ci:
-    runs-on: self-hosted
+    runs-on: [self-hosted, infra-heavy]
     needs: [changes]
     if: ${{ github.event_name == 'workflow_dispatch' || needs.changes.outputs.cloud_gaming == 'true' }}
     steps:
@@ -95,7 +102,7 @@ jobs:
         run: docker build -t digao-cloud-gaming-motor:${{ github.sha }} services/cpp/cloud-gaming-motor
 
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, infra-heavy]
     needs: [changes, ci]
     if: |
       (github.event_name == 'workflow_dispatch' && inputs.deploy == 'true') ||

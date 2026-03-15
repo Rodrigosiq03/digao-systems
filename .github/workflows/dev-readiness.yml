@@ -1,11 +1,18 @@
 name: dev-readiness
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   workflow_dispatch:
 
+concurrency:
+  group: dev-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   smoke-dev:
-    runs-on: self-hosted
+    runs-on: [self-hosted, infra-light]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
