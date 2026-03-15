@@ -27,7 +27,7 @@ if deploy_node_exporter:
         ],
         networks_advanced=[docker.ContainerNetworksAdvancedArgs(name=network.name)],
         volumes=[
-            docker.ContainerVolumeArgs(host_path="/", container_path="/host", read_only=True, ),
+            docker.ContainerVolumeArgs(host_path="/", container_path="/host", read_only=True),
             docker.ContainerVolumeArgs(host_path="/proc", container_path="/host/proc", read_only=True),
             docker.ContainerVolumeArgs(host_path="/sys", container_path="/host/sys", read_only=True),
             docker.ContainerVolumeArgs(host_path="/run/dbus/system_bus_socket", container_path="/run/dbus/system_bus_socket", read_only=True),

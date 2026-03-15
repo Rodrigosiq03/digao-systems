@@ -5,11 +5,20 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
+NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+HTTP_PORT_BY_STACK = {
+    "dev": 3001,
+}
+
 image_tag = config.get("imageTag") or "11.1.4"
-http_port = int(config.get("httpPort") or 3000)
+http_port = int(config.get("httpPort") or HTTP_PORT_BY_STACK.get(stack, 3000))
 expose_port = (config.get("exposePort") or "false").lower() == "true"
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
-npm_network = config.get("npmNetworkName") or "npm_default"
+npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
 extra_networks = [
     name.strip()
     for name in (config.get("extraNetworkNames") or "").split(",")

@@ -4,15 +4,28 @@ import pulumi_docker as docker
 
 config = pulumi.Config()
 stack = pulumi.get_stack()
+project_dir = os.path.abspath(os.path.dirname(__file__))
+
+NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+HTTP_PORT_BY_STACK = {
+    "dev": 8081,
+    "homolog": 8082,
+    "prod": 8083,
+}
+DEV_HOSTNAME = "https://kc-dev.rodrigodsiqueira.dev.br:8443"
 
 image_tag = config.get("imageTag") or "26.0.8"
 db_image_tag = config.get("dbImageTag") or "15"
 
-start_mode = (config.get("startMode") or "prod").lower()
+start_mode = (config.get("startMode") or ("dev" if stack == "dev" else "prod")).lower()
 command = ["start-dev"] if start_mode == "dev" else ["start"]
 
-http_port = int(config.get("httpPort") or 8080)
-expose_port = (config.get("exposePort") or "true").lower() == "true"
+http_port = int(config.get("httpPort") or HTTP_PORT_BY_STACK.get(stack, 8080))
+expose_port = (config.get("exposePort") or ("true" if stack == "dev" else "false")).lower() == "true"
 
 admin_user = config.get("adminUser") or "keycloak"
 admin_password = config.require_secret("adminPassword")
@@ -23,16 +36,20 @@ postgres_db = config.get("dbName") or "keycloak"
 
 proxy_mode = config.get("proxy") or "edge"
 http_enabled = (config.get("httpEnabled") or "true").lower()
-hostname = config.get("hostname")
-hostname_strict = config.get("hostnameStrict")
+hostname = config.get("hostname") or (DEV_HOSTNAME if stack == "dev" else None)
+hostname_strict = config.get("hostnameStrict") or ("false" if stack == "dev" else None)
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
-npm_network = config.get("npmNetworkName") or "npm_default"
+npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
 
-themes_path = config.get("themesPath")
-spi_jar_path = config.get("spiJarPath")
-import_path = config.get("importPath")
-import_realm = (config.get("importRealm") or "false").lower() == "true"
+def existing_path(*parts: str):
+    candidate = os.path.join(project_dir, *parts)
+    return candidate if os.path.exists(candidate) else None
+
+themes_path = config.get("themesPath") or existing_path("themes")
+spi_jar_path = config.get("spiJarPath") or existing_path("extensions", "digao-keycloak-email-spi.jar")
+import_path = config.get("importPath") or existing_path("import", stack)
+import_realm = (config.get("importRealm") or ("true" if import_path else "false")).lower() == "true"
 
 email_template_provider = config.get("emailTemplateProvider")
 if not email_template_provider:

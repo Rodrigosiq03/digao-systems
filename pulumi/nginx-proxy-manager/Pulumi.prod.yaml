@@ -1,7 +1,0 @@
-config:
-  nginx-proxy-manager:imageRef: "jc21/nginx-proxy-manager@sha256:cd9eba29ca132cb006729f2cb2660126453f84818c2f7d75963ad7b61ef696bd"
-  nginx-proxy-manager:httpPort: "80"
-  nginx-proxy-manager:httpsPort: "443"
-  nginx-proxy-manager:adminPort: "81"
-  nginx-proxy-manager:npmNetworkName: "npm_prod"
-encryptionsalt: v1:7T2Va0VngrI=:v1:gmvhmJaipBul50zg:pIOI1PUxoAXvYd33zGoFNuGrfsCYmw==

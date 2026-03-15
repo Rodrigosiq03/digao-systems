@@ -4,12 +4,18 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
+NETWORK_BY_STACK = {
+    "dev": "npm_prod",
+    "homolog": "npm_prod",
+    "prod": "npm_prod",
+}
+
 image_tag = config.get("imageTag") or "2.27.1"
 http_port = int(config.get("httpPort") or 9000)
 https_port = int(config.get("httpsPort") or 9443)
 expose_port = (config.get("exposePort") or "false").lower() == "true"
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
-npm_network = config.get("npmNetworkName") or "npm_default"
+npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_prod")
 container_name = config.get("containerName") or "portainer-shared"
 
 image = docker.RemoteImage(

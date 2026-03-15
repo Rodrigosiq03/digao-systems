@@ -4,12 +4,24 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
-image_ref = config.get("imageRef") or "jc21/nginx-proxy-manager@sha256:cd9eba29ca132cb006729f2cb2660126453f84818c2f7d75963ad7b61ef696bd"
-http_port = int(config.get("httpPort") or 80)
-https_port = int(config.get("httpsPort") or 443)
-admin_port = int(config.get("adminPort") or 81)
+NETWORK_BY_STACK = {
+    "dev": "npm_dev",
+    "homolog": "npm_homolog",
+    "prod": "npm_prod",
+}
+PORTS_BY_STACK = {
+    "dev": (8080, 8443, 8181),
+    "homolog": (8083, 8444, 8182),
+    "prod": (80, 443, 81),
+}
 
-network_name = config.get("npmNetworkName") or "npm_default"
+image_ref = config.get("imageRef") or "jc21/nginx-proxy-manager@sha256:cd9eba29ca132cb006729f2cb2660126453f84818c2f7d75963ad7b61ef696bd"
+default_http, default_https, default_admin = PORTS_BY_STACK.get(stack, (80, 443, 81))
+http_port = int(config.get("httpPort") or default_http)
+https_port = int(config.get("httpsPort") or default_https)
+admin_port = int(config.get("adminPort") or default_admin)
+
+network_name = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
 
 image = docker.RemoteImage(
     "npm-image",

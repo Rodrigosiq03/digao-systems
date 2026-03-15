@@ -1,4 +1,0 @@
-config:
-  host-exporters:networkName: "observability"
-  host-exporters:deployNodeExporter: "true"
-  host-exporters:deployCadvisor: "true"
