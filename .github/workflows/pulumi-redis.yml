@@ -14,7 +14,6 @@ on:
       - main
     paths:
       - "pulumi/redis/**"
-      - "pulumi/scripts/apply-secrets.py"
       - ".github/workflows/pulumi-redis.yml"
   workflow_dispatch:
     inputs:

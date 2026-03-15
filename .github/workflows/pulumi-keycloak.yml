@@ -14,7 +14,6 @@ on:
       - main
     paths:
       - "pulumi/keycloak/**"
-      - "pulumi/scripts/apply-secrets.py"
       - ".github/workflows/pulumi-keycloak.yml"
   workflow_dispatch:
     inputs:

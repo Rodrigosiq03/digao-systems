@@ -13,7 +13,6 @@ on:
       - develop
     paths:
       - "pulumi/oauth2-proxy/**"
-      - "pulumi/scripts/apply-secrets.py"
       - ".github/workflows/pulumi-oauth2-proxy.yml"
   workflow_dispatch:
     inputs:

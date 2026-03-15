@@ -17,7 +17,6 @@ on:
       - "services/java/notification-service/**"
       - "pulumi/auth-service/**"
       - "pulumi/notification-service/**"
-      - "pulumi/scripts/apply-secrets.py"
       - ".github/workflows/pulumi-services.yml"
   workflow_dispatch:
     inputs:
@@ -61,12 +60,10 @@ jobs:
             notification:
               - "services/java/notification-service/**"
               - "pulumi/notification-service/**"
-              - "pulumi/scripts/apply-secrets.py"
-            auth:
+                    auth:
               - "services/java/auth-service/**"
               - "pulumi/auth-service/**"
-              - "pulumi/scripts/apply-secrets.py"
-
+        
   deploy:
     runs-on: [self-hosted, infra-heavy]
     needs: [changes]
