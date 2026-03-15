@@ -37,6 +37,10 @@ on:
           - homolog
           - prod
 
+concurrency:
+  group: pulumi-services-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   changes:
     runs-on: self-hosted
@@ -122,6 +126,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /data/apps/.m2
+          START_TS="$(date +%s)"
           echo "Building ${{ matrix.dir }}"
           ./${{ matrix.dir }}/mvnw -DskipTests package
 
@@ -134,6 +139,8 @@ jobs:
             exit 1
           fi
           cp "$JAR" "${{ matrix.dir }}/target/app.jar"
+          END_TS="$(date +%s)"
+          echo "maven_package_seconds=$((END_TS - START_TS))"
 
       - name: Prepare venv
         if: |
@@ -143,14 +150,18 @@ jobs:
             (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         run: |
           PY="$HOME/.pyenv/versions/3.12.8/bin/python"
+          VENV="/data/apps/.venvs/pulumi-services-${{ matrix.project }}"
           if [[ ! -x "$PY" ]]; then
             echo "pyenv Python 3.12.8 not found at $PY"
             exit 1
           fi
           "$PY" --version
-          rm -rf /data/apps/.venvs/pulumi-services
-          "$PY" -m venv /data/apps/.venvs/pulumi-services
-          /data/apps/.venvs/pulumi-services/bin/python -m pip install --upgrade pip
+          if [[ ! -x "$VENV/bin/python" ]]; then
+            "$PY" -m venv "$VENV"
+            "$VENV/bin/python" -m pip install --upgrade pip
+          else
+            "$VENV/bin/python" --version
+          fi
 
       - name: Install dependencies
         if: |
@@ -159,7 +170,19 @@ jobs:
            ((matrix.service == 'notification' && needs.changes.outputs.notification == 'true') ||
             (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         run: |
-          /data/apps/.venvs/pulumi-services/bin/python -m pip install --no-cache-dir --force-reinstall -r pulumi/${{ matrix.project }}/requirements.txt
+          VENV="/data/apps/.venvs/pulumi-services-${{ matrix.project }}"
+          REQ_FILE="pulumi/${{ matrix.project }}/requirements.txt"
+          REQ_HASH_FILE="$VENV/.requirements.sha256"
+          CURRENT_HASH="$(sha256sum "$REQ_FILE" | awk '{print $1}')"
+          START_TS="$(date +%s)"
+          if [[ -f "$REQ_HASH_FILE" ]] && [[ "$(cat "$REQ_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+            echo "requirements.txt unchanged; skipping pip install"
+          else
+            "$VENV/bin/python" -m pip install -r "$REQ_FILE"
+            printf '%s\n' "$CURRENT_HASH" > "$REQ_HASH_FILE"
+          fi
+          END_TS="$(date +%s)"
+          echo "dependency_bootstrap_seconds=$((END_TS - START_TS))"
 
       - name: Pulumi login
         if: |
@@ -182,7 +205,7 @@ jobs:
           if [[ -z "$SECRETS_FILE" ]]; then
             SECRETS_FILE="/data/apps/pulumi/.secrets.local"
           fi
-          /data/apps/.venvs/pulumi-services/bin/python \
+          /data/apps/.venvs/pulumi-services-${{ matrix.project }}/bin/python \
             pulumi/scripts/apply-secrets.py \
             --project "${{ matrix.project }}" \
             --stack "${{ steps.stack.outputs.value }}" \
@@ -208,4 +231,8 @@ jobs:
             (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
-        run: pulumi -C pulumi/${{ matrix.project }} up --yes
+        run: |
+          START_TS="$(date +%s)"
+          pulumi -C pulumi/${{ matrix.project }} up --yes
+          END_TS="$(date +%s)"
+          echo "pulumi_up_seconds=$((END_TS - START_TS))"

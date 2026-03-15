@@ -25,6 +25,10 @@ on:
           - homolog
           - prod
 
+concurrency:
+  group: pulumi-keycloak-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: self-hosted
@@ -59,17 +63,33 @@ jobs:
       - name: Prepare venv
         run: |
           PY="$HOME/.pyenv/versions/3.12.8/bin/python"
+          VENV="/data/apps/.venvs/pulumi-keycloak"
           if [[ ! -x "$PY" ]]; then
             echo "pyenv Python 3.12.8 not found at $PY"
             exit 1
           fi
           "$PY" --version
-          rm -rf /data/apps/.venvs/pulumi-keycloak
-          "$PY" -m venv /data/apps/.venvs/pulumi-keycloak
-          /data/apps/.venvs/pulumi-keycloak/bin/python -m pip install --upgrade pip
+          if [[ ! -x "$VENV/bin/python" ]]; then
+            "$PY" -m venv "$VENV"
+            "$VENV/bin/python" -m pip install --upgrade pip
+          else
+            "$VENV/bin/python" --version
+          fi
 
       - name: Install dependencies
-        run: /data/apps/.venvs/pulumi-keycloak/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
+        run: |
+          VENV="/data/apps/.venvs/pulumi-keycloak"
+          REQ_HASH_FILE="$VENV/.requirements.sha256"
+          CURRENT_HASH="$(sha256sum requirements.txt | awk '{print $1}')"
+          START_TS="$(date +%s)"
+          if [[ -f "$REQ_HASH_FILE" ]] && [[ "$(cat "$REQ_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+            echo "requirements.txt unchanged; skipping pip install"
+          else
+            "$VENV/bin/python" -m pip install -r requirements.txt
+            printf '%s\n' "$CURRENT_HASH" > "$REQ_HASH_FILE"
+          fi
+          END_TS="$(date +%s)"
+          echo "dependency_bootstrap_seconds=$((END_TS - START_TS))"
 
       - name: Show requirements
         run: cat requirements.txt
@@ -101,4 +121,8 @@ jobs:
       - name: Deploy
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
-        run: pulumi up --yes
+        run: |
+          START_TS="$(date +%s)"
+          pulumi up --yes
+          END_TS="$(date +%s)"
+          echo "pulumi_up_seconds=$((END_TS - START_TS))"
