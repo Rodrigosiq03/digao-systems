@@ -4,6 +4,9 @@ permissions:
   contents: read
   issues: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches:
@@ -25,9 +28,13 @@ on:
           - homolog
           - prod
 
+concurrency:
+  group: pulumi-rabbitmq-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, infra-light]
     defaults:
       run:
         working-directory: pulumi/rabbitmq
@@ -59,17 +66,30 @@ jobs:
       - name: Prepare venv
         run: |
           PY="$HOME/.pyenv/versions/3.12.8/bin/python"
+          VENV="/data/apps/.venvs/pulumi-rabbitmq"
           if [[ ! -x "$PY" ]]; then
             echo "pyenv Python 3.12.8 not found at $PY"
             exit 1
           fi
           "$PY" --version
-          rm -rf /data/apps/.venvs/pulumi-rabbitmq
-          "$PY" -m venv /data/apps/.venvs/pulumi-rabbitmq
-          /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --upgrade pip
+          if [[ ! -x "$VENV/bin/python" ]]; then
+            "$PY" -m venv "$VENV"
+            "$VENV/bin/python" -m pip install --upgrade pip
+          else
+            "$VENV/bin/python" --version
+          fi
 
       - name: Install dependencies
-        run: /data/apps/.venvs/pulumi-rabbitmq/bin/python -m pip install --no-cache-dir --force-reinstall -r requirements.txt
+        run: |
+          VENV="/data/apps/.venvs/pulumi-rabbitmq"
+          REQ_HASH_FILE="$VENV/.requirements.sha256"
+          CURRENT_HASH="$(sha256sum requirements.txt | awk '{print $1}')"
+          if [[ -f "$REQ_HASH_FILE" ]] && [[ "$(cat "$REQ_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+            echo "requirements.txt unchanged; skipping pip install"
+          else
+            "$VENV/bin/python" -m pip install -r requirements.txt
+            printf '%s\n' "$CURRENT_HASH" > "$REQ_HASH_FILE"
+          fi
 
       - name: Show requirements
         run: cat requirements.txt
@@ -96,9 +116,11 @@ jobs:
       - name: Select stack
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-rabbitmq/bin/python
         run: pulumi stack select "${{ steps.stack.outputs.value }}"
 
       - name: Deploy
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-rabbitmq/bin/python
         run: pulumi up --yes
