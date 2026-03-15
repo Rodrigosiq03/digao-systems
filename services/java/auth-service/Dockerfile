@@ -2,8 +2,8 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-# The pipeline writes target/app.jar before build.
-COPY target/app.jar /app/app.jar
+# The CI pipeline stages app.jar into the minimal image context before build.
+COPY app.jar /app/app.jar
 
 EXPOSE 8081
 
