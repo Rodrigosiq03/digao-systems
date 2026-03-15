@@ -96,6 +96,7 @@ jobs:
       - name: Select or init stack
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-prometheus/bin/python
         run: |
           STACK="${{ steps.stack.outputs.value }}"
           if pulumi stack select "$STACK" >/dev/null 2>&1; then
@@ -107,6 +108,7 @@ jobs:
       - name: Deploy
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-prometheus/bin/python
         run: |
           START_TS="$(date +%s)"
           pulumi up --yes

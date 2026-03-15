@@ -1,7 +1,5 @@
 name: notification-service
 runtime:
   name: python
-  options:
-    virtualenv: venv
 main: __main__.py
 description: Notification service on Docker

@@ -15,6 +15,7 @@ image = docker.RemoteImage(
     "npm-image",
     name=image_ref,
     keep_locally=True,
+    opts=pulumi.ResourceOptions(retain_on_delete=True),
 )
 
 network = docker.Network(

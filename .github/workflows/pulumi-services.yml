@@ -221,6 +221,7 @@ jobs:
             (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-services-${{ matrix.project }}/bin/python
         run: pulumi -C pulumi/${{ matrix.project }} stack select "${{ steps.stack.outputs.value }}"
 
       - name: Deploy
@@ -231,6 +232,7 @@ jobs:
             (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-services-${{ matrix.project }}/bin/python
         run: |
           START_TS="$(date +%s)"
           pulumi -C pulumi/${{ matrix.project }} up --yes

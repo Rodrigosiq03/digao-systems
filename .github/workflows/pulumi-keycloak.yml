@@ -116,11 +116,13 @@ jobs:
       - name: Select stack
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-keycloak/bin/python
         run: pulumi stack select "${{ steps.stack.outputs.value }}"
 
       - name: Deploy
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-keycloak/bin/python
         run: |
           START_TS="$(date +%s)"
           pulumi up --yes
