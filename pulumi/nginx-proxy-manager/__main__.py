@@ -4,7 +4,7 @@ import pulumi_docker as docker
 config = pulumi.Config()
 stack = pulumi.get_stack()
 
-image_tag = config.get("imageTag") or "latest"
+image_ref = config.get("imageRef") or "jc21/nginx-proxy-manager@sha256:cd9eba29ca132cb006729f2cb2660126453f84818c2f7d75963ad7b61ef696bd"
 http_port = int(config.get("httpPort") or 80)
 https_port = int(config.get("httpsPort") or 443)
 admin_port = int(config.get("adminPort") or 81)
@@ -13,7 +13,7 @@ network_name = config.get("npmNetworkName") or "npm_default"
 
 image = docker.RemoteImage(
     "npm-image",
-    name=f"jc21/nginx-proxy-manager:{image_tag}",
+    name=image_ref,
 )
 
 network = docker.Network(
@@ -49,3 +49,4 @@ pulumi.export("httpPort", http_port)
 pulumi.export("httpsPort", https_port)
 pulumi.export("adminPort", admin_port)
 pulumi.export("containerName", container.name)
+pulumi.export("imageRef", image_ref)
