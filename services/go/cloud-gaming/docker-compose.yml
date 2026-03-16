@@ -7,9 +7,17 @@ services:
     privileged: true
     restart: unless-stopped
     environment:
-      - PORT=8080
+      - PORT=8090
       - FRAME_RATE=60
       - STREAM_SOCKET_PATH=/tmp/digao-cloud-gaming/stream.sock
+      - MAX_CONCURRENT_SESSIONS=1
+      - LAUNCH_MODE=noop
+      - SESSION_SHELL=/bin/bash
+      - AUTH_MODE=none
+      - AUTH_DEFAULT_USER=dev-rodrigo
+      - OIDC_ISSUER_URL=https://kc-dev.rodrigodsiqueira.dev.br:8443/realms/digao-oauth-dev
+      - OIDC_CLIENT_ID=digao-oauth-portal
+      - GAME_CATALOG=steam-cs2::Counter-Strike 2::FPS competitivo::steam -applaunch 730;steam-dota2::Dota 2::MOBA::steam -applaunch 570
       - DISPLAY=${DISPLAY}
       - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
       - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/1000}

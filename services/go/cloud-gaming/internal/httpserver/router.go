@@ -7,7 +7,16 @@ import (
 	"github.com/digao/cloud-gaming/web"
 )
 
-func NewRouter(signalingHandler http.HandlerFunc) http.Handler {
+type Handlers struct {
+	SignalingWS  http.HandlerFunc
+	Hub          http.HandlerFunc
+	SessionStart http.HandlerFunc
+	SessionStop  http.HandlerFunc
+	SessionMe    http.HandlerFunc
+	AuthMe       http.HandlerFunc
+}
+
+func NewRouter(h Handlers) http.Handler {
 	staticSubFS, err := fs.Sub(web.StaticFS, "static")
 	if err != nil {
 		panic(err)
@@ -19,7 +28,24 @@ func NewRouter(signalingHandler http.HandlerFunc) http.Handler {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
-	mux.HandleFunc("/ws", signalingHandler)
+	if h.Hub != nil {
+		mux.HandleFunc("/api/hub", h.Hub)
+	}
+	if h.SessionStart != nil {
+		mux.HandleFunc("/api/sessions/start", h.SessionStart)
+	}
+	if h.SessionStop != nil {
+		mux.HandleFunc("/api/sessions/stop", h.SessionStop)
+	}
+	if h.SessionMe != nil {
+		mux.HandleFunc("/api/sessions/me", h.SessionMe)
+	}
+	if h.AuthMe != nil {
+		mux.HandleFunc("/api/auth/me", h.AuthMe)
+	}
+	if h.SignalingWS != nil {
+		mux.HandleFunc("/ws", h.SignalingWS)
+	}
 	mux.Handle("/", http.FileServer(http.FS(staticSubFS)))
 
 	return mux

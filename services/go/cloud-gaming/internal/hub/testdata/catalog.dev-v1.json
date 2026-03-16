@@ -1,0 +1,38 @@
+[
+  {
+    "id": "weed-shop-3",
+    "name": "Weed Shop 3",
+    "description": "Steam",
+    "platform": "steam",
+    "streamProvider": "sunshine",
+    "enabled": true,
+    "command": "/data/apps/deploy/cloud-gaming/host/start-steam-game.sh weed-shop-3"
+  },
+  {
+    "id": "schedule-i",
+    "name": "Schedule I",
+    "description": "Steam",
+    "platform": "steam",
+    "streamProvider": "sunshine",
+    "enabled": true,
+    "command": "/data/apps/deploy/cloud-gaming/host/start-steam-game.sh schedule-i"
+  },
+  {
+    "id": "god-of-war-iii",
+    "name": "God of War III",
+    "description": "RPCS3",
+    "platform": "rpcs3",
+    "streamProvider": "sunshine",
+    "enabled": true,
+    "command": "/data/apps/deploy/cloud-gaming/host/start-rpcs3-game.sh god-of-war-iii"
+  },
+  {
+    "id": "it-takes-two-switch",
+    "name": "It Takes Two",
+    "description": "Ryujinx placeholder",
+    "platform": "ryujinx",
+    "streamProvider": "sunshine",
+    "enabled": false,
+    "command": "/data/apps/deploy/cloud-gaming/host/start-ryujinx-game.sh it-takes-two-switch"
+  }
+]
