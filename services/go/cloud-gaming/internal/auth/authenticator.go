@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	ModeNone = "none"
-	ModeOIDC = "oidc"
+	ModeNone  = "none"
+	ModeOIDC  = "oidc"
+	ModeProxy = "proxy"
 )
 
 var (
@@ -26,16 +27,20 @@ type Claims struct {
 }
 
 type Config struct {
-	Mode         string
-	DefaultUser  string
-	OIDCIssuer   string
-	OIDCClientID string
+	Mode             string
+	DefaultUser      string
+	OIDCIssuer       string
+	OIDCClientID     string
+	ProxyUserHeader  string
+	ProxyEmailHeader string
 }
 
 type Authenticator struct {
-	mode        string
-	defaultUser string
-	verifier    *oidc.IDTokenVerifier
+	mode             string
+	defaultUser      string
+	verifier         *oidc.IDTokenVerifier
+	proxyUserHeader  string
+	proxyEmailHeader string
 }
 
 func NewAuthenticator(ctx context.Context, cfg Config) (*Authenticator, error) {
@@ -51,6 +56,22 @@ func NewAuthenticator(ctx context.Context, cfg Config) (*Authenticator, error) {
 		return &Authenticator{
 			mode:        ModeNone,
 			defaultUser: cfg.DefaultUser,
+		}, nil
+	}
+
+	if mode == ModeProxy {
+		userHeader := strings.TrimSpace(cfg.ProxyUserHeader)
+		if userHeader == "" {
+			userHeader = "X-Forwarded-User"
+		}
+		emailHeader := strings.TrimSpace(cfg.ProxyEmailHeader)
+		if emailHeader == "" {
+			emailHeader = "X-Forwarded-Email"
+		}
+		return &Authenticator{
+			mode:             ModeProxy,
+			proxyUserHeader:  userHeader,
+			proxyEmailHeader: emailHeader,
 		}, nil
 	}
 
@@ -129,9 +150,24 @@ func (a *Authenticator) AuthenticateRequest(r *http.Request) (Claims, error) {
 			Username: username,
 			Email:    email,
 		}, nil
+	case ModeProxy:
+		username := strings.TrimSpace(r.Header.Get(a.proxyUserHeader))
+		if username == "" {
+			return Claims{}, ErrUnauthorized
+		}
+
+		return Claims{
+			Subject:  username,
+			Username: username,
+			Email:    strings.TrimSpace(r.Header.Get(a.proxyEmailHeader)),
+		}, nil
 	default:
 		return Claims{}, ErrUnauthorized
 	}
+}
+
+func (a *Authenticator) Mode() string {
+	return a.mode
 }
 
 func extractBearerToken(r *http.Request) string {
