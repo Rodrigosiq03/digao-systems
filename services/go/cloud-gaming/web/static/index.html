@@ -86,6 +86,21 @@
         font-size: 12px;
       }
 
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .pill {
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 11px;
+        color: #cbd5e1;
+      }
+
       input,
       button {
         border: 1px solid rgba(148, 163, 184, 0.45);
@@ -105,35 +120,32 @@
         border-color: rgba(59, 130, 246, 0.8);
       }
 
-      .stream-container {
-        position: relative;
+      .provider-container {
+        padding: 24px;
         display: grid;
-        grid-template-rows: auto 1fr;
+        align-content: start;
+        gap: 16px;
+        background:
+          radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.18), transparent 30%),
+          linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.96));
       }
 
-      #stream-status {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        z-index: 10;
-        font-size: 12px;
-        background: rgba(2, 6, 23, 0.8);
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        border-radius: 8px;
-        padding: 8px 10px;
+      .provider-title {
+        font-size: 28px;
+        font-weight: 700;
       }
 
-      #game-stream {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: #000;
+      .provider-copy {
+        color: #cbd5e1;
+        font-size: 14px;
+        line-height: 1.6;
+        max-width: 760px;
       }
 
       @media (max-width: 980px) {
         .layout {
           grid-template-columns: 1fr;
-          grid-template-rows: 48% 52%;
+          grid-template-rows: auto 1fr;
         }
         .panel {
           border-right: none;
@@ -146,7 +158,7 @@
     <main class="layout">
       <aside class="panel">
         <h1>Digao Cloud Gaming Hub</h1>
-        <div class="muted">MVP dev com limite de sessoes e selecao de jogos</div>
+        <div class="muted">Dev v1 com sessao unica no host e stream via Sunshine</div>
 
         <section class="section control-row">
           <label for="token">Bearer token (somente se AUTH_MODE=oidc)</label>
@@ -162,7 +174,6 @@
           <div><strong>Sessao ativa</strong></div>
           <div id="session-info" class="status">nenhuma sessao ativa</div>
           <div class="control-row" style="margin-top: 8px">
-            <button id="connect-stream">Conectar stream</button>
             <button id="stop-session">Parar sessao</button>
           </div>
         </section>
@@ -173,9 +184,12 @@
         </section>
       </aside>
 
-      <section class="stream-container">
-        <div id="stream-status">stream: idle</div>
-        <video autoplay muted playsinline id="game-stream"></video>
+      <section class="provider-container">
+        <div id="provider-status" class="status">provider: pending</div>
+        <div class="provider-title">Stream provider externo</div>
+        <div id="provider-instructions" class="provider-copy">
+          Selecione um jogo para iniciar uma sessao. Neste dev v1 o hub reserva o host e lanca o jogo, mas o stream nao roda no navegador.
+        </div>
       </section>
     </main>
     <script src="/app.js"></script>
