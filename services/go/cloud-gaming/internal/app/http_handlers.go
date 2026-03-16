@@ -58,6 +58,10 @@ func (a *App) handleHub(w http.ResponseWriter, r *http.Request) {
 		"limits": map[string]int{
 			"maxConcurrentSessions": a.sessions.MaxConcurrent(),
 		},
+		"stream": map[string]any{
+			"provider":        a.cfg.StreamProvider,
+			"browserPlayable": a.cfg.StreamProvider != "sunshine",
+		},
 		"games":          a.sessions.ListGames(),
 		"activeSessions": a.sessions.ListActiveSessions(),
 		"userSession":    nil,

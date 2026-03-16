@@ -9,6 +9,7 @@ type Config struct {
 	Port             int
 	StreamSocketPath string
 	FrameRate        int
+	StreamProvider   string
 	AuthMode         string
 	AuthDefaultUser  string
 	OIDCIssuerURL    string
@@ -25,6 +26,7 @@ func FromEnv() Config {
 		Port:             getInt("PORT", 8080),
 		StreamSocketPath: getString("STREAM_SOCKET_PATH", "/tmp/digao-cloud-gaming/stream.sock"),
 		FrameRate:        getInt("FRAME_RATE", 60),
+		StreamProvider:   getString("STREAM_PROVIDER", "webrtc"),
 		AuthMode:         getString("AUTH_MODE", "none"),
 		AuthDefaultUser:  getString("AUTH_DEFAULT_USER", "dev-user"),
 		OIDCIssuerURL:    getString("OIDC_ISSUER_URL", ""),
