@@ -11,9 +11,9 @@ Hub web de cloud gaming com auth, catalogo e sessao. O backend ainda suporta o c
 - `internal/webrtc`: peer WebRTC do servidor
 - `internal/stream`: broker de frames e receiver IPC (Unix socket)
 - `internal/input`: recebimento de input (data channel e fallback por websocket)
-- `internal/auth`: autenticacao (`none` ou `oidc`)
+- `internal/auth`: autenticacao (`none`, `oidc` ou `proxy`)
 - `internal/hub`: catalogo de jogos e gerenciamento de sessoes
-- `web/static`: frontend HTML/JS minimo
+- `web/static`: frontend HTML/JS minimo (fallback tecnico)
 
 ## Variaveis de ambiente
 
@@ -30,10 +30,12 @@ Hub web de cloud gaming com auth, catalogo e sessao. O backend ainda suporta o c
 - `GAME_CATALOG`
   - formato legado: `id::nome::descricao::comando::stop(opcional);...`
   - default: `steam-cs2` e `steam-dota2`
-- `AUTH_MODE` (`none` ou `oidc`, default `none`)
+- `AUTH_MODE` (`none`, `oidc` ou `proxy`, default `none`)
 - `AUTH_DEFAULT_USER` (default `dev-user`, usado no modo `none`)
 - `OIDC_ISSUER_URL` (obrigatorio quando `AUTH_MODE=oidc`)
 - `OIDC_CLIENT_ID` (opcional; quando vazio usa validacao de issuer/assinatura sem aud estrito)
+- `AUTH_PROXY_USER_HEADER` (default `X-Forwarded-User`, usado no modo `proxy`)
+- `AUTH_PROXY_EMAIL_HEADER` (default `X-Forwarded-Email`, usado no modo `proxy`)
 
 ## API principal
 
@@ -44,6 +46,12 @@ Hub web de cloud gaming com auth, catalogo e sessao. O backend ainda suporta o c
 - `GET /api/auth/me`: diagnostico de autenticacao
 - `GET /ws`: WebRTC signaling (somente quando `STREAM_PROVIDER=webrtc`)
 
+`GET /api/hub` tambem pode expor:
+
+- `auth.mode`
+- `stream.provider`
+- `stream.browserPlayable`
+
 ## Modos de provider
 
 ### Sunshine (dev v1)
@@ -52,6 +60,7 @@ Hub web de cloud gaming com auth, catalogo e sessao. O backend ainda suporta o c
 - o stream nao roda no navegador
 - `/api/hub` expõe o provider ativo em `stream.provider`
 - o botao antigo de `Conectar stream` deixa de fazer parte da UX principal
+- no fluxo oficial, o acesso entra por `oauth2-proxy` e o backend opera em `AUTH_MODE=proxy`
 
 ### WebRTC legado
 

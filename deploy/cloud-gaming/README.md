@@ -1,29 +1,35 @@
 # Deploy - Cloud Gaming
 
-Subida basica do backend Go em modo `Sunshine + noop` para validar o hub dev v1.
+Subida do `dev v1` do cloud gaming com:
+
+- backend Go em modo `Sunshine + noop`
+- client React dedicado
+- `oauth2-proxy` na frente do client
+- publicacao no `npm-nonprod`
 
 ## Features do dev v1 deployado
 
-- Hub web com catalogo de jogos.
+- Client React com catalogo de jogos.
 - Criacao/parada de sessao por usuario.
 - Limite de sessoes concorrentes (`MAX_CONCURRENT_SESSIONS`).
 - Provider de stream marcado como `sunshine`.
-- Auth configuravel:
-  - `AUTH_MODE=none` para bootstrap rapido em dev.
-  - `AUTH_MODE=oidc` para validar JWT do Keycloak dev.
+- Auth no perimetro via `oauth2-proxy + Keycloak`.
+- Backend em `AUTH_MODE=proxy` para confiar apenas nos headers encaminhados pelo proxy.
 - Launcher configuravel:
   - `LAUNCH_MODE=noop` para validar hub/limites/stream sem abrir Steam.
   - `LAUNCH_MODE=exec` para executar comando do jogo.
 
-O compose automatico do CI/CD usa o modo mais basico:
-- backend apenas
+O compose automatico do CI/CD sobe:
+- backend host-mode
+- `cloud-gaming-web`
+- `oauth2-proxy-cloud-gaming`
 - `STREAM_PROVIDER=sunshine`
 - `LAUNCH_MODE=noop`
 - catalogo file-backed via `host/catalog.dev-v1.json`
 
 Isso valida:
-- URL do hub
-- auth basica do backend
+- URL oficial do produto
+- auth obrigatoria do Keycloak
 - contrato de sessao/catalogo
 - fluxo de CI/CD em `develop`
 
@@ -31,6 +37,7 @@ Isso ainda nao valida:
 - launcher real no host
 - Moonlight
 - RPCS3/Steam abrindo via backend
+- browser play
 
 ## Subir
 
@@ -39,10 +46,35 @@ cd deploy/cloud-gaming
 docker compose up -d --build
 ```
 
-## Acesso
+## Acesso oficial
 
-- Hub: `http://SEU_HOST:8090`
-- Health: `http://SEU_HOST:8090/healthz`
+No `dev`, a entrada oficial esperada eh:
+
+- `https://cloud-dev.rodrigodsiqueira.dev.br:8443`
+
+Essa URL deve apontar no `npm-nonprod` para:
+
+- host: `oauth2-proxy-cloud-gaming-dev`
+- port: `4180`
+- scheme: `http`
+
+Flags recomendadas no NPM:
+
+- `Block Common Exploits`: `ON`
+- `Websockets Support`: `OFF`
+- `Cache Assets`: `OFF`
+- `HTTP/2 Support`: `ON`
+
+Observacoes:
+
+- o backend cru em `:8090` deixa de ser a entrada principal
+- sem sessao do Keycloak, o acesso oficial nao deve abrir o produto
+- o client React fala com a API pelo mesmo dominio, via Nginx interno do `cloud-gaming-web`
+
+## Acesso tecnico
+
+- backend health: `http://SEU_HOST:8090/healthz`
+- backend cru: `http://SEU_HOST:8090` (nao oficial)
 
 ## Parar
 
@@ -56,6 +88,8 @@ docker compose down
 ```bash
 cd deploy/cloud-gaming
 docker compose logs -f digao-cloud-gaming-backend
+docker compose logs -f digao-cloud-gaming-web
+docker compose logs -f oauth2-proxy-cloud-gaming
 ```
 
 ## Notebook tampa fechada (host hardening)
@@ -90,4 +124,5 @@ O item de Ryujinx fica desabilitado no arquivo e nao aparece no catalogo ativo.
 Observacao importante:
 
 - Em docker, o default do CI/CD esta `LAUNCH_MODE=noop` para validar fluxo.
-- Para abrir Steam/RPCS3 real no host, o proximo passo eh migrar o deploy dev para backend host-mode com launchers reais e Sunshine externo.
+- O script `host/prepare_proxy_auth.py` gera `oauth2-proxy.env` localmente no deploy e adiciona o redirect URI do cloud gaming ao client compartilhado `admin-ui-dev`.
+- Para abrir Steam/RPCS3 real no host, o proximo passo eh trocar do baseline `noop` para launchers reais com Sunshine externo.

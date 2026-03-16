@@ -1,0 +1,475 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --bg: #07111f;
+  --bg-2: #0c1627;
+  --bg-3: #101c31;
+  --card: rgba(9, 16, 29, 0.86);
+  --card-strong: rgba(12, 20, 37, 0.94);
+  --text: #ecf2ff;
+  --muted: #9cb0d0;
+  --border: rgba(146, 171, 214, 0.18);
+  --brand: #2b3a55;
+  --brand-light: #6c8ec7;
+  --brand-bright: #9fbeff;
+  --accent: #c9a34a;
+  --danger: #ef6b73;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 14%, rgba(108, 142, 199, 0.25), transparent 26%),
+    radial-gradient(circle at 86% 18%, rgba(201, 163, 74, 0.14), transparent 24%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.gaming-shell {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.gaming-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.gaming-orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(20px);
+  opacity: 0.7;
+}
+
+.orb-primary {
+  top: -80px;
+  left: -60px;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(108, 142, 199, 0.32), transparent 68%);
+}
+
+.orb-secondary {
+  right: -120px;
+  bottom: -140px;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(201, 163, 74, 0.2), transparent 70%);
+}
+
+.gaming-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at 50% 35%, rgba(0, 0, 0, 1), transparent 78%);
+}
+
+.gaming-topbar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 32px 18px;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.brand-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-title-row h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 2vw, 2.2rem);
+}
+
+.topbar-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-badge {
+  gap: 8px;
+}
+
+.error-panel {
+  border: 1px solid rgba(239, 107, 115, 0.25);
+  border-radius: 24px;
+  background: rgba(22, 9, 15, 0.85);
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+.error-panel h2 {
+  margin: 0 0 8px;
+}
+
+.error-panel p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.gaming-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 420px);
+  gap: 24px;
+  padding: 8px 32px 32px;
+}
+
+.hero-column,
+.status-column {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
+.glass-card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+    var(--card);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.hero-card {
+  overflow: hidden;
+}
+
+.hero-card-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.9fr);
+  gap: 24px;
+  padding: 28px;
+}
+
+.hero-meta,
+.pill-row,
+.spotlight-tags,
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.hero-copy h2 {
+  margin: 0;
+  max-width: 13ch;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.hero-copy-text {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.hero-primary-action {
+  background: linear-gradient(135deg, var(--brand-light), var(--brand));
+  color: white;
+}
+
+.hero-spotlight {
+  display: grid;
+  align-items: stretch;
+}
+
+.spotlight-frame {
+  display: grid;
+  gap: 12px;
+  align-content: end;
+  min-height: 100%;
+  padding: 24px;
+  border: 1px solid rgba(159, 190, 255, 0.16);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(159, 190, 255, 0.06), rgba(12, 20, 37, 0.82)),
+    radial-gradient(circle at top right, rgba(201, 163, 74, 0.18), transparent 30%);
+}
+
+.spotlight-headline {
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.spotlight-game {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.spotlight-caption {
+  color: var(--muted);
+}
+
+.spotlight-tags span {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.spotlight-empty-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.game-card {
+  overflow: hidden;
+}
+
+.game-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.game-card-content {
+  display: grid;
+  gap: 14px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.game-card-copy {
+  margin: 0;
+  min-height: 3.4em;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.badge-live {
+  border-color: rgba(201, 163, 74, 0.3);
+  background: rgba(201, 163, 74, 0.14);
+}
+
+.panel-card .px-6.py-5 {
+  padding: 22px;
+}
+
+.panel-stack,
+.instruction-stack,
+.recent-list {
+  display: grid;
+  gap: 14px;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.metric-row strong {
+  color: var(--text);
+}
+
+.instruction-step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.instruction-step span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(108, 142, 199, 0.15);
+  color: var(--brand-bright);
+  font-weight: 700;
+}
+
+.instruction-step p,
+.ambient-card-copy p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.recent-item,
+.ambient-card-copy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.recent-empty {
+  color: var(--muted);
+}
+
+.error-card {
+  border-color: rgba(239, 107, 115, 0.24);
+  background:
+    linear-gradient(160deg, rgba(239, 107, 115, 0.08), rgba(12, 20, 37, 0.94)),
+    var(--card-strong);
+}
+
+.ambient-card {
+  background:
+    linear-gradient(160deg, rgba(108, 142, 199, 0.12), rgba(12, 20, 37, 0.94)),
+    var(--card-strong);
+}
+
+.ambient-card-copy {
+  padding: 20px 22px;
+  align-items: start;
+}
+
+.metal-btn {
+  background: linear-gradient(180deg, #f7f9ff, #ccd8f4);
+  color: #162238;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 1200px) {
+  .gaming-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-card-content {
+    grid-template-columns: 1fr;
+  }
+
+  .library-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .gaming-topbar,
+  .gaming-layout {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .gaming-topbar,
+  .section-header {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .topbar-status {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .library-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy h2 {
+    max-width: none;
+    font-size: 2.2rem;
+  }
+}

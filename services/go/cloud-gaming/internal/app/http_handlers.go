@@ -55,6 +55,9 @@ func (a *App) handleHub(w http.ResponseWriter, r *http.Request) {
 			"username": claims.Username,
 			"email":    claims.Email,
 		},
+		"auth": map[string]string{
+			"mode": a.cfg.AuthMode,
+		},
 		"limits": map[string]int{
 			"maxConcurrentSessions": a.sessions.MaxConcurrent(),
 		},

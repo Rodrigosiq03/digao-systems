@@ -14,6 +14,8 @@ type Config struct {
 	AuthDefaultUser  string
 	OIDCIssuerURL    string
 	OIDCClientID     string
+	ProxyUserHeader  string
+	ProxyEmailHeader string
 	MaxSessions      int
 	LaunchMode       string
 	SessionShell     string
@@ -31,6 +33,8 @@ func FromEnv() Config {
 		AuthDefaultUser:  getString("AUTH_DEFAULT_USER", "dev-user"),
 		OIDCIssuerURL:    getString("OIDC_ISSUER_URL", ""),
 		OIDCClientID:     getString("OIDC_CLIENT_ID", ""),
+		ProxyUserHeader:  getString("AUTH_PROXY_USER_HEADER", "X-Forwarded-User"),
+		ProxyEmailHeader: getString("AUTH_PROXY_EMAIL_HEADER", "X-Forwarded-Email"),
 		MaxSessions:      getInt("MAX_CONCURRENT_SESSIONS", 1),
 		LaunchMode:       getString("LAUNCH_MODE", "noop"),
 		SessionShell:     getString("SESSION_SHELL", "/bin/bash"),

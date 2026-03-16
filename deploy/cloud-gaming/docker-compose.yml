@@ -12,8 +12,34 @@ services:
       - MAX_CONCURRENT_SESSIONS=1
       - LAUNCH_MODE=noop
       - SESSION_SHELL=/bin/bash
-      - AUTH_MODE=none
-      - AUTH_DEFAULT_USER=dev-rodrigo
+      - AUTH_MODE=proxy
+      - AUTH_PROXY_USER_HEADER=X-Forwarded-User
+      - AUTH_PROXY_EMAIL_HEADER=X-Forwarded-Email
       - GAME_CATALOG_FILE=/app/config/catalog.dev-v1.json
     volumes:
       - ./host/catalog.dev-v1.json:/app/config/catalog.dev-v1.json:ro
+
+  digao-cloud-gaming-web:
+    build:
+      context: ../../clients/web/cloud-gaming
+    container_name: digao-cloud-gaming-web
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - npm_dev
+
+  oauth2-proxy-cloud-gaming:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.7.1
+    container_name: oauth2-proxy-cloud-gaming-dev
+    restart: unless-stopped
+    env_file:
+      - ./host/oauth2-proxy.env
+    depends_on:
+      - digao-cloud-gaming-web
+    networks:
+      - npm_dev
+
+networks:
+  npm_dev:
+    external: true

@@ -29,10 +29,12 @@ func New(cfg config.Config) *App {
 
 func (a *App) Run(ctx context.Context) error {
 	authenticator, err := auth.NewAuthenticator(ctx, auth.Config{
-		Mode:         a.cfg.AuthMode,
-		DefaultUser:  a.cfg.AuthDefaultUser,
-		OIDCIssuer:   a.cfg.OIDCIssuerURL,
-		OIDCClientID: a.cfg.OIDCClientID,
+		Mode:             a.cfg.AuthMode,
+		DefaultUser:      a.cfg.AuthDefaultUser,
+		OIDCIssuer:       a.cfg.OIDCIssuerURL,
+		OIDCClientID:     a.cfg.OIDCClientID,
+		ProxyUserHeader:  a.cfg.ProxyUserHeader,
+		ProxyEmailHeader: a.cfg.ProxyEmailHeader,
 	})
 	if err != nil {
 		return fmt.Errorf("configure authenticator: %w", err)
