@@ -1,19 +1,36 @@
 # Deploy - Cloud Gaming
 
-Subida conjunta do backend Go (hub + WebRTC) e motor C++.
+Subida basica do backend Go em modo `Sunshine + noop` para validar o hub dev v1.
 
-## Features do MVP dev
+## Features do dev v1 deployado
 
 - Hub web com catalogo de jogos.
 - Criacao/parada de sessao por usuario.
 - Limite de sessoes concorrentes (`MAX_CONCURRENT_SESSIONS`).
-- Stream WebRTC so abre com sessao ativa.
+- Provider de stream marcado como `sunshine`.
 - Auth configuravel:
   - `AUTH_MODE=none` para bootstrap rapido em dev.
   - `AUTH_MODE=oidc` para validar JWT do Keycloak dev.
 - Launcher configuravel:
   - `LAUNCH_MODE=noop` para validar hub/limites/stream sem abrir Steam.
   - `LAUNCH_MODE=exec` para executar comando do jogo.
+
+O compose automatico do CI/CD usa o modo mais basico:
+- backend apenas
+- `STREAM_PROVIDER=sunshine`
+- `LAUNCH_MODE=noop`
+- catalogo file-backed via `host/catalog.dev-v1.json`
+
+Isso valida:
+- URL do hub
+- auth basica do backend
+- contrato de sessao/catalogo
+- fluxo de CI/CD em `develop`
+
+Isso ainda nao valida:
+- launcher real no host
+- Moonlight
+- RPCS3/Steam abrindo via backend
 
 ## Subir
 
@@ -38,7 +55,7 @@ docker compose down
 
 ```bash
 cd deploy/cloud-gaming
-docker compose logs -f digao-cloud-gaming-backend digao-cloud-gaming-motor
+docker compose logs -f digao-cloud-gaming-backend
 ```
 
 ## Notebook tampa fechada (host hardening)
@@ -58,19 +75,19 @@ systemctl --user enable --now sunshine
 ```
 
 ## Catalogo de jogos
+O compose usa `GAME_CATALOG_FILE=/app/config/catalog.dev-v1.json`, montado de:
 
-A variavel `GAME_CATALOG` no compose usa formato:
+- `deploy/cloud-gaming/host/catalog.dev-v1.json`
 
-`id::nome::descricao::comando;id2::nome2::descricao2::comando2`
+Catalogo inicial:
 
-Exemplo atual:
+- `weed-shop-3`
+- `schedule-i`
+- `god-of-war-iii`
 
-- `steam-cs2` -> `steam -applaunch 730`
-- `steam-dota2` -> `steam -applaunch 570`
-
-Troque os comandos conforme os jogos instalados no seu servidor.
+O item de Ryujinx fica desabilitado no arquivo e nao aparece no catalogo ativo.
 
 Observacao importante:
 
-- Em docker, o default esta `LAUNCH_MODE=noop` para validar fluxo.
-- Para abrir Steam real no host, use `LAUNCH_MODE=exec` em processo com acesso ao ambiente grafico do host.
+- Em docker, o default do CI/CD esta `LAUNCH_MODE=noop` para validar fluxo.
+- Para abrir Steam/RPCS3 real no host, o proximo passo eh migrar o deploy dev para backend host-mode com launchers reais e Sunshine externo.

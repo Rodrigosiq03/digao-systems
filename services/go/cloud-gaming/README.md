@@ -1,6 +1,6 @@
 # Digao Cloud Gaming (Go)
 
-Servidor de sinalizacao e streaming WebRTC com hub de jogos (MVP dev), com cliente web embutido via `go:embed`.
+Hub web de cloud gaming com auth, catalogo e sessao. O backend ainda suporta o caminho WebRTC legado, mas o dev v1 usa `Sunshine` como provider de stream e mantem o navegador apenas como hub de controle.
 
 ## Estrutura
 
@@ -20,13 +20,15 @@ Servidor de sinalizacao e streaming WebRTC com hub de jogos (MVP dev), com clien
 - `PORT` (default `8080`)
 - `FRAME_RATE` (default `60`)
 - `STREAM_SOCKET_PATH` (default `/tmp/digao-cloud-gaming/stream.sock`)
+- `STREAM_PROVIDER` (`webrtc` ou `sunshine`, default `webrtc`)
 - `MAX_CONCURRENT_SESSIONS` (default `1`)
 - `LAUNCH_MODE` (`noop` ou `exec`, default `noop`)
   - `noop`: cria sessao sem executar comando (ideal para docker dev)
   - `exec`: executa comando do jogo no host/processo
 - `SESSION_SHELL` (default `/bin/bash`)
+- `GAME_CATALOG_FILE` (opcional; arquivo JSON de catalogo manual)
 - `GAME_CATALOG`
-  - formato: `id::nome::descricao::comando;id2::nome2::descricao2::comando2`
+  - formato legado: `id::nome::descricao::comando::stop(opcional);...`
   - default: `steam-cs2` e `steam-dota2`
 - `AUTH_MODE` (`none` ou `oidc`, default `none`)
 - `AUTH_DEFAULT_USER` (default `dev-user`, usado no modo `none`)
@@ -40,7 +42,21 @@ Servidor de sinalizacao e streaming WebRTC com hub de jogos (MVP dev), com clien
 - `POST /api/sessions/stop`: encerra sessao do usuario
 - `GET /api/sessions/me`: sessao ativa do usuario
 - `GET /api/auth/me`: diagnostico de autenticacao
-- `GET /ws`: WebRTC signaling (requer sessao ativa)
+- `GET /ws`: WebRTC signaling (somente quando `STREAM_PROVIDER=webrtc`)
+
+## Modos de provider
+
+### Sunshine (dev v1)
+
+- o hub autentica, mostra catalogo e inicia/para a sessao
+- o stream nao roda no navegador
+- `/api/hub` expõe o provider ativo em `stream.provider`
+- o botao antigo de `Conectar stream` deixa de fazer parte da UX principal
+
+### WebRTC legado
+
+- mantido para compatibilidade e debug
+- continua usando `/ws` + broker IPC + motor de stream
 
 ## Rodando sem Docker
 

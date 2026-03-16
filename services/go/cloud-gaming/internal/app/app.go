@@ -39,7 +39,7 @@ func (a *App) Run(ctx context.Context) error {
 	}
 	a.authenticator = authenticator
 
-	catalog, err := hub.ParseCatalog(a.cfg.GameCatalog)
+	catalog, err := hub.LoadCatalog(a.cfg.GameCatalogFile, a.cfg.GameCatalog)
 	if err != nil {
 		return fmt.Errorf("parse game catalog: %w", err)
 	}
@@ -47,27 +47,30 @@ func (a *App) Run(ctx context.Context) error {
 	a.sessions = hub.NewSessionManager(a.cfg.MaxSessions, a.cfg.LaunchMode, a.cfg.SessionShell, catalog)
 	defer a.sessions.Close()
 
-	streamBroker := stream.NewBroker()
-	ipcReceiver := stream.NewIPCReceiver(a.cfg.StreamSocketPath, streamBroker)
-	inputHandler := input.NewHandler()
-	gateway := webrtcgateway.NewGateway(streamBroker, inputHandler, a.cfg.FrameRate)
+	var wsHandler http.HandlerFunc
+	if a.cfg.StreamProvider != "sunshine" {
+		streamBroker := stream.NewBroker()
+		ipcReceiver := stream.NewIPCReceiver(a.cfg.StreamSocketPath, streamBroker)
+		inputHandler := input.NewHandler()
+		gateway := webrtcgateway.NewGateway(streamBroker, inputHandler, a.cfg.FrameRate)
 
-	go func() {
-		if err := ipcReceiver.Run(ctx); err != nil {
-			log.Printf("ipc receiver stopped with error: %v", err)
-		}
-	}()
+		go func() {
+			if err := ipcReceiver.Run(ctx); err != nil {
+				log.Printf("ipc receiver stopped with error: %v", err)
+			}
+		}()
 
-	wsHandler := func(w http.ResponseWriter, r *http.Request) {
-		claims, ok := a.authenticateOrWrite(w, r)
-		if !ok {
-			return
+		wsHandler = func(w http.ResponseWriter, r *http.Request) {
+			claims, ok := a.authenticateOrWrite(w, r)
+			if !ok {
+				return
+			}
+			if _, found := a.sessions.GetSessionForUser(claims.Subject); !found {
+				writeJSON(w, http.StatusConflict, apiError{Error: "start a game session before opening stream"})
+				return
+			}
+			gateway.ServeWS(w, r)
 		}
-		if _, found := a.sessions.GetSessionForUser(claims.Subject); !found {
-			writeJSON(w, http.StatusConflict, apiError{Error: "start a game session before opening stream"})
-			return
-		}
-		gateway.ServeWS(w, r)
 	}
 
 	handler := httpserver.NewRouter(httpserver.Handlers{

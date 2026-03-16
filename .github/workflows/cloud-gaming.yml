@@ -92,6 +92,7 @@ jobs:
         run: docker build -t digao-cloud-gaming-backend:${{ github.sha }} services/go/cloud-gaming
 
       - name: Build motor image
+        if: ${{ hashFiles('services/cpp/cloud-gaming-motor/**') != '' }}
         run: docker build -t digao-cloud-gaming-motor:${{ github.sha }} services/cpp/cloud-gaming-motor
 
   deploy:
@@ -125,7 +126,7 @@ jobs:
           issue-title: "Approve production deploy for cloud-gaming"
           issue-body: "Approve to deploy cloud-gaming to prod."
 
-      - name: Deploy cloud-gaming stack
+      - name: Deploy cloud-gaming dev v1 hub
         run: |
           set -euo pipefail
           cd deploy/cloud-gaming

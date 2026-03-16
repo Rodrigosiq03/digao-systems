@@ -27,12 +27,14 @@ type UserIdentity struct {
 }
 
 type Session struct {
-	ID        string    `json:"id"`
-	UserID    string    `json:"userId"`
-	Username  string    `json:"username"`
-	GameID    string    `json:"gameId"`
-	GameName  string    `json:"gameName"`
-	StartedAt time.Time `json:"startedAt"`
+	ID             string    `json:"id"`
+	UserID         string    `json:"userId"`
+	Username       string    `json:"username"`
+	GameID         string    `json:"gameId"`
+	GameName       string    `json:"gameName"`
+	Platform       string    `json:"platform,omitempty"`
+	StreamProvider string    `json:"streamProvider,omitempty"`
+	StartedAt      time.Time `json:"startedAt"`
 }
 
 type managedSession struct {
@@ -113,12 +115,14 @@ func (m *SessionManager) StartSession(user UserIdentity, gameID string) (Session
 	}
 
 	session := Session{
-		ID:        uuid.NewString(),
-		UserID:    user.ID,
-		Username:  user.Username,
-		GameID:    game.ID,
-		GameName:  game.Name,
-		StartedAt: time.Now().UTC(),
+		ID:             uuid.NewString(),
+		UserID:         user.ID,
+		Username:       user.Username,
+		GameID:         game.ID,
+		GameName:       game.Name,
+		Platform:       game.Platform,
+		StreamProvider: game.StreamProvider,
+		StartedAt:      time.Now().UTC(),
 	}
 
 	current := &managedSession{data: session}

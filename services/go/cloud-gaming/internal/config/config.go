@@ -9,6 +9,7 @@ type Config struct {
 	Port             int
 	StreamSocketPath string
 	FrameRate        int
+	StreamProvider   string
 	AuthMode         string
 	AuthDefaultUser  string
 	OIDCIssuerURL    string
@@ -16,6 +17,7 @@ type Config struct {
 	MaxSessions      int
 	LaunchMode       string
 	SessionShell     string
+	GameCatalogFile  string
 	GameCatalog      string
 }
 
@@ -24,6 +26,7 @@ func FromEnv() Config {
 		Port:             getInt("PORT", 8080),
 		StreamSocketPath: getString("STREAM_SOCKET_PATH", "/tmp/digao-cloud-gaming/stream.sock"),
 		FrameRate:        getInt("FRAME_RATE", 60),
+		StreamProvider:   getString("STREAM_PROVIDER", "webrtc"),
 		AuthMode:         getString("AUTH_MODE", "none"),
 		AuthDefaultUser:  getString("AUTH_DEFAULT_USER", "dev-user"),
 		OIDCIssuerURL:    getString("OIDC_ISSUER_URL", ""),
@@ -31,6 +34,7 @@ func FromEnv() Config {
 		MaxSessions:      getInt("MAX_CONCURRENT_SESSIONS", 1),
 		LaunchMode:       getString("LAUNCH_MODE", "noop"),
 		SessionShell:     getString("SESSION_SHELL", "/bin/bash"),
+		GameCatalogFile:  getString("GAME_CATALOG_FILE", ""),
 		GameCatalog: getString(
 			"GAME_CATALOG",
 			"steam-cs2::Counter-Strike 2::FPS competitivo::steam -applaunch 730;steam-dota2::Dota 2::MOBA::steam -applaunch 570",
