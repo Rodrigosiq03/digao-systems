@@ -10,6 +10,7 @@ on:
       - develop
       - main
     paths:
+      - "clients/web/cloud-gaming/**"
       - "services/go/cloud-gaming/**"
       - "services/cpp/cloud-gaming-motor/**"
       - "deploy/cloud-gaming/**"
@@ -49,6 +50,7 @@ jobs:
         with:
           filters: |
             cloud_gaming:
+              - "clients/web/cloud-gaming/**"
               - "services/go/cloud-gaming/**"
               - "services/cpp/cloud-gaming-motor/**"
               - "deploy/cloud-gaming/**"
@@ -91,6 +93,9 @@ jobs:
       - name: Build backend image
         run: docker build -t digao-cloud-gaming-backend:${{ github.sha }} services/go/cloud-gaming
 
+      - name: Build web image
+        run: docker build -t digao-cloud-gaming-web:${{ github.sha }} clients/web/cloud-gaming
+
       - name: Build motor image
         if: ${{ hashFiles('services/cpp/cloud-gaming-motor/**') != '' }}
         run: docker build -t digao-cloud-gaming-motor:${{ github.sha }} services/cpp/cloud-gaming-motor
@@ -129,7 +134,33 @@ jobs:
       - name: Deploy cloud-gaming dev v1 hub
         run: |
           set -euo pipefail
+          STACK="${{ steps.stack.outputs.value }}"
+          case "$STACK" in
+            dev)
+              CLOUD_HOST="https://cloud-dev.rodrigodsiqueira.dev.br:8443"
+              KC_PUBLIC_BASE="https://kc-dev.rodrigodsiqueira.dev.br:8443"
+              ;;
+            homolog)
+              CLOUD_HOST="https://cloud-homolog.rodrigodsiqueira.dev.br:8443"
+              KC_PUBLIC_BASE="https://kc-homolog.rodrigodsiqueira.dev.br:8443"
+              ;;
+            prod)
+              CLOUD_HOST="https://cloud.rodrigodsiqueira.dev.br"
+              KC_PUBLIC_BASE="https://login.rodrigodsiqueira.dev.br"
+              ;;
+          esac
+          SECRETS_FILE="${{ secrets.SECRETS_FILE_PATH }}"
+          if [[ -z "$SECRETS_FILE" ]]; then
+            SECRETS_FILE="/data/apps/pulumi/.secrets.local"
+          fi
           cd deploy/cloud-gaming
+          python3 ./host/prepare_proxy_auth.py \
+            --secrets-file "$SECRETS_FILE" \
+            --env "$STACK" \
+            --cloud-host "$CLOUD_HOST" \
+            --keycloak-admin-base-url "$KC_PUBLIC_BASE" \
+            --keycloak-public-base-url "$KC_PUBLIC_BASE" \
+            --output ./host/oauth2-proxy.env
           docker compose down || true
           docker compose up -d --build
           docker image prune -f
