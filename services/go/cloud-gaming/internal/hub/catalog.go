@@ -16,8 +16,19 @@ type Game struct {
 	Platform       string `json:"platform,omitempty"`
 	StreamProvider string `json:"streamProvider,omitempty"`
 	Enabled        bool   `json:"enabled,omitempty"`
-	Command        string `json:"command,omitempty"`
+	Command        string `json:"-"`
 	StopCommand    string `json:"-"`
+}
+
+type catalogFileEntry struct {
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	Platform       string `json:"platform,omitempty"`
+	StreamProvider string `json:"streamProvider,omitempty"`
+	Enabled        bool   `json:"enabled,omitempty"`
+	Command        string `json:"command,omitempty"`
+	StopCommand    string `json:"stopCommand,omitempty"`
 }
 
 func ParseCatalog(raw string) ([]Game, error) {
@@ -76,23 +87,27 @@ func LoadCatalog(filePath, raw string) ([]Game, error) {
 		return nil, fmt.Errorf("read catalog file: %w", err)
 	}
 
-	var catalog []Game
+	var catalog []catalogFileEntry
 	if err := json.Unmarshal(data, &catalog); err != nil {
 		return nil, fmt.Errorf("decode catalog file: %w", err)
 	}
 
 	games := make([]Game, 0, len(catalog))
 	seen := map[string]struct{}{}
-	for _, game := range catalog {
-		if !game.Enabled {
+	for _, entry := range catalog {
+		if !entry.Enabled {
 			continue
 		}
-		game.ID = strings.TrimSpace(game.ID)
-		game.Name = strings.TrimSpace(game.Name)
-		game.Description = strings.TrimSpace(game.Description)
-		game.Platform = strings.TrimSpace(game.Platform)
-		game.StreamProvider = strings.TrimSpace(game.StreamProvider)
-		game.Command = strings.TrimSpace(game.Command)
+		game := Game{
+			ID:             strings.TrimSpace(entry.ID),
+			Name:           strings.TrimSpace(entry.Name),
+			Description:    strings.TrimSpace(entry.Description),
+			Platform:       strings.TrimSpace(entry.Platform),
+			StreamProvider: strings.TrimSpace(entry.StreamProvider),
+			Enabled:        true,
+			Command:        strings.TrimSpace(entry.Command),
+			StopCommand:    strings.TrimSpace(entry.StopCommand),
+		}
 		if game.ID == "" || game.Name == "" || game.Command == "" {
 			return nil, fmt.Errorf("invalid enabled game entry in catalog file: %q", game.ID)
 		}
