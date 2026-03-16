@@ -1,5 +1,6 @@
 (() => {
   const tokenInput = document.getElementById("token");
+  const tokenPanel = document.getElementById("token-panel");
   const saveTokenButton = document.getElementById("save-token");
   const refreshHubButton = document.getElementById("refresh-hub");
   const authStatus = document.getElementById("auth-status");
@@ -22,6 +23,14 @@
 
   function setProviderStatus(text) {
     providerStatus.textContent = text;
+  }
+
+  function setTokenMode(authMode) {
+    const mode = (authMode || "none").toLowerCase();
+    const usesToken = mode === "oidc";
+    tokenPanel.style.display = usesToken ? "" : "none";
+    tokenInput.disabled = !usesToken;
+    saveTokenButton.disabled = !usesToken;
   }
 
   function authHeaders() {
@@ -87,8 +96,12 @@
 
     const session = state.hub.userSession;
     const stream = state.hub.stream || {};
+    const auth = state.hub.auth || {};
     const provider = stream.provider || "unknown";
     const browserPlayable = stream.browserPlayable === true;
+    const authMode = auth.mode || "none";
+
+    setTokenMode(authMode);
 
     if (session) {
       sessionInfo.textContent =
@@ -107,7 +120,9 @@
 
     const limit = state.hub.limits?.maxConcurrentSessions ?? "?";
     const active = Array.isArray(state.hub.activeSessions) ? state.hub.activeSessions.length : 0;
-    setAuthStatus(`user=${state.hub.user?.username || "?"} | sessoes ${active}/${limit}`);
+    setAuthStatus(
+      `auth=${authMode} | user=${state.hub.user?.username || "?"} | sessoes ${active}/${limit}`
+    );
     renderGames(state.hub.games);
   }
 
