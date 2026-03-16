@@ -4,51 +4,16 @@ services:
       context: ../../services/go/cloud-gaming
     container_name: digao-cloud-gaming-backend
     network_mode: host
-    privileged: true
     restart: unless-stopped
     environment:
       - PORT=8090
       - FRAME_RATE=60
-      - STREAM_SOCKET_PATH=/tmp/digao-cloud-gaming/stream.sock
+      - STREAM_PROVIDER=sunshine
       - MAX_CONCURRENT_SESSIONS=1
       - LAUNCH_MODE=noop
       - SESSION_SHELL=/bin/bash
       - AUTH_MODE=none
       - AUTH_DEFAULT_USER=dev-rodrigo
-      - OIDC_ISSUER_URL=https://kc-dev.rodrigodsiqueira.dev.br:8443/realms/digao-oauth-dev
-      - OIDC_CLIENT_ID=digao-oauth-portal
-      - GAME_CATALOG=steam-cs2::Counter-Strike 2::FPS competitivo::steam -applaunch 730;steam-dota2::Dota 2::MOBA::steam -applaunch 570
-      - DISPLAY=${DISPLAY}
-      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
-      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/1000}
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=video,compute,utility
+      - GAME_CATALOG_FILE=/app/config/catalog.dev-v1.json
     volumes:
-      - cloud-gaming-ipc:/tmp/digao-cloud-gaming
-      - /run/user/1000/pipewire-0:/run/user/1000/pipewire-0
-      - /dev/uinput:/dev/uinput
-
-  digao-cloud-gaming-motor:
-    build:
-      context: ../../services/cpp/cloud-gaming-motor
-    container_name: digao-cloud-gaming-motor
-    network_mode: host
-    privileged: true
-    restart: unless-stopped
-    environment:
-      - STREAM_SOCKET_PATH=/tmp/digao-cloud-gaming/stream.sock
-      - FPS=60
-      - WIDTH=1920
-      - HEIGHT=1080
-      - MOCK_MODE=true
-      - DISPLAY=${DISPLAY}
-      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
-      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/1000}
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=video,compute,utility
-    volumes:
-      - cloud-gaming-ipc:/tmp/digao-cloud-gaming
-      - /run/user/1000/pipewire-0:/run/user/1000/pipewire-0
-
-volumes:
-  cloud-gaming-ipc:
+      - ./host/catalog.dev-v1.json:/app/config/catalog.dev-v1.json:ro
