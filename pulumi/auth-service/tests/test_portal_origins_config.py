@@ -11,7 +11,7 @@ class AuthServicePortalOriginsConfigTest(unittest.TestCase):
     def test_workflow_renders_auth_stack_config(self):
         source = Path('.github/workflows/pulumi-services.yml').read_text()
         self.assertIn('AUTH_SERVICE_PORTAL_ORIGINS', source)
-        self.assertIn('auth-service:portalOrigins', source)
+        self.assertIn('pulumi -C pulumi/auth-service config set auth-service:portalOrigins "$AUTH_SERVICE_PORTAL_ORIGINS"', source)
         self.assertIn('environment:', source)
 
 
