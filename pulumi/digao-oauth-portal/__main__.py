@@ -15,13 +15,8 @@ REALM_BY_STACK = {
     "homolog": "digao-oauth-homolog",
     "prod": "digao-oauth-prod",
 }
-KEYCLOAK_URL_BY_STACK = {
-    "dev": "https://kc-dev.rodrigodsiqueira.dev.br:8443",
-    "homolog": "http://localhost:8080",
-    "prod": "http://localhost:8080",
-}
 API_URL_BY_STACK = {
-    "dev": "https://api-dev.rodrigodsiqueira.dev.br:8443",
+    "dev": "http://localhost:8081",
     "homolog": "http://localhost:8091",
     "prod": "http://localhost:8091",
 }
@@ -39,7 +34,7 @@ image_tag = cfg("imageTag", stack)
 http_port = int(cfg("httpPort", "8083"))
 expose_port = (cfg("exposePort", "false") or "false").lower() == "true"
 
-vite_kc_url = cfg("viteKcUrl", KEYCLOAK_URL_BY_STACK.get(stack, "http://localhost:8080"))
+vite_kc_url = cfg("viteKcUrl", "http://localhost:8080")
 vite_kc_realm = cfg("viteKcRealm", REALM_BY_STACK.get(stack, f"digao-oauth-{stack}"))
 vite_kc_client_id = cfg("viteKcClientId", "digao-oauth-portal")
 vite_api_url = cfg("viteApiUrl", API_URL_BY_STACK.get(stack, "http://localhost:8091"))
