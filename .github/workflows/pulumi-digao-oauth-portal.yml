@@ -35,6 +35,8 @@ concurrency:
 jobs:
   deploy:
     runs-on: [self-hosted, infra-light]
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && inputs.stack || (github.ref == 'refs/heads/main' && 'homolog' || 'dev') }}
     defaults:
       run:
         working-directory: pulumi/digao-oauth-portal
@@ -66,41 +68,18 @@ jobs:
       - name: Render stack config
         env:
           STACK: ${{ steps.stack.outputs.value }}
-          DIGAO_OAUTH_PORTAL_VITE_KC_URL_DEV: ${{ secrets.DIGAO_OAUTH_PORTAL_VITE_KC_URL_DEV }}
-          DIGAO_OAUTH_PORTAL_VITE_API_URL_DEV: ${{ secrets.DIGAO_OAUTH_PORTAL_VITE_API_URL_DEV }}
-          DIGAO_OAUTH_PORTAL_VITE_KC_URL_HOMOLOG: ${{ secrets.DIGAO_OAUTH_PORTAL_VITE_KC_URL_HOMOLOG }}
-          DIGAO_OAUTH_PORTAL_VITE_API_URL_HOMOLOG: ${{ secrets.DIGAO_OAUTH_PORTAL_VITE_API_URL_HOMOLOG }}
-          DIGAO_OAUTH_PORTAL_VITE_KC_URL_PROD: ${{ secrets.DIGAO_OAUTH_PORTAL_VITE_KC_URL_PROD }}
-          DIGAO_OAUTH_PORTAL_VITE_API_URL_PROD: ${{ secrets.DIGAO_OAUTH_PORTAL_VITE_API_URL_PROD }}
+          DIGAO_OAUTH_PORTAL_VITE_KC_URL: ${{ secrets.DIGAO_OAUTH_PORTAL_VITE_KC_URL }}
+          DIGAO_OAUTH_PORTAL_VITE_API_URL: ${{ secrets.DIGAO_OAUTH_PORTAL_VITE_API_URL }}
         run: |
-          case "$STACK" in
-            dev)
-              VITE_KC_URL="$DIGAO_OAUTH_PORTAL_VITE_KC_URL_DEV"
-              VITE_API_URL="$DIGAO_OAUTH_PORTAL_VITE_API_URL_DEV"
-              ;;
-            homolog)
-              VITE_KC_URL="$DIGAO_OAUTH_PORTAL_VITE_KC_URL_HOMOLOG"
-              VITE_API_URL="$DIGAO_OAUTH_PORTAL_VITE_API_URL_HOMOLOG"
-              ;;
-            prod)
-              VITE_KC_URL="$DIGAO_OAUTH_PORTAL_VITE_KC_URL_PROD"
-              VITE_API_URL="$DIGAO_OAUTH_PORTAL_VITE_API_URL_PROD"
-              ;;
-            *)
-              echo "Unsupported stack: $STACK"
-              exit 1
-              ;;
-          esac
-
-          if [[ -z "$VITE_KC_URL" || -z "$VITE_API_URL" ]]; then
+          if [[ -z "$DIGAO_OAUTH_PORTAL_VITE_KC_URL" || -z "$DIGAO_OAUTH_PORTAL_VITE_API_URL" ]]; then
             echo "Missing stack config secrets for $STACK"
             exit 1
           fi
 
           cat > "Pulumi.${STACK}.yaml" <<EOF
           config:
-            digao-oauth-portal:viteKcUrl: "$VITE_KC_URL"
-            digao-oauth-portal:viteApiUrl: "$VITE_API_URL"
+            digao-oauth-portal:viteKcUrl: "$DIGAO_OAUTH_PORTAL_VITE_KC_URL"
+            digao-oauth-portal:viteApiUrl: "$DIGAO_OAUTH_PORTAL_VITE_API_URL"
           EOF
 
       - name: Prepare venv
