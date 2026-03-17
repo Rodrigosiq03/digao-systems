@@ -2,7 +2,8 @@
 
 Subida do `dev v1` do cloud gaming com:
 
-- backend Go em modo `Sunshine + noop`
+- backend Go em **host mode**
+- launchers reais controlados pelo hub
 - client React dedicado
 - `oauth2-proxy` na frente do client
 - publicacao no `npm-nonprod`
@@ -19,12 +20,13 @@ Subida do `dev v1` do cloud gaming com:
   - `LAUNCH_MODE=noop` para validar hub/limites/stream sem abrir Steam.
   - `LAUNCH_MODE=exec` para executar comando do jogo.
 
-O compose automatico do CI/CD sobe:
-- backend host-mode
+O deploy automatico do CI/CD sobe:
+- backend host-mode via `systemd --user`
 - `cloud-gaming-web`
 - `oauth2-proxy-cloud-gaming`
 - `STREAM_PROVIDER=sunshine`
-- `LAUNCH_MODE=noop`
+- `LAUNCH_MODE=exec`
+- `SESSION_AUTO_END_ON_PROCESS_EXIT=false`
 - catalogo file-backed via `host/catalog.dev-v1.json`
 
 Isso valida:
@@ -33,17 +35,21 @@ Isso valida:
 - contrato de sessao/catalogo
 - fluxo de CI/CD em `develop`
 
+Isso valida:
+- launcher real do host para jogos aprovados no catalogo
+- o fluxo `hub -> iniciar sessao -> jogo sobe no host -> Sunshine fica pronto`
+
 Isso ainda nao valida:
-- launcher real no host
-- Moonlight
-- RPCS3/Steam abrindo via backend
 - browser play
+- Ryujinx
+- catalogo automatico
 
 ## Subir
 
 ```bash
 cd deploy/cloud-gaming
-docker compose up -d --build
+docker compose up -d --build digao-cloud-gaming-web oauth2-proxy-cloud-gaming
+systemctl --user restart cloud-gaming-backend.service
 ```
 
 ## Acesso oficial
@@ -70,6 +76,7 @@ Observacoes:
 - o backend cru em `:8090` deixa de ser a entrada principal
 - sem sessao do Keycloak, o acesso oficial nao deve abrir o produto
 - o client React fala com a API pelo mesmo dominio, via Nginx interno do `cloud-gaming-web`
+- o backend Go oficial roda no host, nao mais em container
 
 ## Acesso tecnico
 

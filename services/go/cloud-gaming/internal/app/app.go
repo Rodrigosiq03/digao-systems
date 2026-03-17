@@ -46,7 +46,14 @@ func (a *App) Run(ctx context.Context) error {
 		return fmt.Errorf("parse game catalog: %w", err)
 	}
 
-	a.sessions = hub.NewSessionManager(a.cfg.MaxSessions, a.cfg.LaunchMode, a.cfg.SessionShell, catalog)
+	a.sessions = hub.NewSessionManager(
+		a.cfg.MaxSessions,
+		a.cfg.LaunchMode,
+		a.cfg.SessionShell,
+		a.cfg.LaunchPrefix,
+		a.cfg.SessionAutoEndOnExit,
+		catalog,
+	)
 	defer a.sessions.Close()
 
 	var wsHandler http.HandlerFunc

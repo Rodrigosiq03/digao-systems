@@ -98,7 +98,15 @@ jobs:
               && ctest --test-dir "$project_dir/build" --output-on-failure'
 
       - name: Build backend image
-        run: docker build -t digao-cloud-gaming-backend:${{ github.sha }} services/go/cloud-gaming
+        run: |
+          docker run --rm \
+            -u "$(id -u):$(id -g)" \
+            -e GOCACHE=/tmp/go-build \
+            -e GOPATH=/tmp/go \
+            -v "$PWD":/workspace \
+            -w /workspace/services/go/cloud-gaming \
+            golang:1.22 \
+            sh -lc 'export PATH=$PATH:/usr/local/go/bin && mkdir -p bin && go build -o ./bin/cloud-gaming ./cmd/server'
 
       - name: Build web image
         run: docker build -t digao-cloud-gaming-web:${{ github.sha }} clients/web/cloud-gaming
@@ -168,6 +176,25 @@ jobs:
             --keycloak-admin-base-url "$KC_PUBLIC_BASE" \
             --keycloak-public-base-url "$KC_PUBLIC_BASE" \
             --output ./host/oauth2-proxy.env
+          cat > ./host/cloud-gaming.host.env <<EOF
+          PORT=8090
+          STREAM_PROVIDER=sunshine
+          FRAME_RATE=60
+          AUTH_MODE=proxy
+          AUTH_PROXY_USER_HEADER=X-Forwarded-User
+          AUTH_PROXY_EMAIL_HEADER=X-Forwarded-Email
+          MAX_CONCURRENT_SESSIONS=1
+          LAUNCH_MODE=exec
+          SESSION_SHELL=/bin/bash
+          SESSION_AUTO_END_ON_PROCESS_EXIT=false
+          GAME_LAUNCH_PREFIX="/data/apps/deploy/cloud-gaming/host/launch-game.sh --command {command} --game-id {game_id}"
+          GAME_CATALOG_FILE=/data/apps/deploy/cloud-gaming/host/catalog.dev-v1.json
+          EOF
+          mkdir -p ~/.config/systemd/user
+          install -m 644 ./host/cloud-gaming-backend.service ~/.config/systemd/user/cloud-gaming-backend.service
+          systemctl --user daemon-reload
+          systemctl --user enable --now cloud-gaming-backend.service
+          systemctl --user restart cloud-gaming-backend.service
           docker compose down || true
-          docker compose up -d --build
+          docker compose up -d --build digao-cloud-gaming-web oauth2-proxy-cloud-gaming
           docker image prune -f
