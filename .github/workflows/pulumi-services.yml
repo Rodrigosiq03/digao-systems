@@ -66,6 +66,8 @@ jobs:
 
   deploy:
     runs-on: [self-hosted, infra-heavy]
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && inputs.stack || (github.ref == 'refs/heads/main' && 'homolog' || 'dev') }}
     needs: [changes]
     if: |
       (github.event_name == 'workflow_dispatch') ||
@@ -221,6 +223,25 @@ jobs:
             --env "${{ steps.stack.outputs.value }}" \
             --secrets-file "$SECRETS_FILE" \
             --create
+
+      - name: Render auth stack config
+        if: |
+          matrix.service == 'auth' &&
+          ((github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
+           (github.event_name != 'workflow_dispatch' && needs.changes.outputs.auth == 'true'))
+        env:
+          STACK: ${{ steps.stack.outputs.value }}
+          AUTH_SERVICE_PORTAL_ORIGINS: ${{ vars.AUTH_SERVICE_PORTAL_ORIGINS }}
+        run: |
+          if [[ -z "$AUTH_SERVICE_PORTAL_ORIGINS" ]]; then
+            echo "Missing AUTH_SERVICE_PORTAL_ORIGINS for $STACK"
+            exit 1
+          fi
+
+          cat > "pulumi/auth-service/Pulumi.${STACK}.yaml" <<EOF
+          config:
+            auth-service:portalOrigins: "$AUTH_SERVICE_PORTAL_ORIGINS"
+          EOF
 
       - name: Select stack
         if: |

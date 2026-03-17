@@ -32,6 +32,7 @@ keycloak_base_url = config.get("keycloakBaseUrl") or f"http://keycloak-{stack}:8
 keycloak_realm = config.get("keycloakRealm") or f"digao-oauth-{stack}"
 keycloak_admin_client_id = config.get("keycloakAdminClientId") or "digao-oauth-backend-admin"
 keycloak_admin_client_secret = config.require_secret("keycloakAdminClientSecret")
+portal_origins = config.require("portalOrigins")
 
 issuer_url = config.get("issuerUrl") or f"{keycloak_base_url}/realms/{keycloak_realm}"
 
@@ -60,6 +61,7 @@ envs = [
     f"KEYCLOAK_ADMIN_CLIENT_ID={keycloak_admin_client_id}",
     pulumi.Output.concat("KEYCLOAK_ADMIN_CLIENT_SECRET=", keycloak_admin_client_secret),
     f"SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI={issuer_url}",
+    f"DIGAO_PORTAL_ORIGINS={portal_origins}",
 ]
 
 container_kwargs = dict(
