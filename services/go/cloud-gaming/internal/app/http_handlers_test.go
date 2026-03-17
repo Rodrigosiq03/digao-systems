@@ -26,7 +26,7 @@ func TestHandleHubIncludesAuthModeForProxyUI(t *testing.T) {
 			StreamProvider: "sunshine",
 		},
 		authenticator: authenticator,
-		sessions: hub.NewSessionManager(1, "noop", "/bin/bash", []hub.Game{
+		sessions: hub.NewSessionManager(1, "noop", "/bin/bash", "", true, []hub.Game{
 			{
 				ID:             "gow3",
 				Name:           "God of War III",

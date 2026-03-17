@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -38,23 +39,26 @@ type Session struct {
 }
 
 type managedSession struct {
-	data   Session
-	cancel context.CancelFunc
-	cmd    *exec.Cmd
+	data        Session
+	cancel      context.CancelFunc
+	cmd         *exec.Cmd
+	stopCommand string
 }
 
 type SessionManager struct {
 	mu sync.RWMutex
 
-	maxConcurrent int
-	launchMode    string
-	shell         string
-	games         map[string]Game
-	sessions      map[string]*managedSession
-	userSessions  map[string]string
+	maxConcurrent        int
+	launchMode           string
+	shell                string
+	launchPrefix         string
+	sessionAutoEndOnExit bool
+	games                map[string]Game
+	sessions             map[string]*managedSession
+	userSessions         map[string]string
 }
 
-func NewSessionManager(maxConcurrent int, launchMode, shell string, games []Game) *SessionManager {
+func NewSessionManager(maxConcurrent int, launchMode, shell, launchPrefix string, sessionAutoEndOnExit bool, games []Game) *SessionManager {
 	if maxConcurrent <= 0 {
 		maxConcurrent = 1
 	}
@@ -71,12 +75,14 @@ func NewSessionManager(maxConcurrent int, launchMode, shell string, games []Game
 	}
 
 	return &SessionManager{
-		maxConcurrent: maxConcurrent,
-		launchMode:    launchMode,
-		shell:         shell,
-		games:         gameMap,
-		sessions:      map[string]*managedSession{},
-		userSessions:  map[string]string{},
+		maxConcurrent:        maxConcurrent,
+		launchMode:           launchMode,
+		shell:                shell,
+		launchPrefix:         strings.TrimSpace(launchPrefix),
+		sessionAutoEndOnExit: sessionAutoEndOnExit,
+		games:                gameMap,
+		sessions:             map[string]*managedSession{},
+		userSessions:         map[string]string{},
 	}
 }
 
@@ -125,11 +131,14 @@ func (m *SessionManager) StartSession(user UserIdentity, gameID string) (Session
 		StartedAt:      time.Now().UTC(),
 	}
 
-	current := &managedSession{data: session}
+	current := &managedSession{
+		data:        session,
+		stopCommand: game.StopCommand,
+	}
 
 	if m.launchMode == "exec" {
 		ctx, cancel := context.WithCancel(context.Background())
-		cmd := exec.CommandContext(ctx, m.shell, "-lc", game.Command)
+		cmd := exec.CommandContext(ctx, m.shell, "-lc", m.renderLaunchCommand(game.Command, game.ID))
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		if err := cmd.Start(); err != nil {
@@ -139,7 +148,9 @@ func (m *SessionManager) StartSession(user UserIdentity, gameID string) (Session
 
 		current.cancel = cancel
 		current.cmd = cmd
-		go m.watchCommand(session.ID, cmd)
+		if m.sessionAutoEndOnExit {
+			go m.watchCommand(session.ID, cmd)
+		}
 	}
 
 	m.sessions[session.ID] = current
@@ -203,6 +214,17 @@ func (m *SessionManager) stopSessionLocked(sessionID string) (Session, error) {
 		return Session{}, ErrNoActiveSession
 	}
 
+	if current.stopCommand != "" {
+		stopCtx, cancelStop := context.WithTimeout(context.Background(), 8*time.Second)
+		stopCmd := exec.CommandContext(stopCtx, m.shell, "-lc", m.renderLaunchCommand(current.stopCommand, current.data.GameID))
+		stopCmd.Stdout = os.Stdout
+		stopCmd.Stderr = os.Stderr
+		if err := stopCmd.Run(); err != nil {
+			log.Printf("stop command failed (session=%s): %v", sessionID, err)
+		}
+		cancelStop()
+	}
+
 	if current.cancel != nil {
 		current.cancel()
 	}
@@ -231,4 +253,22 @@ func (m *SessionManager) watchCommand(sessionID string, cmd *exec.Cmd) {
 	}
 	delete(m.sessions, sessionID)
 	delete(m.userSessions, current.data.UserID)
+}
+
+func (m *SessionManager) renderLaunchCommand(command, gameID string) string {
+	baseCommand := strings.TrimSpace(command)
+	if m.launchPrefix == "" {
+		return baseCommand
+	}
+
+	quoted := shellQuote(baseCommand)
+	prefix := strings.ReplaceAll(m.launchPrefix, "{game_id}", shellQuote(strings.TrimSpace(gameID)))
+	if strings.Contains(m.launchPrefix, "{command}") {
+		return strings.ReplaceAll(prefix, "{command}", quoted)
+	}
+	return prefix + " " + quoted
+}
+
+func shellQuote(value string) string {
+	return "'" + strings.ReplaceAll(value, "'", `'"'"'`) + "'"
 }

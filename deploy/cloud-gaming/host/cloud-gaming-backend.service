@@ -1,0 +1,15 @@
+[Unit]
+Description=Digao Cloud Gaming Backend (Host Mode)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/data/apps/deploy/cloud-gaming/host
+ExecStart=/data/apps/deploy/cloud-gaming/host/run-backend-host.sh /data/apps/deploy/cloud-gaming/host/cloud-gaming.host.env
+Restart=always
+RestartSec=3
+TimeoutStopSec=10
+
+[Install]
+WantedBy=default.target

@@ -54,6 +54,13 @@ Arquivos:
 - `start-rpcs3-game.sh`: wrapper de jogos RPCS3 aprovados
 - `cloud-gaming.host.env.example`: env base para o backend em modo Sunshine
 
+Observacao sobre o RPCS3:
+
+- o wrapper procura nesta ordem:
+  - `RPCS3_BIN` no ambiente
+  - `rpcs3` no `PATH`
+  - AppImage padrao em `/data/downloads/rpcs3-v0.0.38-18397-5a9083e4_linux64.AppImage`
+
 Fluxo esperado:
 
 1. o hub autentica o usuario
