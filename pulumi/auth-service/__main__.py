@@ -34,7 +34,7 @@ keycloak_admin_client_id = config.get("keycloakAdminClientId") or "digao-oauth-b
 keycloak_admin_client_secret = config.require_secret("keycloakAdminClientSecret")
 portal_origins = config.require("portalOrigins")
 
-issuer_url = config.get("issuerUrl") or f"{keycloak_base_url}/realms/{keycloak_realm}"
+issuer_url = config.require("issuerUrl")
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
 npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")

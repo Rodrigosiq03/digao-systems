@@ -232,15 +232,17 @@ jobs:
         env:
           STACK: ${{ steps.stack.outputs.value }}
           AUTH_SERVICE_PORTAL_ORIGINS: ${{ vars.AUTH_SERVICE_PORTAL_ORIGINS }}
+          AUTH_SERVICE_ISSUER_URL: ${{ vars.AUTH_SERVICE_ISSUER_URL }}
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
           PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-services-${{ matrix.project }}/bin/python
         run: |
-          if [[ -z "$AUTH_SERVICE_PORTAL_ORIGINS" ]]; then
-            echo "Missing AUTH_SERVICE_PORTAL_ORIGINS for $STACK"
+          if [[ -z "$AUTH_SERVICE_PORTAL_ORIGINS" || -z "$AUTH_SERVICE_ISSUER_URL" ]]; then
+            echo "Missing auth runtime config for $STACK"
             exit 1
           fi
 
           pulumi -C pulumi/auth-service config set auth-service:portalOrigins "$AUTH_SERVICE_PORTAL_ORIGINS"
+          pulumi -C pulumi/auth-service config set auth-service:issuerUrl "$AUTH_SERVICE_ISSUER_URL"
 
       - name: Select stack
         if: |
