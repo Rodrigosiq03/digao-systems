@@ -59,7 +59,7 @@ image = docker.Image(
 )
 
 container_kwargs = dict(
-    image=image.image_name,
+    image=image.repo_digest,
     name=f"digao-oauth-portal-{stack}",
     restart="unless-stopped",
 )
