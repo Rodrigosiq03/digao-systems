@@ -2,7 +2,6 @@ import { StatCard } from '@/presentation/components/statCard';
 import { AuthPanel } from '@/presentation/components/authPanel';
 import { HeroSection } from '@/presentation/components/heroSection';
 import { FeatureGrid } from '@/presentation/components/featureGrid';
-import { KeycloakConfigForm } from '@/presentation/forms/keycloakConfigForm';
 import { useMemo } from 'react';
 import { useAdminGroups, useAdminUsers } from '@/presentation/hooks/useAdminData';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -48,7 +47,6 @@ export function AdminPage() {
       </section>
       <section className="space-y-6">
         <AuthPanel />
-        <KeycloakConfigForm />
       </section>
     </div>
   );

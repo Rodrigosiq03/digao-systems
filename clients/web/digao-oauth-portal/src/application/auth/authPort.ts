@@ -14,5 +14,4 @@ export interface AuthPort {
   getAccessToken: () => string | null;
   getRoles: () => string[];
   getConfig: () => { url: string; realm: string; clientId: string };
-  setConfig: (config: { url: string; realm: string; clientId: string }) => void;
 }

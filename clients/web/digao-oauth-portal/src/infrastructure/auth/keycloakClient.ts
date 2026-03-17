@@ -2,47 +2,36 @@ import Keycloak from 'keycloak-js';
 import type { AuthInitResult, AuthPort } from '@/application/auth/authPort';
 import type { UserProfile } from '@/domain/auth';
 
-const CONFIG_KEY = 'digao-keycloak-config';
-
 type KeycloakConfig = {
   url: string;
   realm: string;
   clientId: string;
 };
 
-const defaultConfig: KeycloakConfig = {
-  url: import.meta.env.VITE_KC_URL || 'http://localhost:8080',
-  realm: import.meta.env.VITE_KC_REALM || 'digao-oauth-dev',
-  clientId: import.meta.env.VITE_KC_CLIENT_ID || 'digao-oauth-portal'
+const requireEnv = (value: string | undefined, key: string): string => {
+  if (!value) {
+    throw new Error(`Missing required auth config: ${key}`);
+  }
+  return value;
 };
 
-const getStoredConfig = (): KeycloakConfig => {
-  const raw = localStorage.getItem(CONFIG_KEY);
-  if (!raw) return defaultConfig;
-  try {
-    const parsed = JSON.parse(raw) as KeycloakConfig;
-    return {
-      url: parsed.url || defaultConfig.url,
-      realm: parsed.realm || defaultConfig.realm,
-      clientId: parsed.clientId || defaultConfig.clientId
-    };
-  } catch {
-    return defaultConfig;
-  }
+const defaultConfig: KeycloakConfig = {
+  url: requireEnv(import.meta.env.VITE_KC_URL, 'VITE_KC_URL'),
+  realm: requireEnv(import.meta.env.VITE_KC_REALM, 'VITE_KC_REALM'),
+  clientId: requireEnv(import.meta.env.VITE_KC_CLIENT_ID, 'VITE_KC_CLIENT_ID')
 };
 
 let keycloakInstance: Keycloak | null = null;
-let activeConfig: KeycloakConfig = getStoredConfig();
+let activeConfig: KeycloakConfig = defaultConfig;
 let initPromise: Promise<AuthInitResult> | null = null;
 let initResult: AuthInitResult | null = null;
 
 const buildKeycloak = () => {
-  const current = getStoredConfig();
-  activeConfig = current;
+  activeConfig = defaultConfig;
   keycloakInstance = new Keycloak({
-    url: current.url,
-    realm: current.realm,
-    clientId: current.clientId
+    url: activeConfig.url,
+    realm: activeConfig.realm,
+    clientId: activeConfig.clientId
   });
   return keycloakInstance;
 };
@@ -125,8 +114,4 @@ export const keycloakAuthClient: AuthPort = {
     return Array.from(new Set([...(realmRoles as string[]), ...(clientRoles as string[])]));
   },
   getConfig: () => ({ ...activeConfig }),
-  setConfig: (config) => {
-    localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-    window.location.reload();
-  }
 };

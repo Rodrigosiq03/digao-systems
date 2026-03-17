@@ -6,6 +6,5 @@ export const createAuthUseCases = (port: AuthPort) => ({
   logout: () => port.logout(),
   refresh: () => port.refresh(),
   roles: () => port.getRoles(),
-  getConfig: () => port.getConfig(),
-  setConfig: (config: { url: string; realm: string; clientId: string }) => port.setConfig(config)
+  getConfig: () => port.getConfig()
 });
