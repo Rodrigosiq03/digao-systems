@@ -7,14 +7,30 @@ import { useThemeStore } from '@/presentation/stores/themeStore';
 import { AdminPage } from '@/presentation/pages/AdminPage';
 import { UsersPage } from '@/presentation/pages/UsersPage';
 import { SystemsPage } from '@/presentation/pages/SystemsPage';
+import { ProfilesPage } from '@/presentation/pages/ProfilesPage';
+import { CapabilitiesPage } from '@/presentation/pages/CapabilitiesPage';
+import { AssignmentsPage } from '@/presentation/pages/AssignmentsPage';
+import { AuditPage } from '@/presentation/pages/AuditPage';
+import { HomePage } from '@/presentation/pages/HomePage';
 import { AuthPanel } from '@/presentation/components/authPanel';
 import { ThemeToggle } from '@/presentation/components/themeToggle';
 
 export function AppShell() {
   const init = useAuthStore((state) => state.init);
-  const { isReady, isAuthenticated } = useAuthStore();
+  const { isReady, isAuthenticated, roles } = useAuthStore();
   const active = useNavStore((state) => state.active);
+  const setActive = useNavStore((state) => state.setActive);
   const theme = useThemeStore((state) => state.theme);
+  const isAdminMaster = roles.includes('ADMIN_MASTER');
+  const isAdmin = isAdminMaster || roles.includes('ADMIN');
+  const isCommon = roles.includes('COMMON');
+  const canViewAdminSections = isAdmin;
+
+  useEffect(() => {
+    if (!canViewAdminSections && active !== 'home') {
+      setActive('home');
+    }
+  }, [active, canViewAdminSections, setActive]);
 
   useEffect(() => {
     init();
@@ -78,9 +94,15 @@ export function AppShell() {
         <Topbar />
         <main className="app-content">
           <div className="page-transition">
-            {active === 'admin' && <AdminPage />}
-            {active === 'users' && <UsersPage />}
-            {active === 'systems' && <SystemsPage />}
+            {active === 'home' && <HomePage />}
+            {active === 'admin' && canViewAdminSections && <AdminPage />}
+            {active === 'users' && canViewAdminSections && <UsersPage />}
+            {active === 'systems' && canViewAdminSections && <SystemsPage />}
+            {active === 'profiles' && canViewAdminSections && <ProfilesPage />}
+            {active === 'capabilities' && canViewAdminSections && <CapabilitiesPage />}
+            {active === 'assignments' && canViewAdminSections && <AssignmentsPage />}
+            {active === 'audit' && canViewAdminSections && <AuditPage />}
+            {!canViewAdminSections && isCommon && active !== 'home' && <HomePage />}
           </div>
         </main>
       </div>

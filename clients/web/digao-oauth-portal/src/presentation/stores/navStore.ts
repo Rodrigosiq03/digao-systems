@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 
-export type NavSection = 'admin' | 'users' | 'systems';
+export type NavSection =
+  | 'home'
+  | 'admin'
+  | 'users'
+  | 'systems'
+  | 'profiles'
+  | 'capabilities'
+  | 'assignments'
+  | 'audit';
 
 type NavState = {
   active: NavSection;
@@ -8,6 +16,6 @@ type NavState = {
 };
 
 export const useNavStore = create<NavState>((set) => ({
-  active: 'admin',
+  active: 'home',
   setActive: (section) => set({ active: section })
 }));
