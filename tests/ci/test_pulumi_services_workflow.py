@@ -18,6 +18,12 @@ class PulumiServicesWorkflowContractTest(unittest.TestCase):
         source = WORKFLOW.read_text()
         self.assertNotIn('      - "pulumi/scripts/apply-secrets.py"', source)
 
+    def test_paths_filter_uses_push_commit_range(self):
+        source = WORKFLOW.read_text()
+        self.assertIn("base:", source)
+        self.assertIn("github.event.before", source)
+        self.assertIn("ref: ${{ github.sha }}", source)
+
     def test_auth_runtime_config_requires_authorization_db_envs(self):
         source = WORKFLOW.read_text()
         self.assertIn("AUTH_SERVICE_AUTHORIZATION_DB_JDBC_URL", source)
