@@ -62,4 +62,14 @@ public class SystemEntity {
     public String getName() {
         return name;
     }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void disable(String updatedBy) {
+        this.enabled = false;
+        this.updatedBy = updatedBy;
+        this.updatedAt = OffsetDateTime.now();
+    }
 }

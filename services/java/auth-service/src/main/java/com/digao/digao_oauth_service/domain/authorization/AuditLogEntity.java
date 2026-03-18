@@ -43,4 +43,18 @@ public class AuditLogEntity {
 
     protected AuditLogEntity() {
     }
+
+    public static AuditLogEntity create(String actorUserId, String actorEmail, String action, String targetType, String targetId) {
+        AuditLogEntity entity = new AuditLogEntity();
+        entity.actorUserId = actorUserId;
+        entity.actorEmail = actorEmail;
+        entity.action = action;
+        entity.targetType = targetType;
+        entity.targetId = targetId;
+        return entity;
+    }
+
+    public String getAction() {
+        return action;
+    }
 }
