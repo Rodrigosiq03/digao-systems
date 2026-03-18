@@ -1,0 +1,5 @@
+name: postgres-apps
+runtime:
+  name: python
+main: __main__.py
+description: Shared PostgreSQL for Digao application domains

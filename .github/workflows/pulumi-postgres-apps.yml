@@ -1,0 +1,139 @@
+name: pulumi-postgres-apps
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - "pulumi/postgres-apps/**"
+      - ".github/workflows/pulumi-postgres-apps.yml"
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: "Pulumi stack select (dev|homolog|prod)"
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - homolog
+          - prod
+
+concurrency:
+  group: pulumi-postgres-apps-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, infra-light]
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && inputs.stack || (github.ref == 'refs/heads/main' && 'homolog' || 'dev') }}
+    defaults:
+      run:
+        working-directory: pulumi/postgres-apps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decide stack
+        id: stack
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "value=${{ inputs.stack }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "value=homolog" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Gate production
+        if: ${{ steps.stack.outputs.value == 'prod' }}
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ${{ github.actor }}
+          minimum-approvals: 1
+          issue-title: "Approve production deploy for postgres-apps"
+          issue-body: "Approve to deploy postgres-apps to prod."
+
+      - name: Prepare venv
+        run: |
+          PY="$HOME/.pyenv/versions/3.12.8/bin/python"
+          VENV="/data/apps/.venvs/pulumi-postgres-apps"
+          if [[ ! -x "$PY" ]]; then
+            echo "pyenv Python 3.12.8 not found at $PY"
+            exit 1
+          fi
+          "$PY" --version
+          if [[ ! -x "$VENV/bin/python" ]]; then
+            "$PY" -m venv "$VENV"
+            "$VENV/bin/python" -m pip install --upgrade pip
+          else
+            "$VENV/bin/python" --version
+          fi
+
+      - name: Install dependencies
+        run: |
+          VENV="/data/apps/.venvs/pulumi-postgres-apps"
+          REQ_HASH_FILE="$VENV/.requirements.sha256"
+          CURRENT_HASH="$(sha256sum requirements.txt | awk '{print $1}')"
+          if [[ -f "$REQ_HASH_FILE" ]] && [[ "$(cat "$REQ_HASH_FILE")" == "$CURRENT_HASH" ]]; then
+            echo "requirements.txt unchanged; skipping pip install"
+          else
+            "$VENV/bin/python" -m pip install -r requirements.txt
+            printf '%s\n' "$CURRENT_HASH" > "$REQ_HASH_FILE"
+          fi
+
+      - name: Show requirements
+        run: cat requirements.txt
+
+      - name: Pulumi login
+        run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
+
+      - name: Set runtime config
+        env:
+          POSTGRES_APPS_DB_PASSWORD: ${{ secrets.POSTGRES_APPS_DB_PASSWORD }}
+          POSTGRES_APPS_DB_USER: ${{ vars.POSTGRES_APPS_DB_USER }}
+          POSTGRES_APPS_DB_NAME: ${{ vars.POSTGRES_APPS_DB_NAME }}
+          POSTGRES_APPS_IMAGE_TAG: ${{ vars.POSTGRES_APPS_IMAGE_TAG }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-postgres-apps/bin/python
+        run: |
+          if [[ -z "$POSTGRES_APPS_DB_PASSWORD" ]]; then
+            echo "Missing POSTGRES_APPS_DB_PASSWORD for ${{ steps.stack.outputs.value }}"
+            exit 1
+          fi
+
+          pulumi config set --secret postgres-apps:dbPassword "$POSTGRES_APPS_DB_PASSWORD"
+
+          if [[ -n "$POSTGRES_APPS_DB_USER" ]]; then
+            pulumi config set postgres-apps:dbUser "$POSTGRES_APPS_DB_USER"
+          fi
+
+          if [[ -n "$POSTGRES_APPS_DB_NAME" ]]; then
+            pulumi config set postgres-apps:dbName "$POSTGRES_APPS_DB_NAME"
+          fi
+
+          if [[ -n "$POSTGRES_APPS_IMAGE_TAG" ]]; then
+            pulumi config set postgres-apps:imageTag "$POSTGRES_APPS_IMAGE_TAG"
+          fi
+
+      - name: Select stack
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-postgres-apps/bin/python
+        run: pulumi stack select "${{ steps.stack.outputs.value }}"
+
+      - name: Deploy
+        env:
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-postgres-apps/bin/python
+        run: pulumi up --yes
