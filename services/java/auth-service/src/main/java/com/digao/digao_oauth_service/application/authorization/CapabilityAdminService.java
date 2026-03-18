@@ -35,4 +35,12 @@ public class CapabilityAdminService {
     public List<CapabilityEntity> list() {
         return capabilityRepository.findAll();
     }
+
+    @Transactional
+    public CapabilityEntity disable(Long capabilityId, String actor) {
+        CapabilityEntity entity = capabilityRepository.findById(capabilityId).orElseThrow();
+        entity.disable(actor);
+        auditLogService.record(actor, "capability.disabled", "capability", entity.getId().toString());
+        return entity;
+    }
 }

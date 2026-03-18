@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { UserProfileAssignmentForm } from '@/presentation/forms/userProfileAssignmentForm';
 import {
   useAuthorizationAssignments,
   useAuthorizationProfiles,
   useAssignAuthorizationUserProfile,
+  useRevokeAuthorizationUserProfile,
 } from '@/presentation/hooks/useAuthorizationData';
 import { useAuthStore } from '@/presentation/stores/authStore';
 
@@ -19,6 +21,7 @@ export function AssignmentsPage() {
   const isReadOnly = roles.includes('ADMIN') && !roles.includes('ADMIN_MASTER');
   const isAdminMaster = roles.includes('ADMIN_MASTER');
   const assignMutation = useAssignAuthorizationUserProfile();
+  const revokeMutation = useRevokeAuthorizationUserProfile();
 
   const handleAssign = async (payload: { keycloakUserId: string; profileId: number }) => {
     setFeedback(null);
@@ -27,6 +30,16 @@ export function AssignmentsPage() {
       setFeedback({ type: 'success', message: `Profile ${assignment.profileKey} vinculado a ${assignment.keycloakUserId}.` });
     } catch (err) {
       setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao vincular profile.' });
+    }
+  };
+
+  const handleRevoke = async (assignmentId: number, keycloakUserId: string) => {
+    setFeedback(null);
+    try {
+      const assignment = await revokeMutation.mutateAsync({ assignmentId, keycloakUserId });
+      setFeedback({ type: 'success', message: `Vínculo ${assignment.profileKey} revogado de ${assignment.keycloakUserId}.` });
+    } catch (err) {
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao revogar vínculo.' });
     }
   };
 
@@ -85,6 +98,18 @@ export function AssignmentsPage() {
             <article key={assignment.id} className="glass-card space-y-1 p-4">
               <h3 className="font-semibold">{assignment.profileKey}</h3>
               <p className="text-sm text-[color:var(--muted)]">{assignment.keycloakUserId}</p>
+              {isAdminMaster && (
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={revokeMutation.isPending}
+                    onClick={() => handleRevoke(assignment.id, assignment.keycloakUserId)}
+                  >
+                    Revogar vínculo
+                  </Button>
+                </div>
+              )}
             </article>
           ))}
         </div>

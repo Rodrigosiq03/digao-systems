@@ -71,10 +71,26 @@ export const useCreateAuthorizationCapability = () => {
   });
 };
 
+export const useDisableAuthorizationCapability = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (capabilityId: number) => authorizationClient.disableCapability(capabilityId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authorization', 'capabilities'] }),
+  });
+};
+
 export const useCreateAuthorizationProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: authorizationClient.createProfile,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authorization', 'profiles'] }),
+  });
+};
+
+export const useDisableAuthorizationProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (profileId: number) => authorizationClient.disableProfile(profileId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authorization', 'profiles'] }),
   });
 };
@@ -94,6 +110,17 @@ export const useAssignAuthorizationUserProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: authorizationClient.assignUserProfile,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['authorization', 'assignments', variables.keycloakUserId] });
+    },
+  });
+};
+
+export const useRevokeAuthorizationUserProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ assignmentId, keycloakUserId }: { assignmentId: number; keycloakUserId: string }) =>
+      authorizationClient.revokeUserProfile(assignmentId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['authorization', 'assignments', variables.keycloakUserId] });
     },

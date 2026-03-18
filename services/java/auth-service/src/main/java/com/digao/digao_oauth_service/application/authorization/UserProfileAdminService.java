@@ -35,4 +35,12 @@ public class UserProfileAdminService {
     public List<UserProfileEntity> listActiveAssignments(String keycloakUserId) {
         return userProfileRepository.findAllByKeycloakUserIdAndRevokedAtIsNull(keycloakUserId);
     }
+
+    @Transactional
+    public UserProfileEntity revoke(Long assignmentId, String actor) {
+        UserProfileEntity entity = userProfileRepository.findById(assignmentId).orElseThrow();
+        entity.revoke(actor);
+        auditLogService.record(actor, "user_profile.revoked", "user_profile", entity.getId().toString());
+        return entity;
+    }
 }

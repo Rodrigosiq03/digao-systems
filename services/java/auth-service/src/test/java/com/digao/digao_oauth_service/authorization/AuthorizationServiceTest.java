@@ -78,14 +78,23 @@ class AuthorizationServiceTest {
         UserProfileEntity assignment = userProfileAdminService.assign("kc-user-1", profile.getId(), "admin-master");
 
         SystemEntity disabled = systemAdminService.disable(system.getId(), "admin-master");
+        CapabilityEntity disabledCapability = capabilityAdminService.disable(capability.getId(), "admin-master");
+        ProfileEntity disabledProfile = profileAdminService.disable(profile.getId(), "admin-master");
+        UserProfileEntity revokedAssignment = userProfileAdminService.revoke(assignment.getId(), "admin-master");
         List<AuditLogEntity> auditLogs = auditLogRepository.findAll();
 
         assertNotNull(assignment.getId());
         assertFalse(disabled.isEnabled());
-        assertEquals(1, userProfileAdminService.listActiveAssignments("kc-user-1").size());
-        assertTrue(auditLogs.size() >= 5);
+        assertFalse(disabledCapability.isEnabled());
+        assertFalse(disabledProfile.isEnabled());
+        assertEquals(0, userProfileAdminService.listActiveAssignments("kc-user-1").size());
+        assertNotNull(revokedAssignment.getId());
+        assertTrue(auditLogs.size() >= 8);
         assertTrue(auditLogs.stream().anyMatch(log -> "system.created".equals(log.getAction())));
         assertTrue(auditLogs.stream().anyMatch(log -> "user_profile.assigned".equals(log.getAction())));
+        assertTrue(auditLogs.stream().anyMatch(log -> "capability.disabled".equals(log.getAction())));
+        assertTrue(auditLogs.stream().anyMatch(log -> "profile.disabled".equals(log.getAction())));
+        assertTrue(auditLogs.stream().anyMatch(log -> "user_profile.revoked".equals(log.getAction())));
         assertNotNull(auditLogService);
         assertEquals("cloud-gaming-curator", profileRepository.findById(profile.getId()).orElseThrow().getKey());
     }

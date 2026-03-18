@@ -19,11 +19,14 @@ export interface AuthorizationPort {
   disableSystem: (systemId: number) => Promise<AuthorizationSystem>;
   listCapabilities: () => Promise<AuthorizationCapability[]>;
   createCapability: (payload: CreateAuthorizationCapabilityInput) => Promise<AuthorizationCapability>;
+  disableCapability: (capabilityId: number) => Promise<AuthorizationCapability>;
   listProfiles: () => Promise<AuthorizationProfile[]>;
   createProfile: (payload: CreateAuthorizationProfileInput) => Promise<AuthorizationProfile>;
+  disableProfile: (profileId: number) => Promise<AuthorizationProfile>;
   grantProfileCapability: (payload: GrantProfileCapabilityInput) => Promise<AuthorizationProfileCapability>;
   listUserProfiles: (keycloakUserId: string) => Promise<AuthorizationUserProfile[]>;
   assignUserProfile: (payload: AssignUserProfileInput) => Promise<AuthorizationUserProfile>;
+  revokeUserProfile: (assignmentId: number) => Promise<AuthorizationUserProfile>;
   listAuditLogs: () => Promise<AuthorizationAuditLog[]>;
   getMyAccess: () => Promise<MyAccess>;
 }

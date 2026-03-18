@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CapabilityForm } from '@/presentation/forms/capabilityForm';
 import {
   useAuthorizationCapabilities,
   useAuthorizationSystems,
   useCreateAuthorizationCapability,
+  useDisableAuthorizationCapability,
 } from '@/presentation/hooks/useAuthorizationData';
 import { useAuthStore } from '@/presentation/stores/authStore';
 
@@ -18,6 +20,7 @@ export function CapabilitiesPage() {
   const isReadOnly = roles.includes('ADMIN') && !roles.includes('ADMIN_MASTER');
   const isAdminMaster = roles.includes('ADMIN_MASTER');
   const createCapabilityMutation = useCreateAuthorizationCapability();
+  const disableCapabilityMutation = useDisableAuthorizationCapability();
 
   const handleCreateCapability = async (payload: { systemId: number; key: string; name: string }) => {
     setFeedback(null);
@@ -26,6 +29,16 @@ export function CapabilitiesPage() {
       setFeedback({ type: 'success', message: `Capability ${capability.name} criada.` });
     } catch (err) {
       setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar capability.' });
+    }
+  };
+
+  const handleDisableCapability = async (capabilityId: number) => {
+    setFeedback(null);
+    try {
+      const capability = await disableCapabilityMutation.mutateAsync(capabilityId);
+      setFeedback({ type: 'success', message: `Capability ${capability.name} desativada.` });
+    } catch (err) {
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao desativar capability.' });
     }
   };
 
@@ -78,10 +91,27 @@ export function CapabilitiesPage() {
         <div className="space-y-3">
           {capabilities.map((capability) => (
             <article key={capability.id} className="glass-card space-y-1 p-4">
-              <h3 className="font-semibold">{capability.name}</h3>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-semibold">{capability.name}</h3>
+                <span className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
+                  {capability.enabled ? 'Ativa' : 'Desativada'}
+                </span>
+              </div>
               <p className="text-sm text-[color:var(--muted)]">
                 {capability.key} • system #{capability.systemId}
               </p>
+              {isAdminMaster && capability.enabled && (
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={disableCapabilityMutation.isPending}
+                    onClick={() => handleDisableCapability(capability.id)}
+                  >
+                    Desativar capability
+                  </Button>
+                </div>
+              )}
             </article>
           ))}
         </div>

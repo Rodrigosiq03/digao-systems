@@ -119,6 +119,9 @@ class AdminAuthorizationControllerTest {
         SystemEntity system = systemAdminService.create("system-" + suffix, "System " + suffix, "seed");
         ProfileEntity grantProfile = profileAdminService.create("grant-profile-" + suffix, "Grant Profile " + suffix, "seed");
         CapabilityEntity grantCapability = capabilityAdminService.create(system.getId(), "grant.capability." + suffix, "Grant Capability " + suffix, "seed");
+        ProfileEntity disableProfile = profileAdminService.create("disable-profile-" + suffix, "Disable Profile " + suffix, "seed");
+        CapabilityEntity disableCapability = capabilityAdminService.create(system.getId(), "disable.capability." + suffix, "Disable Capability " + suffix, "seed");
+        var assignment = userProfileAdminService.assign("kc-revoke-" + suffix, disableProfile.getId(), "seed");
 
         mockMvc.perform(post("/admin/capabilities")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
@@ -175,6 +178,28 @@ class AdminAuthorizationControllerTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.keycloakUserId").value("kc-user-" + suffix))
             .andExpect(jsonPath("$.profileKey").value("grant-profile-" + suffix));
+
+        mockMvc.perform(patch("/admin/capabilities/{capabilityId}/disable", disableCapability.getId())
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
+                    .jwt(token -> token.subject("admin-master"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(disableCapability.getId()))
+            .andExpect(jsonPath("$.enabled").value(false));
+
+        mockMvc.perform(patch("/admin/profiles/{profileId}/disable", disableProfile.getId())
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
+                    .jwt(token -> token.subject("admin-master"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(disableProfile.getId()))
+            .andExpect(jsonPath("$.enabled").value(false));
+
+        mockMvc.perform(patch("/admin/user-profiles/{assignmentId}/revoke", assignment.getId())
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
+                    .jwt(token -> token.subject("admin-master"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(assignment.getId()))
+            .andExpect(jsonPath("$.keycloakUserId").value("kc-revoke-" + suffix))
+            .andExpect(jsonPath("$.profileKey").value("disable-profile-" + suffix));
     }
 
     @Test
@@ -236,6 +261,11 @@ class AdminAuthorizationControllerTest {
                       "name": "Forbidden Profile"
                     }
                     """))
+            .andExpect(status().isForbidden());
+
+        mockMvc.perform(patch("/admin/profiles/{profileId}/disable", profile.getId())
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                    .jwt(token -> token.subject("admin-viewer"))))
             .andExpect(status().isForbidden());
     }
 

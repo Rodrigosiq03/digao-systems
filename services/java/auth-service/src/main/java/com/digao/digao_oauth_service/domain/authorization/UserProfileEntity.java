@@ -61,4 +61,9 @@ public class UserProfileEntity {
     public ProfileEntity getProfile() {
         return profile;
     }
+
+    public void revoke(String actor) {
+        this.revokedAt = OffsetDateTime.now();
+        this.revokedBy = actor;
+    }
 }

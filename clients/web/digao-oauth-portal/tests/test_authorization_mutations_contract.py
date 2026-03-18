@@ -21,9 +21,12 @@ class AuthorizationMutationsContractTest(unittest.TestCase):
             'useCreateAuthorizationSystem',
             'useDisableAuthorizationSystem',
             'useCreateAuthorizationProfile',
+            'useDisableAuthorizationProfile',
             'useCreateAuthorizationCapability',
+            'useDisableAuthorizationCapability',
             'useGrantAuthorizationProfileCapability',
             'useAssignAuthorizationUserProfile',
+            'useRevokeAuthorizationUserProfile',
         ]:
             self.assertIn(hook_name, source)
 
@@ -38,6 +41,15 @@ class AuthorizationMutationsContractTest(unittest.TestCase):
             source = (ROOT / 'src' / 'presentation' / 'pages' / filename).read_text()
             self.assertIn(component, source)
             self.assertIn('ADMIN_MASTER', source)
+
+        page_expectations = {
+            'ProfilesPage.tsx': 'Desativar profile',
+            'CapabilitiesPage.tsx': 'Desativar capability',
+            'AssignmentsPage.tsx': 'Revogar vínculo',
+        }
+        for filename, expected_text in page_expectations.items():
+            source = (ROOT / 'src' / 'presentation' / 'pages' / filename).read_text()
+            self.assertIn(expected_text, source)
 
 
 if __name__ == '__main__':

@@ -47,4 +47,12 @@ public class ProfileAdminService {
     public List<ProfileEntity> list() {
         return profileRepository.findAll();
     }
+
+    @Transactional
+    public ProfileEntity disable(Long profileId, String actor) {
+        ProfileEntity entity = profileRepository.findById(profileId).orElseThrow();
+        entity.disable(actor);
+        auditLogService.record(actor, "profile.disabled", "profile", entity.getId().toString());
+        return entity;
+    }
 }

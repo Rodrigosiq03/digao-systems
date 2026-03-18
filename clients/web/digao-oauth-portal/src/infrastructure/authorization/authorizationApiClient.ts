@@ -79,11 +79,19 @@ export const createAuthorizationApiClient = (auth: AuthPort): AuthorizationPort 
         method: 'POST',
         body: JSON.stringify(payload),
       }),
+    disableCapability: (capabilityId: number) =>
+      request<AuthorizationCapability>(`/admin/capabilities/${capabilityId}/disable`, {
+        method: 'PATCH',
+      }),
     listProfiles: () => request<AuthorizationProfile[]>('/admin/profiles'),
     createProfile: (payload: CreateAuthorizationProfileInput) =>
       request<AuthorizationProfile>('/admin/profiles', {
         method: 'POST',
         body: JSON.stringify(payload),
+      }),
+    disableProfile: (profileId: number) =>
+      request<AuthorizationProfile>(`/admin/profiles/${profileId}/disable`, {
+        method: 'PATCH',
       }),
     grantProfileCapability: (payload: GrantProfileCapabilityInput) =>
       request<AuthorizationProfileCapability>('/admin/profile-capabilities', {
@@ -96,6 +104,10 @@ export const createAuthorizationApiClient = (auth: AuthPort): AuthorizationPort 
       request<AuthorizationUserProfile>('/admin/user-profiles', {
         method: 'POST',
         body: JSON.stringify(payload),
+      }),
+    revokeUserProfile: (assignmentId: number) =>
+      request<AuthorizationUserProfile>(`/admin/user-profiles/${assignmentId}/revoke`, {
+        method: 'PATCH',
       }),
     listAuditLogs: () => request<AuthorizationAuditLog[]>('/admin/audit-logs'),
     getMyAccess: () => request<MyAccess>('/me/access'),

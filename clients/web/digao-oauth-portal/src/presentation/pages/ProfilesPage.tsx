@@ -8,6 +8,7 @@ import {
   useAuthorizationProfiles,
   useAuthorizationCapabilities,
   useCreateAuthorizationProfile,
+  useDisableAuthorizationProfile,
   useGrantAuthorizationProfileCapability,
 } from '@/presentation/hooks/useAuthorizationData';
 import { useAuthStore } from '@/presentation/stores/authStore';
@@ -24,6 +25,7 @@ export function ProfilesPage() {
   const isReadOnly = roles.includes('ADMIN') && !roles.includes('ADMIN_MASTER');
   const isAdminMaster = roles.includes('ADMIN_MASTER');
   const createProfileMutation = useCreateAuthorizationProfile();
+  const disableProfileMutation = useDisableAuthorizationProfile();
   const grantMutation = useGrantAuthorizationProfileCapability();
 
   const handleCreateProfile = async (payload: { key: string; name: string }) => {
@@ -44,6 +46,16 @@ export function ProfilesPage() {
       setFeedback({ type: 'success', message: `Capability ${grant.capabilityKey} vinculada ao profile ${grant.profileKey}.` });
     } catch (err) {
       setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao vincular capability.' });
+    }
+  };
+
+  const handleDisableProfile = async (profileId: number) => {
+    setFeedback(null);
+    try {
+      const profile = await disableProfileMutation.mutateAsync(profileId);
+      setFeedback({ type: 'success', message: `Profile ${profile.name} desativado.` });
+    } catch (err) {
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao desativar profile.' });
     }
   };
 
@@ -119,8 +131,25 @@ export function ProfilesPage() {
         <div className="space-y-3">
           {profiles.map((profile) => (
             <article key={profile.id} className="glass-card space-y-1 p-4">
-              <h3 className="font-semibold">{profile.name}</h3>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-semibold">{profile.name}</h3>
+                <span className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
+                  {profile.enabled ? 'Ativo' : 'Desativado'}
+                </span>
+              </div>
               <p className="text-sm text-[color:var(--muted)]">{profile.key}</p>
+              {isAdminMaster && profile.enabled && (
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={disableProfileMutation.isPending}
+                    onClick={() => handleDisableProfile(profile.id)}
+                  >
+                    Desativar profile
+                  </Button>
+                </div>
+              )}
             </article>
           ))}
         </div>

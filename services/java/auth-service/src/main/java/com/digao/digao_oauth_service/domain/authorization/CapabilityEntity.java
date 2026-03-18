@@ -78,4 +78,10 @@ public class CapabilityEntity {
     public boolean isEnabled() {
         return enabled;
     }
+
+    public void disable(String updatedBy) {
+        this.enabled = false;
+        this.updatedAt = OffsetDateTime.now();
+        this.updatedBy = updatedBy;
+    }
 }
