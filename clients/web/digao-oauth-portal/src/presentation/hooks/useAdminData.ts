@@ -3,6 +3,7 @@ import type {
   AdminCreateUserInput,
   AdminGroup,
   AdminResetPasswordInput,
+  AdminUpdateUserInput,
   AdminUser,
   AdminUserVpnAccessInput
 } from '@/domain/admin';
@@ -40,6 +41,17 @@ export const useCreateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: AdminCreateUserInput) => adminClient.createUser(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    }
+  });
+};
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, payload }: { userId: string; payload: AdminUpdateUserInput }) =>
+      adminClient.updateUser(userId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
     }

@@ -33,6 +33,8 @@ export type AdminCreateUserInput = {
   enabled: boolean;
 };
 
+export type AdminUpdateUserInput = AdminCreateUserInput;
+
 export type AdminResetPasswordInput = {
   newPassword: string;
   temporary: boolean;

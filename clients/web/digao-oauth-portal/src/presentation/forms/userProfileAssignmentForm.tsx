@@ -18,9 +18,10 @@ type Props = {
   profiles: AuthorizationProfile[];
   onSubmit: (payload: AssignUserProfileInput) => Promise<void>;
   isSubmitting?: boolean;
+  fixedUserId?: string;
 };
 
-export function UserProfileAssignmentForm({ profiles, onSubmit, isSubmitting }: Props) {
+export function UserProfileAssignmentForm({ profiles, onSubmit, isSubmitting, fixedUserId }: Props) {
   const {
     register,
     handleSubmit,
@@ -28,21 +29,23 @@ export function UserProfileAssignmentForm({ profiles, onSubmit, isSubmitting }: 
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { keycloakUserId: '', profileId: profiles[0]?.id ?? 0 },
+    defaultValues: { keycloakUserId: fixedUserId ?? '', profileId: profiles[0]?.id ?? 0 },
   });
 
   const submitHandler = async (values: FormValues) => {
     await onSubmit(values);
-    reset({ keycloakUserId: '', profileId: profiles[0]?.id ?? 0 });
+    reset({ keycloakUserId: fixedUserId ?? '', profileId: profiles[0]?.id ?? 0 });
   };
 
   return (
-    <form className="grid gap-4 md:grid-cols-[1.4fr_1fr_auto]" onSubmit={handleSubmit(submitHandler)}>
-      <div className="space-y-2">
-        <Label htmlFor="assignment-user-id">Keycloak user id</Label>
-        <Input id="assignment-user-id" placeholder="uuid-do-usuario" {...register('keycloakUserId')} />
-        {errors.keycloakUserId && <p className="text-xs text-red-400">{errors.keycloakUserId.message}</p>}
-      </div>
+    <form className={`grid gap-4 ${fixedUserId ? 'md:grid-cols-[1fr_auto]' : 'md:grid-cols-[1.4fr_1fr_auto]'}`} onSubmit={handleSubmit(submitHandler)}>
+      {!fixedUserId && (
+        <div className="space-y-2">
+          <Label htmlFor="assignment-user-id">Keycloak user id</Label>
+          <Input id="assignment-user-id" placeholder="uuid-do-usuario" {...register('keycloakUserId')} />
+          {errors.keycloakUserId && <p className="text-xs text-red-400">{errors.keycloakUserId.message}</p>}
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="assignment-profile">Profile</Label>
         <Select id="assignment-profile" {...register('profileId')}>

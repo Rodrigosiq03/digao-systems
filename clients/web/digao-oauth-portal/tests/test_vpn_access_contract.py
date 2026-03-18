@@ -26,7 +26,7 @@ class VpnAccessContractTest(unittest.TestCase):
         self.assertIn('AdminUserVpnAccess', domain_source)
         self.assertIn('Status VPN', cards_source)
         self.assertIn('Abrir invite VPN', cards_source)
-        self.assertIn('UserVpnAccessForm', cards_source)
+        self.assertIn('UserVpnAccessForm', page_source)
         self.assertIn('useAdminUserVpnAccess', cards_source)
         self.assertIn('useUpsertUserVpnAccess', page_source)
         self.assertIn('ADMIN_MASTER', page_source)

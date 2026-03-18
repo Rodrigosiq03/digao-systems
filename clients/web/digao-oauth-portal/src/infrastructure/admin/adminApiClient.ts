@@ -2,6 +2,7 @@ import type {
   AdminCreateUserInput,
   AdminGroup,
   AdminResetPasswordInput,
+  AdminUpdateUserInput,
   AdminUser,
   AdminUserVpnAccess,
   AdminUserVpnAccessInput
@@ -65,6 +66,11 @@ export const createAdminApiClient = (auth: AuthPort): AdminPort => {
     createUser: async (payload: AdminCreateUserInput) =>
       request<AdminUser>('/admin/users', {
         method: 'POST',
+        body: JSON.stringify(payload)
+      }),
+    updateUser: async (userId: string, payload: AdminUpdateUserInput) =>
+      request<AdminUser>(`/admin/users/${userId}`, {
+        method: 'PUT',
         body: JSON.stringify(payload)
       }),
     resetUserPassword: async (userId: string, payload: AdminResetPasswordInput) =>

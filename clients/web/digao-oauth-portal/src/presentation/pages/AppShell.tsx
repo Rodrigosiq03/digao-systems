@@ -19,6 +19,7 @@ export function AppShell() {
   const init = useAuthStore((state) => state.init);
   const { isReady, isAuthenticated, roles } = useAuthStore();
   const active = useNavStore((state) => state.active);
+  const collapsed = useNavStore((state) => state.collapsed);
   const setActive = useNavStore((state) => state.setActive);
   const theme = useThemeStore((state) => state.theme);
   const isAdminMaster = roles.includes('ADMIN_MASTER');
@@ -83,7 +84,7 @@ export function AppShell() {
   }
 
   return (
-    <div className="app-root">
+    <div className={`app-root${collapsed ? ' app-root-collapsed' : ''}`}>
       <Sidebar />
       <div className="app-main">
         <div className="app-ambient">

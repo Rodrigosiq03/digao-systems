@@ -261,6 +261,11 @@ a {
   display: grid;
   grid-template-columns: 280px 1fr;
   min-height: 100vh;
+  transition: grid-template-columns 180ms ease;
+}
+
+.app-root-collapsed {
+  grid-template-columns: 104px 1fr;
 }
 
 .app-sidebar {
@@ -274,12 +279,30 @@ a {
   background: linear-gradient(180deg, rgba(15,22,36,0.92), rgba(15,22,36,0.7));
   backdrop-filter: blur(20px);
   border-right: 1px solid rgba(255,255,255,0.08);
+  transition: padding 180ms ease, width 180ms ease;
+}
+
+.app-sidebar-collapsed {
+  padding-inline: 18px;
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.sidebar-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
 }
 
 .lock-emblem {
@@ -316,6 +339,182 @@ a {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  color: rgba(231, 237, 247, 0.84);
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateX(2px);
+}
+
+.nav-item-active {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+.app-sidebar-collapsed .nav-item {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.admin-page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-page-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.resource-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+}
+
+.resource-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.resource-card-meta {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.resource-card-actions {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.quick-actions-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+}
+
+.quick-actions-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 20;
+  min-width: 210px;
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 92%, black 8%);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quick-actions-menu button {
+  justify-content: flex-start;
+}
+
+.editor-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(11, 15, 23, 0.52);
+  backdrop-filter: blur(8px);
+}
+
+.editor-sheet {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  bottom: 24px;
+  z-index: 41;
+  width: min(560px, calc(100vw - 32px));
+  overflow: auto;
+}
+
+.editor-sheet-card {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inline-feedback-success {
+  border: 1px solid rgba(52, 211, 153, .2);
+  background: rgba(16, 185, 129, .1);
+  color: #d1fae5;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.inline-feedback-error {
+  border: 1px solid rgba(251, 113, 133, .2);
+  background: rgba(244, 63, 94, .1);
+  color: #ffe4e6;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .app-root,
+  .app-root-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar,
+  .app-sidebar-collapsed {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .app-sidebar-collapsed .nav-item,
+  .nav-item {
+    justify-content: flex-start;
+    padding-inline: 14px;
+  }
+
+  .editor-sheet {
+    inset: 16px;
+    width: auto;
+  }
 }
 
 .nav-item {

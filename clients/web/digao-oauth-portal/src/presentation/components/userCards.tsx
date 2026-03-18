@@ -1,23 +1,22 @@
-import { useMemo, useState } from 'react';
-import type { AdminUser, AdminUserVpnAccessInput } from '@/domain/admin';
+import { ShieldCheck, UserCog, UserRoundCheck, UserRoundX } from 'lucide-react';
+import type { AdminUser } from '@/domain/admin';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { ResetPasswordForm } from '@/presentation/forms/resetPasswordForm';
-import { UserVpnAccessForm } from '@/presentation/forms/userVpnAccessForm';
+import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
 import { useAdminUserVpnAccess } from '@/presentation/hooks/useAdminData';
 
 type Props = {
   users: AdminUser[];
-  canReset: boolean;
-  canManageVpn: boolean;
+  canManage: boolean;
   canViewSensitive: boolean;
-  onResetPassword: (userId: string, payload: { newPassword: string; temporary: boolean }) => Promise<void>;
-  onUpsertUserVpnAccess: (userId: string, provider: string, payload: AdminUserVpnAccessInput) => Promise<void>;
-  isResetting?: boolean;
-  isUpdatingVpn?: boolean;
+  onEditUser: (user: AdminUser) => void;
+  onManageVpn: (user: AdminUser) => void;
+  onManageAccess: (user: AdminUser) => void;
+  onResetPassword: (user: AdminUser) => void;
+  onToggleEnabled: (user: AdminUser) => void;
+  isBusy?: boolean;
 };
 
-const statusMap: Record<'active' | 'blocked', { label: string; className: string }> = {
+const userStatusMap: Record<'active' | 'blocked', { label: string; className: string }> = {
   active: { label: 'Ativo', className: 'bg-emerald-400/20 text-emerald-100' },
   blocked: { label: 'Bloqueado', className: 'bg-rose-400/20 text-rose-100' }
 };
@@ -31,218 +30,147 @@ const vpnStatusMap: Record<string, { label: string; className: string }> = {
 
 export function UserCards({
   users,
-  canReset,
-  canManageVpn,
+  canManage,
   canViewSensitive,
+  onEditUser,
+  onManageVpn,
+  onManageAccess,
   onResetPassword,
-  onUpsertUserVpnAccess,
-  isResetting,
-  isUpdatingVpn
+  onToggleEnabled,
+  isBusy
 }: Props) {
   return (
-    <div className="user-card-grid">
+    <div className="admin-page-grid">
       {users.map((user) => (
         <UserCard
           key={user.id}
           user={user}
-          canReset={canReset}
-          canManageVpn={canManageVpn}
+          canManage={canManage}
           canViewSensitive={canViewSensitive}
+          onEditUser={onEditUser}
+          onManageVpn={onManageVpn}
+          onManageAccess={onManageAccess}
           onResetPassword={onResetPassword}
-          onUpsertUserVpnAccess={onUpsertUserVpnAccess}
-          isResetting={isResetting}
-          isUpdatingVpn={isUpdatingVpn}
+          onToggleEnabled={onToggleEnabled}
+          isBusy={isBusy}
         />
       ))}
     </div>
   );
 }
 
-type UserCardProps = Omit<Props, 'users'> & {
-  user: AdminUser;
-};
-
 function UserCard({
   user,
-  canReset,
-  canManageVpn,
+  canManage,
   canViewSensitive,
+  onEditUser,
+  onManageVpn,
+  onManageAccess,
   onResetPassword,
-  onUpsertUserVpnAccess,
-  isResetting,
-  isUpdatingVpn
-}: UserCardProps) {
-  const [openReset, setOpenReset] = useState(false);
-  const [openVpnEditor, setOpenVpnEditor] = useState(false);
-  const [feedback, setFeedback] = useState<Record<string, { type: 'success' | 'error'; message: string }>>({});
+  onToggleEnabled,
+  isBusy
+}: Omit<Props, 'users'> & { user: AdminUser }) {
   const vpnAccessQuery = useAdminUserVpnAccess(user.id);
-
-  const status = user.enabled ? 'active' : 'blocked';
-  const vpnAccess = useMemo(() => {
-    const current = vpnAccessQuery.data?.find((entry) => entry.provider === 'tailscale');
-    return (
-      current ?? {
-        keycloakUserId: user.id,
-        provider: 'tailscale',
-        status: 'none' as const,
-        inviteLink: null,
-        notes: null,
-        invitedAt: null,
-        activatedAt: null,
-        revokedAt: null
-      }
-    );
-  }, [user.id, vpnAccessQuery.data]);
-
-  const cardFeedback = feedback[user.id];
-
-  const handleReset = async (payload: { newPassword: string; temporary: boolean }) => {
-    try {
-      await onResetPassword(user.id, payload);
-      setFeedback((prev) => ({
-        ...prev,
-        [user.id]: { type: 'success', message: 'Senha resetada. Email enviado ao usuário.' }
-      }));
-      setOpenReset(false);
-    } catch (err) {
-      setFeedback((prev) => ({
-        ...prev,
-        [user.id]: {
-          type: 'error',
-          message: err instanceof Error ? err.message : 'Falha ao resetar senha.'
-        }
-      }));
-    }
-  };
-
-  const handleVpnUpdate = async (payload: AdminUserVpnAccessInput) => {
-    try {
-      await onUpsertUserVpnAccess(user.id, vpnAccess.provider, payload);
-      setFeedback((prev) => ({
-        ...prev,
-        [user.id]: { type: 'success', message: 'Acesso VPN atualizado com sucesso.' }
-      }));
-      setOpenVpnEditor(false);
-    } catch (err) {
-      setFeedback((prev) => ({
-        ...prev,
-        [user.id]: {
-          type: 'error',
-          message: err instanceof Error ? err.message : 'Falha ao atualizar acesso VPN.'
-        }
-      }));
-    }
-  };
+  const userStatus = user.enabled ? 'active' : 'blocked';
+  const vpnAccess = vpnAccessQuery.data?.find((entry) => entry.provider === 'tailscale');
+  const vpnStatus = vpnAccess?.status ?? 'none';
 
   return (
-    <article className="user-card glass-card">
-      <div className="user-card-header">
-        <div>
+    <article className="resource-card glass-card">
+      <div className="resource-card-header">
+        <div className="space-y-1">
           <h3 className="text-lg font-semibold">{user.fullName || `${user.firstName} ${user.lastName}`}</h3>
           <p className="text-sm text-[color:var(--muted)]">{user.email}</p>
         </div>
-        <span className={cn('rounded-full px-3 py-1 text-xs font-semibold', statusMap[status].className)}>
-          {statusMap[status].label}
+        {canManage && (
+          <QuickActionsMenu
+            actions={[
+              { label: 'Editar', onClick: () => onEditUser(user) },
+              { label: 'Gerenciar acessos', onClick: () => onManageAccess(user) },
+              { label: 'Editar VPN', onClick: () => onManageVpn(user) },
+              { label: 'Resetar senha', onClick: () => onResetPassword(user) },
+              {
+                label: user.enabled ? 'Desativar usuário' : 'Ativar usuário',
+                onClick: () => onToggleEnabled(user),
+                disabled: isBusy
+              }
+            ]}
+          />
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <span className={cn('rounded-full px-3 py-1 text-xs font-semibold', userStatusMap[userStatus].className)}>
+          {userStatusMap[userStatus].label}
+        </span>
+        <span className={cn('rounded-full px-3 py-1 text-xs font-semibold', vpnStatusMap[vpnStatus].className)}>
+          Status VPN: {vpnStatusMap[vpnStatus].label}
+        </span>
+        <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-[color:var(--muted)]">
+          Role: {user.role ?? '-'}
         </span>
       </div>
 
-      <div className="user-card-body">
+      <div className="resource-card-meta">
         <div>
-          <p className="text-xs text-[color:var(--muted)]">Username</p>
+          <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Username</p>
           <strong>{user.username}</strong>
         </div>
         <div>
-          <p className="text-xs text-[color:var(--muted)]">Role</p>
-          <strong>{user.role ?? '-'}</strong>
+          <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Sistemas</p>
+          <strong>{user.groups.join(', ') || '-'}</strong>
         </div>
         <div>
-          <p className="text-xs text-[color:var(--muted)]">Sistemas</p>
-          <strong>{user.groups.join(', ') || '-'}</strong>
+          <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Provider VPN</p>
+          <strong>{vpnAccess?.provider ?? 'tailscale'}</strong>
         </div>
         {canViewSensitive && (
           <div>
-            <p className="text-xs text-[color:var(--muted)]">ID</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">User ID</p>
             <strong className="text-xs">{user.id}</strong>
           </div>
         )}
       </div>
 
-      <div className="space-y-3 rounded-2xl border border-white/10 bg-black/10 p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs text-[color:var(--muted)]">Status VPN</p>
-            <div className="mt-1 flex items-center gap-2">
-              <span className={cn('rounded-full px-3 py-1 text-xs font-semibold', vpnStatusMap[vpnAccess.status].className)}>
-                {vpnStatusMap[vpnAccess.status].label}
-              </span>
-              <span className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">{vpnAccess.provider}</span>
-            </div>
+      <div className="grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+            <UserCog className="h-4 w-4" />
+            Identidade
           </div>
-          {vpnAccess.inviteLink && (
+          <p className="text-sm text-[color:var(--muted)]">
+            Role principal: <strong>{user.role ?? '-'}</strong>
+          </p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+            <ShieldCheck className="h-4 w-4" />
+            VPN
+          </div>
+          <p className="text-sm text-[color:var(--muted)]">
+            {vpnAccess?.notes || 'Sem observações registradas para o provider.'}
+          </p>
+          {vpnAccess?.inviteLink && (
             <a
               href={vpnAccess.inviteLink}
               target="_blank"
               rel="noreferrer"
-              className="text-sm font-semibold text-brand underline-offset-4 hover:underline"
+              className="mt-3 inline-flex text-sm font-semibold text-brand underline-offset-4 hover:underline"
             >
               Abrir invite VPN
             </a>
           )}
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div>
-            <p className="text-xs text-[color:var(--muted)]">Notas</p>
-            <strong className="text-sm">{vpnAccess.notes || '-'}</strong>
+        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+            {user.enabled ? <UserRoundCheck className="h-4 w-4" /> : <UserRoundX className="h-4 w-4" />}
+            Operação
           </div>
-          <div>
-            <p className="text-xs text-[color:var(--muted)]">Última transição</p>
-            <strong className="text-sm">{vpnAccess.activatedAt || vpnAccess.invitedAt || vpnAccess.revokedAt || '-'}</strong>
-          </div>
+          <p className="text-sm text-[color:var(--muted)]">
+            Use o menu de ações para editar, trocar role, gerenciar acessos e alterar o status do usuário.
+          </p>
         </div>
       </div>
-
-      <div className="user-card-actions">
-        {canReset && (
-          <Button variant="secondary" onClick={() => setOpenReset((current) => !current)}>
-            {openReset ? 'Cancelar senha' : 'Resetar senha'}
-          </Button>
-        )}
-        {canManageVpn && (
-          <Button variant="outline" onClick={() => setOpenVpnEditor((current) => !current)}>
-            {openVpnEditor ? 'Cancelar VPN' : 'Editar VPN'}
-          </Button>
-        )}
-      </div>
-
-      {openReset && canReset && (
-        <div className="user-card-reset">
-          <ResetPasswordForm onSubmit={handleReset} isSubmitting={isResetting} />
-        </div>
-      )}
-
-      {openVpnEditor && canManageVpn && (
-        <UserVpnAccessForm
-          defaultValues={{
-            status: vpnAccess.status,
-            inviteLink: vpnAccess.inviteLink ?? undefined,
-            notes: vpnAccess.notes ?? undefined
-          }}
-          onSubmit={handleVpnUpdate}
-          isSubmitting={isUpdatingVpn}
-        />
-      )}
-
-      {cardFeedback && (
-        <div
-          className={
-            cardFeedback.type === 'success'
-              ? 'rounded-lg border border-emerald-400/20 bg-emerald-500/10 p-3 text-sm text-emerald-100'
-              : 'rounded-lg border border-rose-400/20 bg-rose-500/10 p-3 text-sm text-rose-100'
-          }
-        >
-          {cardFeedback.message}
-        </div>
-      )}
     </article>
   );
 }

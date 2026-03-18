@@ -12,10 +12,14 @@ export type NavSection =
 
 type NavState = {
   active: NavSection;
+  collapsed: boolean;
   setActive: (section: NavSection) => void;
+  toggleCollapsed: () => void;
 };
 
 export const useNavStore = create<NavState>((set) => ({
   active: 'home',
-  setActive: (section) => set({ active: section })
+  collapsed: false,
+  setActive: (section) => set({ active: section }),
+  toggleCollapsed: () => set((state) => ({ collapsed: !state.collapsed }))
 }));

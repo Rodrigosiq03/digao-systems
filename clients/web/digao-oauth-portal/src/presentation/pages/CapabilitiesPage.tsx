@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
+import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
 import { CapabilityForm } from '@/presentation/forms/capabilityForm';
 import {
   useAuthorizationCapabilities,
   useAuthorizationSystems,
   useCreateAuthorizationCapability,
-  useDisableAuthorizationCapability,
+  useDisableAuthorizationCapability
 } from '@/presentation/hooks/useAuthorizationData';
 import { useAuthStore } from '@/presentation/stores/authStore';
 
 export function CapabilitiesPage() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [openCreate, setOpenCreate] = useState(false);
   const capabilitiesQuery = useAuthorizationCapabilities();
   const systemsQuery = useAuthorizationSystems();
   const roles = useAuthStore((state) => state.roles);
@@ -27,6 +30,7 @@ export function CapabilitiesPage() {
     try {
       const capability = await createCapabilityMutation.mutateAsync(payload);
       setFeedback({ type: 'success', message: `Capability ${capability.name} criada.` });
+      setOpenCreate(false);
     } catch (err) {
       setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar capability.' });
     }
@@ -43,79 +47,86 @@ export function CapabilitiesPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-black">Capabilities</h2>
-        <p className="text-sm text-[color:var(--muted)]">
-          Permissões dinâmicas por sistema para evoluir fluxos e responsabilidades.
-        </p>
+    <div className="admin-page-shell">
+      <div className="admin-page-header">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black">Capabilities</h2>
+          <p className="text-sm text-[color:var(--muted)]">Permissões dinâmicas por sistema para evoluir fluxos e responsabilidades.</p>
+        </div>
+        {isAdminMaster && (
+          <Button type="button" variant="metal" onClick={() => setOpenCreate(true)}>
+            Nova capability
+          </Button>
+        )}
       </div>
       {isReadOnly && (
         <div className="glass-card p-4 text-sm text-amber-100">
           <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar capabilities.
         </div>
       )}
-      {isAdminMaster && (
-        <div className="glass-card space-y-4 p-5">
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold">Nova capability</h3>
-            <p className="text-sm text-[color:var(--muted)]">Adicione permissões dinâmicas a um sistema.</p>
-          </div>
-          <CapabilityForm
-            systems={systems}
-            onSubmit={handleCreateCapability}
-            isSubmitting={createCapabilityMutation.isPending}
-          />
-        </div>
-      )}
       {feedback && (
-        <div className={feedback.type === 'success'
-          ? 'rounded-lg border border-emerald-400/20 bg-emerald-500/10 p-3 text-sm text-emerald-100'
-          : 'rounded-lg border border-rose-400/20 bg-rose-500/10 p-3 text-sm text-rose-100'}>
+        <div className={feedback.type === 'success' ? 'inline-feedback-success' : 'inline-feedback-error'}>
           {feedback.message}
         </div>
       )}
       {capabilitiesQuery.isLoading ? (
-        <div className="space-y-3">
+        <div className="admin-page-grid">
           {Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-14" />
+            <Skeleton key={index} className="h-56" />
           ))}
         </div>
       ) : capabilitiesQuery.error ? (
-        <div className="glass-card p-4 text-sm text-rose-100">
-          {(capabilitiesQuery.error as Error).message}
-        </div>
+        <div className="glass-card p-4 text-sm text-rose-100">{(capabilitiesQuery.error as Error).message}</div>
       ) : capabilities.length === 0 ? (
         <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhuma capability cadastrada ainda.</div>
       ) : (
-        <div className="space-y-3">
+        <div className="admin-page-grid">
           {capabilities.map((capability) => (
-            <article key={capability.id} className="glass-card space-y-1 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="font-semibold">{capability.name}</h3>
-                <span className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
-                  {capability.enabled ? 'Ativa' : 'Desativada'}
-                </span>
-              </div>
-              <p className="text-sm text-[color:var(--muted)]">
-                {capability.key} • system #{capability.systemId}
-              </p>
-              {isAdminMaster && capability.enabled && (
-                <div className="pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={disableCapabilityMutation.isPending}
-                    onClick={() => handleDisableCapability(capability.id)}
-                  >
-                    Desativar capability
-                  </Button>
+            <article key={capability.id} className="resource-card glass-card">
+              <div className="resource-card-header">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-semibold">{capability.name}</h3>
+                  <p className="text-sm text-[color:var(--muted)]">{capability.key}</p>
                 </div>
-              )}
+                {isAdminMaster && capability.enabled && (
+                  <QuickActionsMenu
+                    actions={[
+                      {
+                        label: 'Desativar capability',
+                        onClick: () => handleDisableCapability(capability.id),
+                        disabled: disableCapabilityMutation.isPending
+                      }
+                    ]}
+                  />
+                )}
+              </div>
+              <div className="resource-card-meta">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Status</p>
+                  <strong>{capability.enabled ? 'Ativa' : 'Desativada'}</strong>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">System ID</p>
+                  <strong>{capability.systemId}</strong>
+                </div>
+              </div>
             </article>
           ))}
         </div>
       )}
+
+      <AdminEditorSheet
+        open={openCreate}
+        title="Criar capability"
+        description="Adicione uma nova capability dinâmica a um sistema."
+        onClose={() => setOpenCreate(false)}
+      >
+        <CapabilityForm
+          systems={systems}
+          onSubmit={handleCreateCapability}
+          isSubmitting={createCapabilityMutation.isPending}
+        />
+      </AdminEditorSheet>
     </div>
   );
 }
