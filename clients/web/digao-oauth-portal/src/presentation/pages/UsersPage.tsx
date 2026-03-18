@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react';
 import { UserCards } from '@/presentation/components/userCards';
 import { UserFilterForm } from '@/presentation/forms/userFilterForm';
-import { useAdminUsers, useCreateUser, useResetUserPassword } from '@/presentation/hooks/useAdminData';
+import {
+  useAdminUsers,
+  useCreateUser,
+  useResetUserPassword,
+  useUpsertUserVpnAccess
+} from '@/presentation/hooks/useAdminData';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateUserForm } from '@/presentation/forms/createUserForm';
 import { useAuthStore } from '@/presentation/stores/authStore';
-import type { AdminCreateUserInput } from '@/domain/admin';
+import type { AdminCreateUserInput, AdminUserVpnAccessInput } from '@/domain/admin';
 
 export function UsersPage() {
   const [query, setQuery] = useState('');
@@ -13,9 +18,12 @@ export function UsersPage() {
   const roles = useAuthStore((state) => state.roles);
   const canCreate = roles.includes('ADMIN_MASTER');
   const canReset = roles.includes('ADMIN_MASTER');
+  const canManageVpn = roles.includes('ADMIN_MASTER');
+  const canViewSensitive = roles.includes('ADMIN_MASTER') || roles.includes('ADMIN');
   const usersQuery = useAdminUsers();
   const createUserMutation = useCreateUser();
   const resetPasswordMutation = useResetUserPassword();
+  const upsertUserVpnAccessMutation = useUpsertUserVpnAccess();
   const isLoading = usersQuery.isLoading;
   const error = usersQuery.error as Error | null;
   const users = usersQuery.data ?? [];
@@ -51,6 +59,14 @@ export function UsersPage() {
     payload: { newPassword: string; temporary: boolean }
   ) => {
     await resetPasswordMutation.mutateAsync({ userId, payload });
+  };
+
+  const handleUpsertVpnAccess = async (
+    userId: string,
+    provider: string,
+    payload: AdminUserVpnAccessInput
+  ) => {
+    await upsertUserVpnAccessMutation.mutateAsync({ userId, provider, payload });
   };
 
   return (
@@ -100,8 +116,12 @@ export function UsersPage() {
         <UserCards
           users={filtered}
           canReset={canReset}
+          canManageVpn={canManageVpn}
+          canViewSensitive={canViewSensitive}
           onResetPassword={handleResetPassword}
+          onUpsertUserVpnAccess={handleUpsertVpnAccess}
           isResetting={resetPasswordMutation.isPending}
+          isUpdatingVpn={upsertUserVpnAccessMutation.isPending}
         />
       )}
     </div>

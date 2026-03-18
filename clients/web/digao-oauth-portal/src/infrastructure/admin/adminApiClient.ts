@@ -1,4 +1,11 @@
-import type { AdminCreateUserInput, AdminGroup, AdminResetPasswordInput, AdminUser } from '@/domain/admin';
+import type {
+  AdminCreateUserInput,
+  AdminGroup,
+  AdminResetPasswordInput,
+  AdminUser,
+  AdminUserVpnAccess,
+  AdminUserVpnAccessInput
+} from '@/domain/admin';
 import type { AdminPort } from '@/application/admin/adminPort';
 import type { AuthPort } from '@/application/auth/authPort';
 
@@ -6,7 +13,11 @@ type ApiError = {
   message?: string;
 };
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+const apiBase = import.meta.env.VITE_API_URL;
+
+if (!apiBase) {
+  throw new Error('VITE_API_URL não configurada para o portal.');
+}
 
 const parseError = async (response: Response): Promise<string> => {
   try {
@@ -59,6 +70,13 @@ export const createAdminApiClient = (auth: AuthPort): AdminPort => {
     resetUserPassword: async (userId: string, payload: AdminResetPasswordInput) =>
       request<void>(`/admin/users/${userId}/password-reset`, {
         method: 'POST',
+        body: JSON.stringify(payload)
+      }),
+    listUserVpnAccess: async (userId: string) =>
+      request<AdminUserVpnAccess[]>(`/admin/users/${userId}/vpn-access`),
+    upsertUserVpnAccess: async (userId: string, provider: string, payload: AdminUserVpnAccessInput) =>
+      request<AdminUserVpnAccess>(`/admin/users/${userId}/vpn-access/${provider}`, {
+        method: 'PUT',
         body: JSON.stringify(payload)
       })
   };

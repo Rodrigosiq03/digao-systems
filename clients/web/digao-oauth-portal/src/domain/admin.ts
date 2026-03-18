@@ -38,6 +38,25 @@ export type AdminResetPasswordInput = {
   temporary: boolean;
 };
 
+export type AdminUserVpnAccessStatus = 'none' | 'invite_pending' | 'active' | 'revoked';
+
+export type AdminUserVpnAccess = {
+  keycloakUserId: string;
+  provider: string;
+  status: AdminUserVpnAccessStatus;
+  inviteLink: string | null;
+  notes: string | null;
+  invitedAt: string | null;
+  activatedAt: string | null;
+  revokedAt: string | null;
+};
+
+export type AdminUserVpnAccessInput = {
+  status: AdminUserVpnAccessStatus;
+  inviteLink?: string;
+  notes?: string;
+};
+
 export type UserSummary = {
   id: string;
   name: string;
