@@ -224,7 +224,7 @@ jobs:
             --secrets-file "$SECRETS_FILE" \
             --create
 
-      - name: Set auth portal origins
+      - name: Set auth runtime config
         if: |
           matrix.service == 'auth' &&
           ((github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
@@ -233,16 +233,22 @@ jobs:
           STACK: ${{ steps.stack.outputs.value }}
           AUTH_SERVICE_PORTAL_ORIGINS: ${{ vars.AUTH_SERVICE_PORTAL_ORIGINS }}
           AUTH_SERVICE_ISSUER_URL: ${{ vars.AUTH_SERVICE_ISSUER_URL }}
+          AUTH_SERVICE_AUTHORIZATION_DB_JDBC_URL: ${{ vars.AUTH_SERVICE_AUTHORIZATION_DB_JDBC_URL }}
+          AUTH_SERVICE_AUTHORIZATION_DB_USER: ${{ vars.AUTH_SERVICE_AUTHORIZATION_DB_USER }}
+          AUTH_SERVICE_AUTHORIZATION_DB_PASSWORD: ${{ secrets.AUTH_SERVICE_AUTHORIZATION_DB_PASSWORD }}
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
           PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-services-${{ matrix.project }}/bin/python
         run: |
-          if [[ -z "$AUTH_SERVICE_PORTAL_ORIGINS" || -z "$AUTH_SERVICE_ISSUER_URL" ]]; then
+          if [[ -z "$AUTH_SERVICE_PORTAL_ORIGINS" || -z "$AUTH_SERVICE_ISSUER_URL" || -z "$AUTH_SERVICE_AUTHORIZATION_DB_JDBC_URL" || -z "$AUTH_SERVICE_AUTHORIZATION_DB_USER" || -z "$AUTH_SERVICE_AUTHORIZATION_DB_PASSWORD" ]]; then
             echo "Missing auth runtime config for $STACK"
             exit 1
           fi
 
           pulumi -C pulumi/auth-service config set auth-service:portalOrigins "$AUTH_SERVICE_PORTAL_ORIGINS"
           pulumi -C pulumi/auth-service config set auth-service:issuerUrl "$AUTH_SERVICE_ISSUER_URL"
+          pulumi -C pulumi/auth-service config set auth-service:authorizationDbJdbcUrl "$AUTH_SERVICE_AUTHORIZATION_DB_JDBC_URL"
+          pulumi -C pulumi/auth-service config set auth-service:authorizationDbUser "$AUTH_SERVICE_AUTHORIZATION_DB_USER"
+          pulumi -C pulumi/auth-service config set --secret auth-service:authorizationDbPassword "$AUTH_SERVICE_AUTHORIZATION_DB_PASSWORD"
 
       - name: Select stack
         if: |

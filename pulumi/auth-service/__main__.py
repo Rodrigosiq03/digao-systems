@@ -35,6 +35,9 @@ keycloak_admin_client_secret = config.require_secret("keycloakAdminClientSecret"
 portal_origins = config.require("portalOrigins")
 
 issuer_url = config.require("issuerUrl")
+authorization_db_url = config.require("authorizationDbJdbcUrl")
+authorization_db_user = config.require("authorizationDbUser")
+authorization_db_password = config.require_secret("authorizationDbPassword")
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
 npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
@@ -62,6 +65,9 @@ envs = [
     pulumi.Output.concat("KEYCLOAK_ADMIN_CLIENT_SECRET=", keycloak_admin_client_secret),
     f"SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI={issuer_url}",
     f"DIGAO_PORTAL_ORIGINS={portal_origins}",
+    f"SPRING_DATASOURCE_URL={authorization_db_url}",
+    f"SPRING_DATASOURCE_USERNAME={authorization_db_user}",
+    pulumi.Output.concat("SPRING_DATASOURCE_PASSWORD=", authorization_db_password),
 ]
 
 container_kwargs = dict(
