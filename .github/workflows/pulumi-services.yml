@@ -49,6 +49,8 @@ jobs:
     outputs:
       notification: ${{ steps.filter.outputs.notification }}
       auth: ${{ steps.filter.outputs.auth }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      has_changes: ${{ steps.matrix.outputs.has_changes }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,25 +66,60 @@ jobs:
               - "services/java/auth-service/**"
               - "pulumi/auth-service/**"
 
+      - name: Build deploy matrix
+        id: matrix
+        run: |
+          set -euo pipefail
+
+          entries=()
+
+          add_service() {
+            local service="$1"
+            local project="$2"
+            local dir="$3"
+            entries+=("{\"service\":\"${service}\",\"project\":\"${project}\",\"dir\":\"${dir}\"}")
+          }
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            case "${{ inputs.service }}" in
+              notification)
+                add_service "notification" "notification-service" "services/java/notification-service"
+                ;;
+              auth)
+                add_service "auth" "auth-service" "services/java/auth-service"
+                ;;
+              all)
+                add_service "notification" "notification-service" "services/java/notification-service"
+                add_service "auth" "auth-service" "services/java/auth-service"
+                ;;
+            esac
+          else
+            if [[ "${{ steps.filter.outputs.notification }}" == "true" ]]; then
+              add_service "notification" "notification-service" "services/java/notification-service"
+            fi
+            if [[ "${{ steps.filter.outputs.auth }}" == "true" ]]; then
+              add_service "auth" "auth-service" "services/java/auth-service"
+            fi
+          fi
+
+          if [[ "${#entries[@]}" -eq 0 ]]; then
+            echo 'has_changes=false' >> "$GITHUB_OUTPUT"
+            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo 'has_changes=true' >> "$GITHUB_OUTPUT"
+          printf 'matrix={"include":[%s]}\n' "$(IFS=,; echo "${entries[*]}")" >> "$GITHUB_OUTPUT"
+
   deploy:
     runs-on: [self-hosted, infra-heavy]
     environment:
       name: ${{ github.event_name == 'workflow_dispatch' && inputs.stack || (github.ref == 'refs/heads/main' && 'homolog' || 'dev') }}
     needs: [changes]
-    if: |
-      (github.event_name == 'workflow_dispatch') ||
-      (github.ref == 'refs/heads/develop' && (needs.changes.outputs.notification == 'true' || needs.changes.outputs.auth == 'true')) ||
-      (github.ref == 'refs/heads/main' && (needs.changes.outputs.notification == 'true' || needs.changes.outputs.auth == 'true'))
+    if: needs.changes.outputs.has_changes == 'true'
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - service: notification
-            project: notification-service
-            dir: services/java/notification-service
-          - service: auth
-            project: auth-service
-            dir: services/java/auth-service
+      matrix: ${{ fromJson(needs.changes.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -108,20 +145,7 @@ jobs:
           issue-title: "Approve production deploy for ${{ matrix.service }}"
           issue-body: "Approve to deploy ${{ matrix.service }} to prod."
 
-      - name: Skip non-target service
-        if: |
-          (github.event_name == 'workflow_dispatch' && inputs.service != 'all' && inputs.service != matrix.service) ||
-          (github.event_name != 'workflow_dispatch' &&
-           ((matrix.service == 'notification' && needs.changes.outputs.notification != 'true') ||
-            (matrix.service == 'auth' && needs.changes.outputs.auth != 'true')))
-        run: echo "Skipping ${{ matrix.service }}."
-
       - name: Build jar
-        if: |
-          (github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
-          (github.event_name != 'workflow_dispatch' &&
-           ((matrix.service == 'notification' && needs.changes.outputs.notification == 'true') ||
-            (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         env:
           MAVEN_USER_HOME: /data/apps/.m2
           MAVEN_OPTS: -Dmaven.repo.local=/data/apps/.m2/repository
@@ -154,11 +178,6 @@ jobs:
           echo "maven_package_seconds=$((END_TS - START_TS))"
 
       - name: Prepare venv
-        if: |
-          (github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
-          (github.event_name != 'workflow_dispatch' &&
-           ((matrix.service == 'notification' && needs.changes.outputs.notification == 'true') ||
-            (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         run: |
           PY="$HOME/.pyenv/versions/3.12.8/bin/python"
           VENV="/data/apps/.venvs/pulumi-services-${{ matrix.project }}"
@@ -175,11 +194,6 @@ jobs:
           fi
 
       - name: Install dependencies
-        if: |
-          (github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
-          (github.event_name != 'workflow_dispatch' &&
-           ((matrix.service == 'notification' && needs.changes.outputs.notification == 'true') ||
-            (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         run: |
           VENV="/data/apps/.venvs/pulumi-services-${{ matrix.project }}"
           REQ_FILE="pulumi/${{ matrix.project }}/requirements.txt"
@@ -196,19 +210,9 @@ jobs:
           echo "dependency_bootstrap_seconds=$((END_TS - START_TS))"
 
       - name: Pulumi login
-        if: |
-          (github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
-          (github.event_name != 'workflow_dispatch' &&
-           ((matrix.service == 'notification' && needs.changes.outputs.notification == 'true') ||
-            (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         run: pulumi login "${{ secrets.PULUMI_BACKEND_URL }}"
 
       - name: Apply secrets
-        if: |
-          (github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
-          (github.event_name != 'workflow_dispatch' &&
-           ((matrix.service == 'notification' && needs.changes.outputs.notification == 'true') ||
-            (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
         run: |
@@ -225,10 +229,7 @@ jobs:
             --create
 
       - name: Set auth runtime config
-        if: |
-          matrix.service == 'auth' &&
-          ((github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
-           (github.event_name != 'workflow_dispatch' && needs.changes.outputs.auth == 'true'))
+        if: matrix.service == 'auth'
         env:
           STACK: ${{ steps.stack.outputs.value }}
           AUTH_SERVICE_PORTAL_ORIGINS: ${{ vars.AUTH_SERVICE_PORTAL_ORIGINS }}
@@ -251,22 +252,12 @@ jobs:
           pulumi -C pulumi/auth-service config set --secret auth-service:authorizationDbPassword "$AUTH_SERVICE_AUTHORIZATION_DB_PASSWORD"
 
       - name: Select stack
-        if: |
-          (github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
-          (github.event_name != 'workflow_dispatch' &&
-           ((matrix.service == 'notification' && needs.changes.outputs.notification == 'true') ||
-            (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
           PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-services-${{ matrix.project }}/bin/python
         run: pulumi -C pulumi/${{ matrix.project }} stack select "${{ steps.stack.outputs.value }}"
 
       - name: Deploy
-        if: |
-          (github.event_name == 'workflow_dispatch' && (inputs.service == 'all' || inputs.service == matrix.service)) ||
-          (github.event_name != 'workflow_dispatch' &&
-           ((matrix.service == 'notification' && needs.changes.outputs.notification == 'true') ||
-            (matrix.service == 'auth' && needs.changes.outputs.auth == 'true')))
         env:
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
           PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-services-${{ matrix.project }}/bin/python
