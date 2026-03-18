@@ -1,8 +1,10 @@
 package com.digao.digao_oauth_service.authorization;
 
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -100,6 +102,15 @@ class AdminAuthorizationControllerTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.key").value("cloud-gaming-" + suffix))
             .andExpect(jsonPath("$.enabled").value(true));
+
+        SystemEntity seeded = systemAdminService.create("disable-system-" + suffix, "Disable System " + suffix, "seed");
+
+        mockMvc.perform(patch("/admin/systems/{systemId}/disable", seeded.getId())
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
+                    .jwt(token -> token.subject("admin-master"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(seeded.getId()))
+            .andExpect(jsonPath("$.enabled").value(false));
     }
 
     @Test
@@ -210,6 +221,11 @@ class AdminAuthorizationControllerTest {
                     """))
             .andExpect(status().isForbidden());
 
+        mockMvc.perform(patch("/admin/systems/{systemId}/disable", system.getId())
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                    .jwt(token -> token.subject("admin-viewer"))))
+            .andExpect(status().isForbidden());
+
         mockMvc.perform(post("/admin/profiles")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
                     .jwt(token -> token.subject("admin-viewer")))
@@ -226,6 +242,11 @@ class AdminAuthorizationControllerTest {
     @Test
     void commonCannotAccessAdministrativeSystemsEndpoints() throws Exception {
         mockMvc.perform(get("/admin/systems")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_COMMON"))
+                    .jwt(token -> token.subject("common-user"))))
+            .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/admin/audit-logs")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_COMMON"))
                     .jwt(token -> token.subject("common-user"))))
             .andExpect(status().isForbidden());

@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +43,11 @@ public class AdminSystemsController {
     public ResponseEntity<SystemResponse> create(@RequestBody @Valid CreateSystemRequest request, Authentication authentication) {
         SystemEntity entity = systemAdminService.create(request.key(), request.name(), authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(entity));
+    }
+
+    @PatchMapping("/{systemId}/disable")
+    public SystemResponse disable(@PathVariable Long systemId, Authentication authentication) {
+        return toResponse(systemAdminService.disable(systemId, authentication.getName()));
     }
 
     private SystemResponse toResponse(SystemEntity entity) {
