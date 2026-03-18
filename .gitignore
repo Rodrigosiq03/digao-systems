@@ -16,6 +16,7 @@ pulumi/**/.pytest_cache/
 
 # Local Python venvs
 .venvs/
+**/__pycache__/
 
 # Local build artifacts
 artifacts/
