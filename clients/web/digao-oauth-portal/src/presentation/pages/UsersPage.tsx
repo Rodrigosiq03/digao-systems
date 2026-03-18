@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } from '@/presentation/components/adminLayout';
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
 import { UserCards } from '@/presentation/components/userCards';
 import { UserFilterForm } from '@/presentation/forms/userFilterForm';
@@ -159,8 +160,8 @@ export function UsersPage() {
   const error = usersQuery.error as Error | null;
 
   return (
-    <div className="admin-page-shell">
-      <div className="admin-page-header">
+    <AdminPageShell>
+      <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Usuários</h2>
           <p className="text-sm text-[color:var(--muted)]">
@@ -172,22 +173,18 @@ export function UsersPage() {
             Novo usuário
           </Button>
         )}
-      </div>
+      </AdminPageHeader>
 
-      {feedback && (
-        <div className={feedback.type === 'success' ? 'inline-feedback-success' : 'inline-feedback-error'}>
-          {feedback.message}
-        </div>
-      )}
+      {feedback && <InlineFeedback tone={feedback.type}>{feedback.message}</InlineFeedback>}
 
       <UserFilterForm onSearch={setQuery} />
 
       {isLoading ? (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {Array.from({ length: 5 }).map((_, index) => (
             <Skeleton key={index} className="h-64" />
           ))}
-        </div>
+        </AdminResourceGrid>
       ) : error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{error.message}</div>
       ) : (
@@ -313,6 +310,6 @@ export function UsersPage() {
           </>
         )}
       </AdminEditorSheet>
-    </div>
+    </AdminPageShell>
   );
 }

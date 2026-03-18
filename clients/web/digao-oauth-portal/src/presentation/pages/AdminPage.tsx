@@ -25,7 +25,7 @@ export function AdminPage() {
   }, [usersQuery.data, groupsQuery.data]);
 
   return (
-    <div className="page-grid">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.6fr)]">
       <section className="space-y-6">
         <HeroSection />
         <FeatureGrid />

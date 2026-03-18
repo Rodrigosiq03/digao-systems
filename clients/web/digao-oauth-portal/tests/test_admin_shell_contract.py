@@ -13,12 +13,13 @@ class AdminShellContractTest(unittest.TestCase):
     def test_sidebar_supports_collapsed_state(self):
         nav_source = (ROOT / 'src' / 'presentation' / 'stores' / 'navStore.ts').read_text()
         sidebar_source = (ROOT / 'src' / 'presentation' / 'components' / 'sidebar.tsx').read_text()
-        css_source = (ROOT / 'src' / 'index.css').read_text()
+        shell_source = (ROOT / 'src' / 'presentation' / 'pages' / 'AppShell.tsx').read_text()
 
         self.assertIn('collapsed', nav_source)
         self.assertIn('toggleCollapsed', nav_source)
         self.assertIn('toggleCollapsed', sidebar_source)
-        self.assertIn('app-root-collapsed', css_source)
+        self.assertIn('lg:grid-cols-[104px_minmax(0,1fr)]', shell_source)
+        self.assertIn('lg:px-4', sidebar_source)
 
     def test_users_use_shared_user_form_and_update_flow(self):
         user_form = ROOT / 'src' / 'presentation' / 'forms' / 'userForm.tsx'

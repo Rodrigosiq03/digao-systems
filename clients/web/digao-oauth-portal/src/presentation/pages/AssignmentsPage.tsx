@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } from '@/presentation/components/adminLayout';
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
+import { ResourceCard, ResourceCardHeader } from '@/presentation/components/resourceCard';
 import { UserProfileAssignmentForm } from '@/presentation/forms/userProfileAssignmentForm';
 import {
   useAuthorizationAssignments,
@@ -48,8 +50,8 @@ export function AssignmentsPage() {
   };
 
   return (
-    <div className="admin-page-shell">
-      <div className="admin-page-header">
+    <AdminPageShell>
+      <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Acessos</h2>
           <p className="text-sm text-[color:var(--muted)]">Profiles atribuídos ao usuário autenticado no momento.</p>
@@ -59,36 +61,32 @@ export function AssignmentsPage() {
             Vincular profile
           </Button>
         )}
-      </div>
+      </AdminPageHeader>
       {isReadOnly && (
         <div className="glass-card p-4 text-sm text-amber-100">
           <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar atribuições.
         </div>
       )}
-      {feedback && (
-        <div className={feedback.type === 'success' ? 'inline-feedback-success' : 'inline-feedback-error'}>
-          {feedback.message}
-        </div>
-      )}
+      {feedback && <InlineFeedback tone={feedback.type}>{feedback.message}</InlineFeedback>}
       {!profile?.id ? (
         <div className="glass-card p-4 text-sm text-[color:var(--muted)]">
           Não foi possível resolver o identificador do usuário autenticado.
         </div>
       ) : assignmentsQuery.isLoading ? (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-48" />
           ))}
-        </div>
+        </AdminResourceGrid>
       ) : assignmentsQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(assignmentsQuery.error as Error).message}</div>
       ) : assignments.length === 0 ? (
         <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhuma atribuição ativa encontrada.</div>
       ) : (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {assignments.map((assignment) => (
-            <article key={assignment.id} className="resource-card glass-card">
-              <div className="resource-card-header">
+            <ResourceCard key={assignment.id}>
+              <ResourceCardHeader>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">{assignment.profileKey}</h3>
                   <p className="text-sm text-[color:var(--muted)]">{assignment.keycloakUserId}</p>
@@ -104,10 +102,10 @@ export function AssignmentsPage() {
                     ]}
                   />
                 )}
-              </div>
-            </article>
+              </ResourceCardHeader>
+            </ResourceCard>
           ))}
-        </div>
+        </AdminResourceGrid>
       )}
 
       <AdminEditorSheet
@@ -122,6 +120,6 @@ export function AssignmentsPage() {
           isSubmitting={assignMutation.isPending}
         />
       </AdminEditorSheet>
-    </div>
+    </AdminPageShell>
   );
 }

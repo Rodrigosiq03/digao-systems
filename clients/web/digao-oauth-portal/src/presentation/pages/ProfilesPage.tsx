@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } from '@/presentation/components/adminLayout';
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
+import { ResourceCard, ResourceCardHeader, ResourceCardMeta } from '@/presentation/components/resourceCard';
 import { ProfileForm } from '@/presentation/forms/profileForm';
 import {
   useAuthorizationProfiles,
@@ -66,8 +68,8 @@ export function ProfilesPage() {
   };
 
   return (
-    <div className="admin-page-shell">
-      <div className="admin-page-header">
+    <AdminPageShell>
+      <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Profiles</h2>
           <p className="text-sm text-[color:var(--muted)]">Pacotes reutilizáveis de capabilities atribuíveis a usuários.</p>
@@ -82,32 +84,28 @@ export function ProfilesPage() {
             </Button>
           </div>
         )}
-      </div>
+      </AdminPageHeader>
       {isReadOnly && (
         <div className="glass-card p-4 text-sm text-amber-100">
           <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar profiles.
         </div>
       )}
-      {feedback && (
-        <div className={feedback.type === 'success' ? 'inline-feedback-success' : 'inline-feedback-error'}>
-          {feedback.message}
-        </div>
-      )}
+      {feedback && <InlineFeedback tone={feedback.type}>{feedback.message}</InlineFeedback>}
       {profilesQuery.isLoading ? (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-56" />
           ))}
-        </div>
+        </AdminResourceGrid>
       ) : profilesQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(profilesQuery.error as Error).message}</div>
       ) : profiles.length === 0 ? (
         <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhum profile cadastrado ainda.</div>
       ) : (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {profiles.map((profile) => (
-            <article key={profile.id} className="resource-card glass-card">
-              <div className="resource-card-header">
+            <ResourceCard key={profile.id}>
+              <ResourceCardHeader>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">{profile.name}</h3>
                   <p className="text-sm text-[color:var(--muted)]">{profile.key}</p>
@@ -123,8 +121,8 @@ export function ProfilesPage() {
                     ]}
                   />
                 )}
-              </div>
-              <div className="resource-card-meta">
+              </ResourceCardHeader>
+              <ResourceCardMeta>
                 <div>
                   <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Status</p>
                   <strong>{profile.enabled ? 'Ativo' : 'Desativado'}</strong>
@@ -133,10 +131,10 @@ export function ProfilesPage() {
                   <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Identificador</p>
                   <strong>{profile.id}</strong>
                 </div>
-              </div>
-            </article>
+              </ResourceCardMeta>
+            </ResourceCard>
           ))}
-        </div>
+        </AdminResourceGrid>
       )}
 
       <AdminEditorSheet
@@ -180,6 +178,6 @@ export function ProfilesPage() {
           </div>
         </div>
       </AdminEditorSheet>
-    </div>
+    </AdminPageShell>
   );
 }

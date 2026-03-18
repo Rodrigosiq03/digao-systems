@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } from '@/presentation/components/adminLayout';
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
+import { ResourceCard, ResourceCardHeader, ResourceCardMeta } from '@/presentation/components/resourceCard';
 import { SystemForm } from '@/presentation/forms/systemForm';
 import {
   useAuthorizationSystems,
@@ -46,8 +48,8 @@ export function SystemsPage() {
   };
 
   return (
-    <div className="admin-page-shell">
-      <div className="admin-page-header">
+    <AdminPageShell>
+      <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Sistemas</h2>
           <p className="text-sm text-[color:var(--muted)]">Catálogo de sistemas administráveis do portal.</p>
@@ -57,32 +59,28 @@ export function SystemsPage() {
             Novo sistema
           </Button>
         )}
-      </div>
+      </AdminPageHeader>
       {isReadOnly && (
         <div className="glass-card p-4 text-sm text-amber-100">
           <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar sistemas.
         </div>
       )}
-      {feedback && (
-        <div className={feedback.type === 'success' ? 'inline-feedback-success' : 'inline-feedback-error'}>
-          {feedback.message}
-        </div>
-      )}
+      {feedback && <InlineFeedback tone={feedback.type}>{feedback.message}</InlineFeedback>}
       {isLoading ? (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-56" />
           ))}
-        </div>
+        </AdminResourceGrid>
       ) : error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{error.message}</div>
       ) : systems.length === 0 ? (
         <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhum sistema cadastrado ainda.</div>
       ) : (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {systems.map((system) => (
-            <article key={system.id} className="resource-card glass-card">
-              <div className="resource-card-header">
+            <ResourceCard key={system.id}>
+              <ResourceCardHeader>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">{system.name}</h3>
                   <p className="text-sm text-[color:var(--muted)]">{system.key}</p>
@@ -98,8 +96,8 @@ export function SystemsPage() {
                     ]}
                   />
                 )}
-              </div>
-              <div className="resource-card-meta">
+              </ResourceCardHeader>
+              <ResourceCardMeta>
                 <div>
                   <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Status</p>
                   <strong>{system.enabled ? 'Ativo' : 'Desativado'}</strong>
@@ -108,10 +106,10 @@ export function SystemsPage() {
                   <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Identificador</p>
                   <strong>{system.id}</strong>
                 </div>
-              </div>
-            </article>
+              </ResourceCardMeta>
+            </ResourceCard>
           ))}
-        </div>
+        </AdminResourceGrid>
       )}
 
       <AdminEditorSheet
@@ -122,6 +120,6 @@ export function SystemsPage() {
       >
         <SystemForm onSubmit={handleCreateSystem} isSubmitting={createSystemMutation.isPending} />
       </AdminEditorSheet>
-    </div>
+    </AdminPageShell>
   );
 }

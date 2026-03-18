@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } from '@/presentation/components/adminLayout';
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
+import { ResourceCard, ResourceCardHeader, ResourceCardMeta } from '@/presentation/components/resourceCard';
 import { CapabilityForm } from '@/presentation/forms/capabilityForm';
 import {
   useAuthorizationCapabilities,
@@ -47,8 +49,8 @@ export function CapabilitiesPage() {
   };
 
   return (
-    <div className="admin-page-shell">
-      <div className="admin-page-header">
+    <AdminPageShell>
+      <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Capabilities</h2>
           <p className="text-sm text-[color:var(--muted)]">Permissões dinâmicas por sistema para evoluir fluxos e responsabilidades.</p>
@@ -58,32 +60,28 @@ export function CapabilitiesPage() {
             Nova capability
           </Button>
         )}
-      </div>
+      </AdminPageHeader>
       {isReadOnly && (
         <div className="glass-card p-4 text-sm text-amber-100">
           <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar capabilities.
         </div>
       )}
-      {feedback && (
-        <div className={feedback.type === 'success' ? 'inline-feedback-success' : 'inline-feedback-error'}>
-          {feedback.message}
-        </div>
-      )}
+      {feedback && <InlineFeedback tone={feedback.type}>{feedback.message}</InlineFeedback>}
       {capabilitiesQuery.isLoading ? (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {Array.from({ length: 4 }).map((_, index) => (
             <Skeleton key={index} className="h-56" />
           ))}
-        </div>
+        </AdminResourceGrid>
       ) : capabilitiesQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(capabilitiesQuery.error as Error).message}</div>
       ) : capabilities.length === 0 ? (
         <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhuma capability cadastrada ainda.</div>
       ) : (
-        <div className="admin-page-grid">
+        <AdminResourceGrid>
           {capabilities.map((capability) => (
-            <article key={capability.id} className="resource-card glass-card">
-              <div className="resource-card-header">
+            <ResourceCard key={capability.id}>
+              <ResourceCardHeader>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">{capability.name}</h3>
                   <p className="text-sm text-[color:var(--muted)]">{capability.key}</p>
@@ -99,8 +97,8 @@ export function CapabilitiesPage() {
                     ]}
                   />
                 )}
-              </div>
-              <div className="resource-card-meta">
+              </ResourceCardHeader>
+              <ResourceCardMeta>
                 <div>
                   <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Status</p>
                   <strong>{capability.enabled ? 'Ativa' : 'Desativada'}</strong>
@@ -109,10 +107,10 @@ export function CapabilitiesPage() {
                   <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">System ID</p>
                   <strong>{capability.systemId}</strong>
                 </div>
-              </div>
-            </article>
+              </ResourceCardMeta>
+            </ResourceCard>
           ))}
-        </div>
+        </AdminResourceGrid>
       )}
 
       <AdminEditorSheet
@@ -127,6 +125,6 @@ export function CapabilitiesPage() {
           isSubmitting={createCapabilityMutation.isPending}
         />
       </AdminEditorSheet>
-    </div>
+    </AdminPageShell>
   );
 }

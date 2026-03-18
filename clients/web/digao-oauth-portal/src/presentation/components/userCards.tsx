@@ -1,7 +1,9 @@
 import { ShieldCheck, UserCog, UserRoundCheck, UserRoundX } from 'lucide-react';
 import type { AdminUser } from '@/domain/admin';
 import { cn } from '@/lib/utils';
+import { AdminResourceGrid } from '@/presentation/components/adminLayout';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
+import { ResourceCard, ResourceCardHeader, ResourceCardMeta } from '@/presentation/components/resourceCard';
 import { useAdminUserVpnAccess } from '@/presentation/hooks/useAdminData';
 
 type Props = {
@@ -40,7 +42,7 @@ export function UserCards({
   isBusy
 }: Props) {
   return (
-    <div className="admin-page-grid">
+    <AdminResourceGrid>
       {users.map((user) => (
         <UserCard
           key={user.id}
@@ -55,7 +57,7 @@ export function UserCards({
           isBusy={isBusy}
         />
       ))}
-    </div>
+    </AdminResourceGrid>
   );
 }
 
@@ -76,8 +78,8 @@ function UserCard({
   const vpnStatus = vpnAccess?.status ?? 'none';
 
   return (
-    <article className="resource-card glass-card">
-      <div className="resource-card-header">
+    <ResourceCard>
+      <ResourceCardHeader>
         <div className="space-y-1">
           <h3 className="text-lg font-semibold">{user.fullName || `${user.firstName} ${user.lastName}`}</h3>
           <p className="text-sm text-[color:var(--muted)]">{user.email}</p>
@@ -97,7 +99,7 @@ function UserCard({
             ]}
           />
         )}
-      </div>
+      </ResourceCardHeader>
 
       <div className="flex flex-wrap gap-2">
         <span className={cn('rounded-full px-3 py-1 text-xs font-semibold', userStatusMap[userStatus].className)}>
@@ -111,7 +113,7 @@ function UserCard({
         </span>
       </div>
 
-      <div className="resource-card-meta">
+      <ResourceCardMeta>
         <div>
           <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Username</p>
           <strong>{user.username}</strong>
@@ -130,7 +132,7 @@ function UserCard({
             <strong className="text-xs">{user.id}</strong>
           </div>
         )}
-      </div>
+      </ResourceCardMeta>
 
       <div className="grid gap-3 md:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
@@ -171,6 +173,6 @@ function UserCard({
           </p>
         </div>
       </div>
-    </article>
+    </ResourceCard>
   );
 }
