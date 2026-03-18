@@ -1,5 +1,7 @@
 package com.digao.digao_oauth_service.application.authorization;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,5 +32,10 @@ public class SystemAdminService {
         entity.disable(actor);
         auditLogService.record(actor, "system.disabled", "system", entity.getId().toString());
         return systemRepository.save(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SystemEntity> list() {
+        return systemRepository.findAll();
     }
 }

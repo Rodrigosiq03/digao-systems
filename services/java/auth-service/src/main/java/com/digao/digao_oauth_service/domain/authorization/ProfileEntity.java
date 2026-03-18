@@ -58,4 +58,12 @@ public class ProfileEntity {
     public String getKey() {
         return key;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 }

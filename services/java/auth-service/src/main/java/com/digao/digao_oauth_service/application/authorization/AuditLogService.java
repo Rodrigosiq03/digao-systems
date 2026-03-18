@@ -1,5 +1,7 @@
 package com.digao.digao_oauth_service.application.authorization;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.digao.digao_oauth_service.domain.authorization.AuditLogEntity;
@@ -16,5 +18,9 @@ public class AuditLogService {
 
     public AuditLogEntity record(String actor, String action, String targetType, String targetId) {
         return auditLogRepository.save(AuditLogEntity.create(actor, actor, action, targetType, targetId));
+    }
+
+    public List<AuditLogEntity> list() {
+        return auditLogRepository.findAll();
     }
 }

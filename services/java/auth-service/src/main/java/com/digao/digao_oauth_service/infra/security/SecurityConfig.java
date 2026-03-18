@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -28,6 +29,11 @@ public class SecurityConfig {
                 "/actuator/info",
                 "/actuator/prometheus"
             ).permitAll()
+            .requestMatchers(HttpMethod.GET, "/admin/systems/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
+            .requestMatchers(HttpMethod.GET, "/admin/capabilities/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
+            .requestMatchers(HttpMethod.GET, "/admin/profiles/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
+            .requestMatchers(HttpMethod.GET, "/admin/user-profiles/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
+            .requestMatchers(HttpMethod.GET, "/admin/audit-logs/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
             .requestMatchers("/admin/**").hasRole("ADMIN_MASTER")
             .anyRequest().authenticated()
         ).oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(keycloakJwtAuthConverter())))

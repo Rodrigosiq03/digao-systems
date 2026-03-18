@@ -20,11 +20,11 @@ public class ProfileCapabilityEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "profile_id", nullable = false)
     private ProfileEntity profile;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "capability_id", nullable = false)
     private CapabilityEntity capability;
 
@@ -53,5 +53,13 @@ public class ProfileCapabilityEntity {
 
     public Long getId() {
         return id;
+    }
+
+    public ProfileEntity getProfile() {
+        return profile;
+    }
+
+    public CapabilityEntity getCapability() {
+        return capability;
     }
 }

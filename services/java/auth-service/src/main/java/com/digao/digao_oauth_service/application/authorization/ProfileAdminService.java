@@ -1,5 +1,7 @@
 package com.digao.digao_oauth_service.application.authorization;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,5 +41,10 @@ public class ProfileAdminService {
         ProfileCapabilityEntity entity = profileCapabilityRepository.save(ProfileCapabilityEntity.create(profile, capability, actor));
         auditLogService.record(actor, "profile_capability.granted", "profile_capability", entity.getId().toString());
         return entity;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProfileEntity> list() {
+        return profileRepository.findAll();
     }
 }

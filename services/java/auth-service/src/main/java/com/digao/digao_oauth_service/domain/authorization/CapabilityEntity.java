@@ -20,7 +20,7 @@ public class CapabilityEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "system_id", nullable = false)
     private SystemEntity system;
 
@@ -69,5 +69,13 @@ public class CapabilityEntity {
 
     public String getKey() {
         return key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }

@@ -57,4 +57,16 @@ public class AuditLogEntity {
     public String getAction() {
         return action;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public String getTargetId() {
+        return targetId;
+    }
 }

@@ -1,5 +1,7 @@
 package com.digao.digao_oauth_service.application.authorization;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,5 +29,10 @@ public class CapabilityAdminService {
         CapabilityEntity entity = capabilityRepository.save(CapabilityEntity.create(system, key, name));
         auditLogService.record(actor, "capability.created", "capability", entity.getId().toString());
         return entity;
+    }
+
+    @Transactional(readOnly = true)
+    public List<CapabilityEntity> list() {
+        return capabilityRepository.findAll();
     }
 }
