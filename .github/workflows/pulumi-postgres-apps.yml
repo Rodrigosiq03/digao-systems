@@ -112,6 +112,7 @@ jobs:
             exit 1
           fi
 
+          pulumi stack select "${{ steps.stack.outputs.value }}"
           pulumi config set --secret postgres-apps:dbPassword "$POSTGRES_APPS_DB_PASSWORD"
 
           if [[ -n "$POSTGRES_APPS_DB_USER" ]]; then
