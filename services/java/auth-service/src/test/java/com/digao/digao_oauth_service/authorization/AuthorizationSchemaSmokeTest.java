@@ -35,6 +35,7 @@ class AuthorizationSchemaSmokeTest {
             assertTrue(tables.contains("profiles"));
             assertTrue(tables.contains("profile_capabilities"));
             assertTrue(tables.contains("user_profiles"));
+            assertTrue(tables.contains("user_vpn_access"));
             assertTrue(tables.contains("audit_logs"));
         }
     }

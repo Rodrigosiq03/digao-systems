@@ -6,6 +6,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,6 +30,7 @@ import com.digao.digao_oauth_service.application.authorization.CapabilityAdminSe
 import com.digao.digao_oauth_service.application.authorization.ProfileAdminService;
 import com.digao.digao_oauth_service.application.authorization.SystemAdminService;
 import com.digao.digao_oauth_service.application.authorization.UserProfileAdminService;
+import com.digao.digao_oauth_service.application.authorization.UserVpnAccessAdminService;
 import com.digao.digao_oauth_service.domain.authorization.CapabilityEntity;
 import com.digao.digao_oauth_service.domain.authorization.ProfileEntity;
 import com.digao.digao_oauth_service.domain.authorization.SystemEntity;
@@ -39,6 +41,7 @@ import com.digao.digao_oauth_service.presentation.controllers.AdminProfileCapabi
 import com.digao.digao_oauth_service.presentation.controllers.AdminProfilesController;
 import com.digao.digao_oauth_service.presentation.controllers.AdminSystemsController;
 import com.digao.digao_oauth_service.presentation.controllers.AdminUserProfilesController;
+import com.digao.digao_oauth_service.presentation.controllers.AdminUserVpnAccessController;
 import com.digao.digao_oauth_service.presentation.handlers.GlobalExceptionHandler;
 
 @SpringBootTest(classes = AdminAuthorizationControllerTest.MvcTestApplication.class, properties = {
@@ -63,6 +66,7 @@ class AdminAuthorizationControllerTest {
         AdminProfilesController.class,
         AdminProfileCapabilitiesController.class,
         AdminUserProfilesController.class,
+        AdminUserVpnAccessController.class,
         AdminAuditLogsController.class,
         SecurityConfig.class,
         GlobalExceptionHandler.class
@@ -84,6 +88,9 @@ class AdminAuthorizationControllerTest {
 
     @Autowired
     private UserProfileAdminService userProfileAdminService;
+
+    @Autowired
+    private UserVpnAccessAdminService userVpnAccessAdminService;
 
     @Test
     void adminMasterCanCreateSystem() throws Exception {
@@ -203,11 +210,41 @@ class AdminAuthorizationControllerTest {
     }
 
     @Test
+    void adminMasterCanUpsertAndReadUserVpnAccess() throws Exception {
+        String suffix = UUID.randomUUID().toString().substring(0, 8);
+
+        mockMvc.perform(put("/admin/users/{userId}/vpn-access/{provider}", "kc-user-" + suffix, "tailscale")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
+                    .jwt(token -> token.subject("admin-master")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "status": "invite_pending",
+                      "inviteLink": "https://login.tailscale.com/admin/invite",
+                      "notes": "Pending manual invite"
+                    }
+                    """))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.keycloakUserId").value("kc-user-" + suffix))
+            .andExpect(jsonPath("$.provider").value("tailscale"))
+            .andExpect(jsonPath("$.status").value("invite_pending"));
+
+        mockMvc.perform(get("/admin/users/{userId}/vpn-access", "kc-user-" + suffix)
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
+                    .jwt(token -> token.subject("admin-master"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].provider").value("tailscale"))
+            .andExpect(jsonPath("$[0].status").value("invite_pending"));
+    }
+
+    @Test
     void adminCanListAdminResourcesButCannotWrite() throws Exception {
         String suffix = UUID.randomUUID().toString().substring(0, 8);
         SystemEntity system = systemAdminService.create("read-system-" + suffix, "Read System " + suffix, "seed");
         ProfileEntity profile = profileAdminService.create("read-profile-" + suffix, "Read Profile " + suffix, "seed");
         userProfileAdminService.assign("kc-user-" + suffix, profile.getId(), "seed");
+        userVpnAccessAdminService.upsert("kc-user-" + suffix, "tailscale", "active", "https://login.tailscale.com/admin/invite", "Active", "seed");
 
         mockMvc.perform(get("/admin/systems")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
@@ -233,6 +270,12 @@ class AdminAuthorizationControllerTest {
                     .jwt(token -> token.subject("admin-viewer"))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[*].action", hasItem("system.created")));
+
+        mockMvc.perform(get("/admin/users/{userId}/vpn-access", "kc-user-" + suffix)
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                    .jwt(token -> token.subject("admin-viewer"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].status").value("active"));
 
         mockMvc.perform(post("/admin/systems")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
@@ -267,6 +310,19 @@ class AdminAuthorizationControllerTest {
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
                     .jwt(token -> token.subject("admin-viewer"))))
             .andExpect(status().isForbidden());
+
+        mockMvc.perform(put("/admin/users/{userId}/vpn-access/{provider}", "kc-user-" + suffix, "tailscale")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                    .jwt(token -> token.subject("admin-viewer")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "status": "revoked",
+                      "inviteLink": "https://login.tailscale.com/admin/invite",
+                      "notes": "Forbidden"
+                    }
+                    """))
+            .andExpect(status().isForbidden());
     }
 
     @Test
@@ -277,6 +333,11 @@ class AdminAuthorizationControllerTest {
             .andExpect(status().isForbidden());
 
         mockMvc.perform(get("/admin/audit-logs")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_COMMON"))
+                    .jwt(token -> token.subject("common-user"))))
+            .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/admin/users/{userId}/vpn-access", "kc-common")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_COMMON"))
                     .jwt(token -> token.subject("common-user"))))
             .andExpect(status().isForbidden());

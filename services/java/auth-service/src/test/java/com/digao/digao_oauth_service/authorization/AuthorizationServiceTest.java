@@ -21,11 +21,13 @@ import com.digao.digao_oauth_service.application.authorization.CapabilityAdminSe
 import com.digao.digao_oauth_service.application.authorization.ProfileAdminService;
 import com.digao.digao_oauth_service.application.authorization.SystemAdminService;
 import com.digao.digao_oauth_service.application.authorization.UserProfileAdminService;
+import com.digao.digao_oauth_service.application.authorization.UserVpnAccessAdminService;
 import com.digao.digao_oauth_service.domain.authorization.AuditLogEntity;
 import com.digao.digao_oauth_service.domain.authorization.CapabilityEntity;
 import com.digao.digao_oauth_service.domain.authorization.ProfileEntity;
 import com.digao.digao_oauth_service.domain.authorization.SystemEntity;
 import com.digao.digao_oauth_service.domain.authorization.UserProfileEntity;
+import com.digao.digao_oauth_service.domain.authorization.UserVpnAccessEntity;
 import com.digao.digao_oauth_service.domain.authorization.repository.AuditLogRepository;
 import com.digao.digao_oauth_service.domain.authorization.repository.ProfileRepository;
 
@@ -63,6 +65,9 @@ class AuthorizationServiceTest {
     private AuditLogService auditLogService;
 
     @Autowired
+    private UserVpnAccessAdminService userVpnAccessAdminService;
+
+    @Autowired
     private ProfileRepository profileRepository;
 
     @Autowired
@@ -76,22 +81,27 @@ class AuthorizationServiceTest {
 
         profileAdminService.grantCapability(profile.getId(), capability.getId(), "admin-master");
         UserProfileEntity assignment = userProfileAdminService.assign("kc-user-1", profile.getId(), "admin-master");
+        UserVpnAccessEntity vpnAccess = userVpnAccessAdminService.upsert("kc-user-1", "tailscale", "invite_pending", "https://login.tailscale.com/admin/invite", "Pending invite", "admin-master");
 
         SystemEntity disabled = systemAdminService.disable(system.getId(), "admin-master");
         CapabilityEntity disabledCapability = capabilityAdminService.disable(capability.getId(), "admin-master");
         ProfileEntity disabledProfile = profileAdminService.disable(profile.getId(), "admin-master");
         UserProfileEntity revokedAssignment = userProfileAdminService.revoke(assignment.getId(), "admin-master");
+        UserVpnAccessEntity activeVpnAccess = userVpnAccessAdminService.upsert("kc-user-1", "tailscale", "active", "https://login.tailscale.com/admin/invite", "Activated", "admin-master");
         List<AuditLogEntity> auditLogs = auditLogRepository.findAll();
 
         assertNotNull(assignment.getId());
+        assertEquals("invite_pending", vpnAccess.getStatus());
         assertFalse(disabled.isEnabled());
         assertFalse(disabledCapability.isEnabled());
         assertFalse(disabledProfile.isEnabled());
         assertEquals(0, userProfileAdminService.listActiveAssignments("kc-user-1").size());
         assertNotNull(revokedAssignment.getId());
-        assertTrue(auditLogs.size() >= 8);
+        assertEquals("active", activeVpnAccess.getStatus());
+        assertTrue(auditLogs.size() >= 10);
         assertTrue(auditLogs.stream().anyMatch(log -> "system.created".equals(log.getAction())));
         assertTrue(auditLogs.stream().anyMatch(log -> "user_profile.assigned".equals(log.getAction())));
+        assertTrue(auditLogs.stream().anyMatch(log -> "user_vpn_access.upserted".equals(log.getAction())));
         assertTrue(auditLogs.stream().anyMatch(log -> "capability.disabled".equals(log.getAction())));
         assertTrue(auditLogs.stream().anyMatch(log -> "profile.disabled".equals(log.getAction())));
         assertTrue(auditLogs.stream().anyMatch(log -> "user_profile.revoked".equals(log.getAction())));
