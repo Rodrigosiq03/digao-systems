@@ -69,6 +69,10 @@ export const createAuthorizationApiClient = (auth: AuthPort): AuthorizationPort 
         method: 'POST',
         body: JSON.stringify(payload),
       }),
+    disableSystem: (systemId: number) =>
+      request<AuthorizationSystem>(`/admin/systems/${systemId}/disable`, {
+        method: 'PATCH',
+      }),
     listCapabilities: () => request<AuthorizationCapability[]>('/admin/capabilities'),
     createCapability: (payload: CreateAuthorizationCapabilityInput) =>
       request<AuthorizationCapability>('/admin/capabilities', {

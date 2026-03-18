@@ -16,6 +16,7 @@ import type {
 export interface AuthorizationPort {
   listSystems: () => Promise<AuthorizationSystem[]>;
   createSystem: (payload: CreateAuthorizationSystemInput) => Promise<AuthorizationSystem>;
+  disableSystem: (systemId: number) => Promise<AuthorizationSystem>;
   listCapabilities: () => Promise<AuthorizationCapability[]>;
   createCapability: (payload: CreateAuthorizationCapabilityInput) => Promise<AuthorizationCapability>;
   listProfiles: () => Promise<AuthorizationProfile[]>;

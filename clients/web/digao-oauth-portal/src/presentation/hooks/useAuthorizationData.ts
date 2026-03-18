@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createAuthorizationApiClient } from '@/infrastructure/authorization/authorizationApiClient';
 import { keycloakAuthClient } from '@/infrastructure/auth/keycloakClient';
 import { useAuthStore } from '@/presentation/stores/authStore';
@@ -46,3 +46,56 @@ export const useAuthorizationAuditLogs = () =>
 
 export const useMyAccess = () =>
   useAuthorizedQuery<MyAccess>(['authorization', 'my-access'], () => authorizationClient.getMyAccess());
+
+export const useCreateAuthorizationSystem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authorizationClient.createSystem,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authorization', 'systems'] }),
+  });
+};
+
+export const useDisableAuthorizationSystem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (systemId: number) => authorizationClient.disableSystem(systemId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authorization', 'systems'] }),
+  });
+};
+
+export const useCreateAuthorizationCapability = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authorizationClient.createCapability,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authorization', 'capabilities'] }),
+  });
+};
+
+export const useCreateAuthorizationProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authorizationClient.createProfile,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authorization', 'profiles'] }),
+  });
+};
+
+export const useGrantAuthorizationProfileCapability = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authorizationClient.grantProfileCapability,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['authorization', 'profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['authorization', 'capabilities'] });
+    },
+  });
+};
+
+export const useAssignAuthorizationUserProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: authorizationClient.assignUserProfile,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['authorization', 'assignments', variables.keycloakUserId] });
+    },
+  });
+};

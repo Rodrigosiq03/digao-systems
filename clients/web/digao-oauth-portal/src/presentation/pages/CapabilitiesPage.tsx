@@ -1,12 +1,33 @@
+import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuthorizationCapabilities } from '@/presentation/hooks/useAuthorizationData';
+import { CapabilityForm } from '@/presentation/forms/capabilityForm';
+import {
+  useAuthorizationCapabilities,
+  useAuthorizationSystems,
+  useCreateAuthorizationCapability,
+} from '@/presentation/hooks/useAuthorizationData';
 import { useAuthStore } from '@/presentation/stores/authStore';
 
 export function CapabilitiesPage() {
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const capabilitiesQuery = useAuthorizationCapabilities();
+  const systemsQuery = useAuthorizationSystems();
   const roles = useAuthStore((state) => state.roles);
   const capabilities = capabilitiesQuery.data ?? [];
+  const systems = systemsQuery.data ?? [];
   const isReadOnly = roles.includes('ADMIN') && !roles.includes('ADMIN_MASTER');
+  const isAdminMaster = roles.includes('ADMIN_MASTER');
+  const createCapabilityMutation = useCreateAuthorizationCapability();
+
+  const handleCreateCapability = async (payload: { systemId: number; key: string; name: string }) => {
+    setFeedback(null);
+    try {
+      const capability = await createCapabilityMutation.mutateAsync(payload);
+      setFeedback({ type: 'success', message: `Capability ${capability.name} criada.` });
+    } catch (err) {
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar capability.' });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -19,6 +40,26 @@ export function CapabilitiesPage() {
       {isReadOnly && (
         <div className="glass-card p-4 text-sm text-amber-100">
           <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar capabilities.
+        </div>
+      )}
+      {isAdminMaster && (
+        <div className="glass-card space-y-4 p-5">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold">Nova capability</h3>
+            <p className="text-sm text-[color:var(--muted)]">Adicione permissões dinâmicas a um sistema.</p>
+          </div>
+          <CapabilityForm
+            systems={systems}
+            onSubmit={handleCreateCapability}
+            isSubmitting={createCapabilityMutation.isPending}
+          />
+        </div>
+      )}
+      {feedback && (
+        <div className={feedback.type === 'success'
+          ? 'rounded-lg border border-emerald-400/20 bg-emerald-500/10 p-3 text-sm text-emerald-100'
+          : 'rounded-lg border border-rose-400/20 bg-rose-500/10 p-3 text-sm text-rose-100'}>
+          {feedback.message}
         </div>
       )}
       {capabilitiesQuery.isLoading ? (
