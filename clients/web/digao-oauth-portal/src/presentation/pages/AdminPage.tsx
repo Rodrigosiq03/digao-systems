@@ -20,7 +20,7 @@ export function AdminPage() {
     return [
       { label: 'Usuários', value: users.length.toString(), description: 'Total de contas gerenciadas' },
       { label: 'Ativos', value: activeUsers.toString(), description: 'Usuários com acesso liberado' },
-      { label: 'Sistemas', value: groups.length.toString(), description: 'Groups ativos no Keycloak' }
+      { label: 'Sistemas', value: groups.length.toString(), description: 'Estruturas de acesso disponíveis na plataforma' }
     ];
   }, [usersQuery.data, groupsQuery.data]);
 

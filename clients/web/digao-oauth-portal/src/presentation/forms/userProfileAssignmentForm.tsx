@@ -8,7 +8,7 @@ import { Select } from '@/components/ui/select';
 import type { AssignUserProfileInput, AuthorizationProfile } from '@/domain/authorization';
 
 const schema = z.object({
-  keycloakUserId: z.string().min(1, 'Informe o id do usuário no Keycloak'),
+  keycloakUserId: z.string().min(1, 'Informe o identificador do usuário'),
   profileId: z.coerce.number().int().positive('Escolha um profile'),
 });
 
@@ -41,7 +41,7 @@ export function UserProfileAssignmentForm({ profiles, onSubmit, isSubmitting, fi
     <form className={`grid gap-4 ${fixedUserId ? 'md:grid-cols-[1fr_auto]' : 'md:grid-cols-[1.4fr_1fr_auto]'}`} onSubmit={handleSubmit(submitHandler)}>
       {!fixedUserId && (
         <div className="space-y-2">
-          <Label htmlFor="assignment-user-id">Keycloak user id</Label>
+          <Label htmlFor="assignment-user-id">ID do usuário</Label>
           <Input id="assignment-user-id" placeholder="uuid-do-usuario" {...register('keycloakUserId')} />
           {errors.keycloakUserId && <p className="text-xs text-red-400">{errors.keycloakUserId.message}</p>}
         </div>

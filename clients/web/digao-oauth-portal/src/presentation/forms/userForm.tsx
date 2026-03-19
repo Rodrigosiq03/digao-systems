@@ -74,7 +74,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting }: Props) {
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="user-role">Role existente no Keycloak</Label>
+          <Label htmlFor="user-role">Papel global da plataforma</Label>
           <Select id="user-role" {...register('role')}>
             {roleOptions.map((role) => (
               <option key={role.value} value={role.value}>

@@ -5,15 +5,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/presentation/stores/authStore';
 
 export function AuthPanel() {
-  const { isReady, isAuthenticated, profile, roles, login, logout, refresh, getConfig } = useAuthStore();
-  const config = getConfig();
+  const { isReady, isAuthenticated, profile, roles, login, logout, refresh } = useAuthStore();
 
   if (!isReady) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Conectando...</CardTitle>
-          <CardDescription>Checando sua sessão no Keycloak.</CardDescription>
+          <CardDescription>Verificando sua sessão para liberar a plataforma.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Skeleton className="h-5 w-32" />
@@ -28,18 +27,15 @@ export function AuthPanel() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Entrar no Digão OAuth</CardTitle>
+          <CardTitle>Entrar na plataforma</CardTitle>
           <CardDescription>
-            Você será redirecionado para o Keycloak e retorna direto para este portal.
+            Faça login para acessar seus sistemas, equipes e controles administrativos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button variant="metal" onClick={login}>
-            Entrar com Keycloak
+            Entrar com Digao Systems
           </Button>
-          <p className="text-xs text-[color:var(--muted)]">
-            Realm: <strong>{config.realm}</strong> • Client: <strong>{config.clientId}</strong>
-          </p>
         </CardContent>
       </Card>
     );
@@ -60,15 +56,11 @@ export function AuthPanel() {
             <strong>{profile?.username || '-'}</strong>
           </div>
           <div>
-            <p className="text-xs text-[color:var(--muted)]">Realm</p>
-            <strong>{config.realm}</strong>
+            <p className="text-xs text-[color:var(--muted)]">Status da sessão</p>
+            <strong>Ativa</strong>
           </div>
           <div>
-            <p className="text-xs text-[color:var(--muted)]">Client</p>
-            <strong>{config.clientId}</strong>
-          </div>
-          <div>
-            <p className="text-xs text-[color:var(--muted)]">Roles</p>
+            <p className="text-xs text-[color:var(--muted)]">Papéis</p>
             <strong>{roles.length}</strong>
           </div>
         </div>
@@ -84,7 +76,7 @@ export function AuthPanel() {
       </CardContent>
       <CardFooter className="justify-start gap-3">
         <Button variant="secondary" onClick={refresh}>
-          Atualizar token
+          Atualizar sessão
         </Button>
         <Button variant="ghost" onClick={logout}>
           Sair

@@ -34,7 +34,7 @@ const buildStats = (users: AdminUser[], groups: AdminGroup[]): AdminStat[] => {
     {
       label: 'Sistemas',
       value: systems.toString(),
-      description: 'Groups ativos no Keycloak'
+      description: 'Estruturas de acesso disponíveis na plataforma'
     }
   ];
 };

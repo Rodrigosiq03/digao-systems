@@ -31,10 +31,10 @@ export function CapabilitiesPage() {
     setFeedback(null);
     try {
       const capability = await createCapabilityMutation.mutateAsync(payload);
-      setFeedback({ type: 'success', message: `Capability ${capability.name} criada.` });
+      setFeedback({ type: 'success', message: `Permissão ${capability.name} criada.` });
       setOpenCreate(false);
     } catch (err) {
-      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar capability.' });
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar permissão.' });
     }
   };
 
@@ -42,9 +42,9 @@ export function CapabilitiesPage() {
     setFeedback(null);
     try {
       const capability = await disableCapabilityMutation.mutateAsync(capabilityId);
-      setFeedback({ type: 'success', message: `Capability ${capability.name} desativada.` });
+      setFeedback({ type: 'success', message: `Permissão ${capability.name} desativada.` });
     } catch (err) {
-      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao desativar capability.' });
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao desativar permissão.' });
     }
   };
 

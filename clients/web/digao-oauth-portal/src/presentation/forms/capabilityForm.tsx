@@ -9,8 +9,8 @@ import type { AuthorizationSystem, CreateAuthorizationCapabilityInput } from '@/
 
 const schema = z.object({
   systemId: z.coerce.number().int().positive('Escolha um sistema'),
-  key: z.string().min(1, 'Informe a chave da capability'),
-  name: z.string().min(1, 'Informe o nome da capability'),
+  key: z.string().min(1, 'Informe a chave da permissão'),
+  name: z.string().min(1, 'Informe o nome da permissão'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -38,7 +38,7 @@ export function CapabilityForm({ systems, onSubmit, isSubmitting }: Props) {
   };
 
   return (
-    <form className="grid gap-4 md:grid-cols-4" onSubmit={handleSubmit(submitHandler)}>
+    <form className="grid gap-4" onSubmit={handleSubmit(submitHandler)}>
       <div className="space-y-2">
         <Label htmlFor="cap-system">Sistema</Label>
         <Select id="cap-system" {...register('systemId')}>
@@ -57,12 +57,12 @@ export function CapabilityForm({ systems, onSubmit, isSubmitting }: Props) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="cap-name">Nome</Label>
-        <Input id="cap-name" placeholder="Catalog Manage" {...register('name')} />
+        <Input id="cap-name" placeholder="Gerenciar catálogo" {...register('name')} />
         {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
       </div>
-      <div className="flex items-end">
+      <div className="flex items-start">
         <Button type="submit" variant="metal" disabled={isSubmitting || systems.length === 0}>
-          Criar capability
+          Criar permissão
         </Button>
       </div>
     </form>

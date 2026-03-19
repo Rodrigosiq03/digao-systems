@@ -2,18 +2,18 @@ import { ShieldCheck, Users, Workflow } from 'lucide-react';
 
 const features = [
   {
-    title: 'Fluxo PKCE',
-    description: 'Redireciona para o Keycloak e volta para o app.',
+    title: 'Entrada unificada',
+    description: 'Acesso centralizado para entrar na plataforma e continuar de onde parou.',
     icon: ShieldCheck
   },
   {
     title: 'Gestão de usuários',
-    description: 'Controle de usuários, roles e grupos em um só lugar.',
+    description: 'Controle de pessoas, papéis e acessos em um único painel.',
     icon: Users
   },
   {
-    title: 'Integração rápida',
-    description: 'Configuração de realms e clients direto na UI.',
+    title: 'Governança por sistema',
+    description: 'Sistemas, permissões e perfis organizados para crescer com a plataforma.',
     icon: Workflow
   }
 ];

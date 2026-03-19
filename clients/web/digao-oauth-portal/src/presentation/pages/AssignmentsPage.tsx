@@ -111,7 +111,7 @@ export function AssignmentsPage() {
       <AdminEditorSheet
         open={openCreate}
         title="Vincular profile"
-        description="Associe um profile a um usuário do Keycloak."
+        description="Associe um perfil de acesso a um usuário da plataforma."
         onClose={() => setOpenCreate(false)}
       >
         <UserProfileAssignmentForm

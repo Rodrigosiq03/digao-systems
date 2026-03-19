@@ -40,7 +40,7 @@ export function Sidebar() {
       <div className="flex items-center gap-3">
         <LockEmblem />
         <div className={cn(collapsed && 'lg:sr-only')}>
-          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">Digão OAuth</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">Digao Systems</p>
           <h3 className="font-black text-brand">Control Center</h3>
         </div>
         <button

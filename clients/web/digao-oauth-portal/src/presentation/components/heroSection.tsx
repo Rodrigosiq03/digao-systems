@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 
-const pills = ['OIDC + PKCE', 'Tokens seguros', 'Fluxo simples', 'Digão OAuth'];
+const pills = ['Acesso unificado', 'Sessão segura', 'Controles centrais', 'Plataforma Digão'];
 
 export function HeroSection() {
   return (
@@ -12,10 +12,10 @@ export function HeroSection() {
       </div>
       <div className="space-y-4">
         <h1 className="text-3xl font-black leading-tight text-[color:var(--text)] md:text-4xl">
-          Autenticação centralizada.
+          Plataforma central de acesso.
         </h1>
         <p className="max-w-xl text-base text-[color:var(--muted)]">
-          Login no Keycloak e retorno direto para o portal, sem passar pelo /account.
+          Entre uma vez e administre pessoas, acessos e sistemas em uma experiência única.
         </p>
       </div>
     </section>

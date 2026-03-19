@@ -60,19 +60,19 @@ export function AppShell() {
             <div className="gate-brand">
               <LockEmblem />
               <div>
-                <p className="gate-eyebrow">Digão OAuth</p>
+                <p className="gate-eyebrow">Digao Systems</p>
                 <h1 className="gate-title">Acesso unificado, controle total</h1>
               </div>
             </div>
             <p className="gate-subtitle">
-              Entre com o Keycloak e volte direto para o painel. Aqui você orquestra usuários,
-              roles e sistemas com segurança e identidade própria.
+              Entre na plataforma e administre usuários, acessos e sistemas em um só lugar,
+              com uma experiência limpa e direta.
             </p>
             <div className="gate-tags">
-              <span>PKCE</span>
-              <span>RBAC</span>
-              <span>Keycloak</span>
-              <span>Auditável</span>
+              <span>Acesso unificado</span>
+              <span>Perfis e permissões</span>
+              <span>Sistemas conectados</span>
+              <span>Operação auditável</span>
             </div>
           </div>
           <div className="auth-gate-panel">

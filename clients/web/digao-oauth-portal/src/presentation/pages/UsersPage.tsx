@@ -183,7 +183,7 @@ export function UsersPage() {
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Usuários</h2>
           <p className="text-sm text-[color:var(--muted)]">
-            Gerencie identidade, role existente no Keycloak, acesso VPN e profiles sem ficar preso a um formulário fixo.
+            Gerencie pessoas, papel global da plataforma, acesso VPN e perfis sem ficar preso a um formulário fixo.
           </p>
         </div>
         {canManage && (
@@ -222,7 +222,7 @@ export function UsersPage() {
       <AdminEditorSheet
         open={panel?.type === 'create'}
         title="Criar usuário"
-        description="Cria a conta no Keycloak, atribui uma role global existente e envia o primeiro acesso."
+        description="Cria a conta, define o papel global da plataforma e envia o primeiro acesso."
         onClose={() => setPanel(null)}
       >
         <UserForm mode="create" onSubmit={handleCreateUser} isSubmitting={createUserMutation.isPending} />
@@ -231,7 +231,7 @@ export function UsersPage() {
       <AdminEditorSheet
         open={panel?.type === 'edit'}
         title="Editar usuário"
-        description="Atualize dados básicos e troque a role global existente no Keycloak."
+        description="Atualize dados básicos e troque o papel global da plataforma."
         onClose={() => setPanel(null)}
       >
         {panel?.type === 'edit' && (
