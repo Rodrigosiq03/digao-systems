@@ -60,7 +60,10 @@ public class AdminUserVpnAccessController {
             entity.getNotes(),
             entity.getInvitedAt(),
             entity.getActivatedAt(),
-            entity.getRevokedAt()
+            entity.getRevokedAt(),
+            entity.getProviderRole(),
+            entity.getProviderLastSeenAt(),
+            entity.getProviderObservedAt()
         );
     }
 }

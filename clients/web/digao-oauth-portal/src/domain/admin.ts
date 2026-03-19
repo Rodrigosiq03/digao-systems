@@ -51,6 +51,9 @@ export type AdminUserVpnAccess = {
   invitedAt: string | null;
   activatedAt: string | null;
   revokedAt: string | null;
+  providerRole: string | null;
+  providerLastSeenAt: string | null;
+  providerObservedAt: string | null;
 };
 
 export type AdminUserVpnAccessInput = {

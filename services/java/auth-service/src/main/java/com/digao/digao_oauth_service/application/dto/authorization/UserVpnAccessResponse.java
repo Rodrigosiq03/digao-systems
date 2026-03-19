@@ -10,6 +10,9 @@ public record UserVpnAccessResponse(
     String notes,
     OffsetDateTime invitedAt,
     OffsetDateTime activatedAt,
-    OffsetDateTime revokedAt
+    OffsetDateTime revokedAt,
+    String providerRole,
+    OffsetDateTime providerLastSeenAt,
+    OffsetDateTime providerObservedAt
 ) {
 }

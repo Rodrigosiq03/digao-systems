@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSetMetaData;
 import java.sql.ResultSet;
 import java.util.Set;
 
@@ -37,6 +38,20 @@ class AuthorizationSchemaSmokeTest {
             assertTrue(tables.contains("user_profiles"));
             assertTrue(tables.contains("user_vpn_access"));
             assertTrue(tables.contains("audit_logs"));
+        }
+
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+             ResultSet columns = connection.createStatement().executeQuery("select * from user_vpn_access where 1 = 0")) {
+            ResultSetMetaData metaData = columns.getMetaData();
+            Set<String> columnNames = new java.util.HashSet<>();
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                columnNames.add(metaData.getColumnName(i).toLowerCase());
+            }
+
+            assertTrue(columnNames.contains("state"));
+            assertTrue(columnNames.contains("provider_role"));
+            assertTrue(columnNames.contains("provider_last_seen_at"));
+            assertTrue(columnNames.contains("provider_observed_at"));
         }
     }
 }

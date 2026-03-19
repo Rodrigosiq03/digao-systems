@@ -21,8 +21,8 @@ public class UserVpnAccessEntity {
     @Column(nullable = false)
     private String provider;
 
-    @Column(nullable = false)
-    private String status;
+    @Column(name = "state", nullable = false)
+    private String state;
 
     @Column(name = "invite_link")
     private String inviteLink;
@@ -51,13 +51,22 @@ public class UserVpnAccessEntity {
     @Column(name = "revoked_at")
     private OffsetDateTime revokedAt;
 
+    @Column(name = "provider_role")
+    private String providerRole;
+
+    @Column(name = "provider_last_seen_at")
+    private OffsetDateTime providerLastSeenAt;
+
+    @Column(name = "provider_observed_at")
+    private OffsetDateTime providerObservedAt;
+
     protected UserVpnAccessEntity() {
     }
 
     public static UserVpnAccessEntity create(
         String keycloakUserId,
         String provider,
-        String status,
+        String state,
         String inviteLink,
         String notes,
         String actor
@@ -66,40 +75,51 @@ public class UserVpnAccessEntity {
         entity.keycloakUserId = keycloakUserId;
         entity.provider = provider;
         entity.createdBy = actor;
-        entity.apply(status, inviteLink, notes, actor);
+        entity.apply(state, inviteLink, notes, actor);
         return entity;
     }
 
-    public void apply(String status, String inviteLink, String notes, String actor) {
-        this.status = status;
+    public void apply(String state, String inviteLink, String notes, String actor) {
+        this.state = state;
         this.inviteLink = inviteLink;
         this.notes = notes;
         this.updatedBy = actor;
         this.updatedAt = OffsetDateTime.now();
-        syncLifecycleTimestamps(status);
+        syncLifecycleTimestamps(state);
     }
 
-    private void syncLifecycleTimestamps(String status) {
+    public UserVpnAccessEntity observe(
+        String providerRole,
+        OffsetDateTime providerLastSeenAt,
+        OffsetDateTime providerObservedAt,
+        String actor
+    ) {
+        this.providerRole = providerRole;
+        this.providerLastSeenAt = providerLastSeenAt;
+        this.providerObservedAt = providerObservedAt;
+        this.updatedBy = actor;
+        this.updatedAt = OffsetDateTime.now();
+        return this;
+    }
+
+    private void syncLifecycleTimestamps(String state) {
         OffsetDateTime now = OffsetDateTime.now();
-        if ("invite_pending".equals(status)) {
+        if ("invite_pending".equals(state)) {
             if (this.invitedAt == null) {
                 this.invitedAt = now;
             }
             this.activatedAt = null;
             this.revokedAt = null;
-        } else if ("active".equals(status)) {
+        } else if ("active".equals(state)) {
             if (this.activatedAt == null) {
                 this.activatedAt = now;
             }
-            if (this.invitedAt == null) {
-                this.invitedAt = now;
-            }
             this.revokedAt = null;
-        } else if ("revoked".equals(status)) {
+        } else if ("revoked".equals(state)) {
             if (this.revokedAt == null) {
                 this.revokedAt = now;
             }
-        } else if ("none".equals(status)) {
+        } else if ("none".equals(state)) {
             this.invitedAt = null;
             this.activatedAt = null;
             this.revokedAt = null;
@@ -114,8 +134,12 @@ public class UserVpnAccessEntity {
         return provider;
     }
 
+    public String getState() {
+        return state;
+    }
+
     public String getStatus() {
-        return status;
+        return state;
     }
 
     public String getInviteLink() {
@@ -136,5 +160,17 @@ public class UserVpnAccessEntity {
 
     public OffsetDateTime getRevokedAt() {
         return revokedAt;
+    }
+
+    public String getProviderRole() {
+        return providerRole;
+    }
+
+    public OffsetDateTime getProviderLastSeenAt() {
+        return providerLastSeenAt;
+    }
+
+    public OffsetDateTime getProviderObservedAt() {
+        return providerObservedAt;
     }
 }

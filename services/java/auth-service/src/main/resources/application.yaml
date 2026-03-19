@@ -37,6 +37,14 @@ digao:
     login-url: ${DIGAO_PORTAL_URL:http://localhost:3000}
   cors:
     allowed-origins: ${DIGAO_PORTAL_ORIGINS:http://localhost:3000}
+  vpn-sync:
+    enabled: ${DIGAO_VPN_SYNC_ENABLED:false}
+    cron: ${DIGAO_VPN_SYNC_CRON:0 */15 * * * *}
+    provider: ${DIGAO_VPN_SYNC_PROVIDER:tailscale}
+    api-base-url: ${DIGAO_VPN_SYNC_API_BASE_URL:https://api.tailscale.com}
+    tailnet: ${DIGAO_VPN_SYNC_TAILNET:}
+    api-token: ${DIGAO_VPN_SYNC_API_TOKEN:}
+    user-page-size: ${DIGAO_VPN_SYNC_USER_PAGE_SIZE:200}
 
 logging:
   level:

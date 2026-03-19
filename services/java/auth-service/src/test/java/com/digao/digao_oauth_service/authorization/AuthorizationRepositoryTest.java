@@ -3,6 +3,7 @@ package com.digao.digao_oauth_service.authorization;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -69,7 +70,18 @@ class AuthorizationRepositoryTest {
 
         ProfileCapabilityEntity grant = profileCapabilityRepository.save(ProfileCapabilityEntity.create(profile, capability, "admin-master"));
         UserProfileEntity assignment = userProfileRepository.save(UserProfileEntity.create("kc-user-1", profile, "admin-master"));
-        UserVpnAccessEntity vpnAccess = userVpnAccessRepository.save(UserVpnAccessEntity.create("kc-user-1", "tailscale", "invite_pending", "https://login.tailscale.com/admin/invite", "Invited", "admin-master"));
+        OffsetDateTime observedAt = OffsetDateTime.parse("2026-03-18T18:40:00Z");
+        OffsetDateTime lastSeenAt = OffsetDateTime.parse("2026-03-18T18:30:00Z");
+        UserVpnAccessEntity vpnAccess = userVpnAccessRepository.save(
+            UserVpnAccessEntity.create(
+                "kc-user-1",
+                "tailscale",
+                "invite_pending",
+                "https://login.tailscale.com/admin/invite",
+                "Invited",
+                "admin-master"
+            ).observe("member", lastSeenAt, observedAt, "sync@system")
+        );
 
         assertNotNull(system.getId());
         assertNotNull(capability.getId());
@@ -86,6 +98,9 @@ class AuthorizationRepositoryTest {
         assertEquals("catalog.manage", capabilities.get(0).getKey());
         assertEquals(1, assignments.size());
         assertEquals("cloud-gaming-curator", assignments.get(0).getProfile().getKey());
-        assertEquals("invite_pending", storedVpnAccess.getStatus());
+        assertEquals("invite_pending", storedVpnAccess.getState());
+        assertEquals("member", storedVpnAccess.getProviderRole());
+        assertEquals(lastSeenAt, storedVpnAccess.getProviderLastSeenAt());
+        assertEquals(observedAt, storedVpnAccess.getProviderObservedAt());
     }
 }
