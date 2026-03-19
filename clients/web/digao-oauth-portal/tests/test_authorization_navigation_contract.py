@@ -25,7 +25,7 @@ class AuthorizationNavigationContractTest(unittest.TestCase):
         app_shell = (ROOT / 'src' / 'presentation' / 'pages' / 'AppShell.tsx').read_text()
         for marker in ['ADMIN_MASTER', 'ADMIN', 'COMMON']:
             self.assertIn(marker, app_shell)
-        for item in ['Profiles', 'Permissões', 'Acessos', 'Auditoria']:
+        for item in ['Perfis', 'Permissões', 'Acessos', 'Auditoria']:
             self.assertIn(item, sidebar)
 
 

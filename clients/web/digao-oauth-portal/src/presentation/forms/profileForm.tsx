@@ -7,8 +7,8 @@ import { Label } from '@/components/ui/label';
 import type { CreateAuthorizationProfileInput } from '@/domain/authorization';
 
 const schema = z.object({
-  key: z.string().min(1, 'Informe a chave do profile'),
-  name: z.string().min(1, 'Informe o nome do profile'),
+  key: z.string().min(1, 'Informe a chave do perfil'),
+  name: z.string().min(1, 'Informe o nome do perfil'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -35,7 +35,7 @@ export function ProfileForm({ onSubmit, isSubmitting }: Props) {
   };
 
   return (
-    <form className="grid gap-4 md:grid-cols-[1fr_1fr_auto]" onSubmit={handleSubmit(submitHandler)}>
+    <form className="grid gap-4" onSubmit={handleSubmit(submitHandler)}>
       <div className="space-y-2">
         <Label htmlFor="profile-key">Chave</Label>
         <Input id="profile-key" placeholder="cloud-gaming-curator" {...register('key')} />
@@ -46,9 +46,9 @@ export function ProfileForm({ onSubmit, isSubmitting }: Props) {
         <Input id="profile-name" placeholder="Cloud Gaming Curator" {...register('name')} />
         {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
       </div>
-      <div className="flex items-end">
+      <div className="flex items-start">
         <Button type="submit" variant="metal" disabled={isSubmitting}>
-          Criar profile
+          Criar perfil
         </Button>
       </div>
     </form>

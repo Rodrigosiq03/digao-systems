@@ -158,9 +158,9 @@ export function UsersPage() {
     setFeedback(null);
     try {
       const assignment = await assignMutation.mutateAsync({ keycloakUserId: user.id, profileId });
-      setSuccess(`Profile ${assignment.profileKey} vinculado a ${user.email}.`);
+      setSuccess(`Perfil ${assignment.profileKey} vinculado a ${user.email}.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Falha ao vincular profile.');
+      setError(err instanceof Error ? err.message : 'Falha ao vincular perfil.');
     }
   };
 
@@ -168,9 +168,9 @@ export function UsersPage() {
     setFeedback(null);
     try {
       const assignment = await revokeMutation.mutateAsync({ assignmentId, keycloakUserId });
-      setSuccess(`Profile ${assignment.profileKey} revogado de ${email}.`);
+      setSuccess(`Perfil ${assignment.profileKey} revogado de ${email}.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Falha ao revogar profile.');
+      setError(err instanceof Error ? err.message : 'Falha ao revogar perfil.');
     }
   };
 

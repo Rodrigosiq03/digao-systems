@@ -9,7 +9,7 @@ import type { AssignUserProfileInput, AuthorizationProfile } from '@/domain/auth
 
 const schema = z.object({
   keycloakUserId: z.string().min(1, 'Informe o identificador do usuário'),
-  profileId: z.coerce.number().int().positive('Escolha um profile'),
+  profileId: z.coerce.number().int().positive('Escolha um perfil'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -38,7 +38,7 @@ export function UserProfileAssignmentForm({ profiles, onSubmit, isSubmitting, fi
   };
 
   return (
-    <form className={`grid gap-4 ${fixedUserId ? 'md:grid-cols-[1fr_auto]' : 'md:grid-cols-[1.4fr_1fr_auto]'}`} onSubmit={handleSubmit(submitHandler)}>
+    <form className="grid gap-4" onSubmit={handleSubmit(submitHandler)}>
       {!fixedUserId && (
         <div className="space-y-2">
           <Label htmlFor="assignment-user-id">ID do usuário</Label>
@@ -47,7 +47,7 @@ export function UserProfileAssignmentForm({ profiles, onSubmit, isSubmitting, fi
         </div>
       )}
       <div className="space-y-2">
-        <Label htmlFor="assignment-profile">Profile</Label>
+        <Label htmlFor="assignment-profile">Perfil</Label>
         <Select id="assignment-profile" {...register('profileId')}>
           {profiles.map((profile) => (
             <option key={profile.id} value={profile.id}>
@@ -59,7 +59,7 @@ export function UserProfileAssignmentForm({ profiles, onSubmit, isSubmitting, fi
       </div>
       <div className="flex items-end">
         <Button type="submit" variant="metal" disabled={isSubmitting || profiles.length === 0}>
-          Vincular profile
+          Vincular perfil
         </Button>
       </div>
     </form>

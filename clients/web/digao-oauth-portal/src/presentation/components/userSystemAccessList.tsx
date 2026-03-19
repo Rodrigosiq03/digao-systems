@@ -40,11 +40,11 @@ export function UserSystemAccessList({ systems, onManage }: Props) {
           </div>
           <ResourceCardMeta>
             <div>
-              <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Profiles atuais</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Perfis atuais</p>
               <strong>{view.grantedProfiles.map((profile) => profile.name).join(', ') || '-'}</strong>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Profiles disponíveis</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Perfis disponíveis</p>
               <strong>{view.availableProfiles.length}</strong>
             </div>
             <div>

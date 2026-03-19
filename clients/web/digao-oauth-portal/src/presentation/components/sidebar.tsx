@@ -14,7 +14,7 @@ const items: Array<{
   { id: 'admin', label: 'Admin', icon: ShieldCheck, adminOnly: true },
   { id: 'users', label: 'Usuários', icon: Users, adminOnly: true },
   { id: 'systems', label: 'Sistemas', icon: Layers3, adminOnly: true },
-  { id: 'profiles', label: 'Profiles', icon: Blocks, adminOnly: true },
+  { id: 'profiles', label: 'Perfis', icon: Blocks, adminOnly: true },
   { id: 'capabilities', label: 'Permissões', icon: Binary, adminOnly: true },
   { id: 'assignments', label: 'Acessos', icon: ReceiptText, adminOnly: true },
   { id: 'audit', label: 'Auditoria', icon: ReceiptText, adminOnly: true }

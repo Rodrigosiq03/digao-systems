@@ -65,7 +65,7 @@ export function UserSystemAccessSheet({
       >
         <div className="space-y-2">
           <label htmlFor="system-profile" className="text-sm font-semibold text-[color:var(--text)]">
-            Profile para este sistema
+            Perfil para este sistema
           </label>
           <Select id="system-profile" name="profileId" defaultValue={selectedSystem.availableProfiles[0]?.id?.toString()}>
             {selectedSystem.availableProfiles.map((profile) => (
@@ -86,7 +86,7 @@ export function UserSystemAccessSheet({
         <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">Acessos atuais</h3>
         {systemAssignments.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-black/10 p-4 text-sm text-[color:var(--muted)]">
-            Nenhum profile ativo para este sistema.
+            Nenhum perfil ativo para este sistema.
           </div>
         ) : (
           <div className="space-y-3">

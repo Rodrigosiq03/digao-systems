@@ -32,10 +32,10 @@ export function AssignmentsPage() {
     setFeedback(null);
     try {
       const assignment = await assignMutation.mutateAsync(payload);
-      setFeedback({ type: 'success', message: `Profile ${assignment.profileKey} vinculado a ${assignment.keycloakUserId}.` });
+      setFeedback({ type: 'success', message: `Perfil ${assignment.profileKey} vinculado a ${assignment.keycloakUserId}.` });
       setOpenCreate(false);
     } catch (err) {
-      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao vincular profile.' });
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao vincular perfil.' });
     }
   };
 
@@ -54,11 +54,11 @@ export function AssignmentsPage() {
       <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Acessos</h2>
-          <p className="text-sm text-[color:var(--muted)]">Profiles atribuídos ao usuário autenticado no momento.</p>
+          <p className="text-sm text-[color:var(--muted)]">Perfis atribuídos ao usuário autenticado no momento.</p>
         </div>
         {isAdminMaster && (
           <Button type="button" variant="metal" onClick={() => setOpenCreate(true)}>
-            Vincular profile
+            Vincular perfil
           </Button>
         )}
       </AdminPageHeader>
@@ -110,7 +110,7 @@ export function AssignmentsPage() {
 
       <AdminEditorSheet
         open={openCreate}
-        title="Vincular profile"
+        title="Vincular perfil"
         description="Associe um perfil de acesso a um usuário da plataforma."
         onClose={() => setOpenCreate(false)}
       >

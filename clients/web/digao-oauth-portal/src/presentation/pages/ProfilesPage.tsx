@@ -38,10 +38,10 @@ export function ProfilesPage() {
     setFeedback(null);
     try {
       const profile = await createProfileMutation.mutateAsync(payload);
-      setFeedback({ type: 'success', message: `Profile ${profile.name} criado.` });
+      setFeedback({ type: 'success', message: `Perfil ${profile.name} criado.` });
       setOpenCreate(false);
     } catch (err) {
-      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar profile.' });
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar perfil.' });
     }
   };
 
@@ -50,10 +50,10 @@ export function ProfilesPage() {
     setFeedback(null);
     try {
       const grant = await grantMutation.mutateAsync({ profileId: selectedProfileId, capabilityId: selectedCapabilityId });
-      setFeedback({ type: 'success', message: `Capability ${grant.capabilityKey} vinculada ao profile ${grant.profileKey}.` });
+      setFeedback({ type: 'success', message: `Permissão ${grant.capabilityKey} vinculada ao perfil ${grant.profileKey}.` });
       setOpenGrant(false);
     } catch (err) {
-      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao vincular capability.' });
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao vincular permissão.' });
     }
   };
 
@@ -61,9 +61,9 @@ export function ProfilesPage() {
     setFeedback(null);
     try {
       const profile = await disableProfileMutation.mutateAsync(profileId);
-      setFeedback({ type: 'success', message: `Profile ${profile.name} desativado.` });
+      setFeedback({ type: 'success', message: `Perfil ${profile.name} desativado.` });
     } catch (err) {
-      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao desativar profile.' });
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao desativar perfil.' });
     }
   };
 
@@ -71,23 +71,23 @@ export function ProfilesPage() {
     <AdminPageShell>
       <AdminPageHeader>
         <div className="space-y-2">
-          <h2 className="text-2xl font-black">Profiles</h2>
-          <p className="text-sm text-[color:var(--muted)]">Pacotes reutilizáveis de capabilities atribuíveis a usuários.</p>
+          <h2 className="text-2xl font-black">Perfis</h2>
+          <p className="text-sm text-[color:var(--muted)]">Pacotes reutilizáveis de permissões atribuíveis a usuários.</p>
         </div>
         {isAdminMaster && (
           <div className="flex flex-wrap gap-3">
             <Button type="button" variant="outline" onClick={() => setOpenGrant(true)}>
-              Vincular capability
+              Vincular permissão
             </Button>
             <Button type="button" variant="metal" onClick={() => setOpenCreate(true)}>
-              Novo profile
+              Novo perfil
             </Button>
           </div>
         )}
       </AdminPageHeader>
       {isReadOnly && (
         <div className="glass-card p-4 text-sm text-amber-100">
-          <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar profiles.
+          <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar perfis.
         </div>
       )}
       {feedback && <InlineFeedback tone={feedback.type}>{feedback.message}</InlineFeedback>}
@@ -100,7 +100,7 @@ export function ProfilesPage() {
       ) : profilesQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(profilesQuery.error as Error).message}</div>
       ) : profiles.length === 0 ? (
-        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhum profile cadastrado ainda.</div>
+        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhum perfil cadastrado ainda.</div>
       ) : (
         <AdminResourceGrid>
           {profiles.map((profile) => (
@@ -114,7 +114,7 @@ export function ProfilesPage() {
                   <QuickActionsMenu
                     actions={[
                       {
-                        label: 'Desativar profile',
+                        label: 'Desativar perfil',
                         onClick: () => handleDisableProfile(profile.id),
                         disabled: disableProfileMutation.isPending
                       }
@@ -139,7 +139,7 @@ export function ProfilesPage() {
 
       <AdminEditorSheet
         open={openCreate}
-        title="Criar profile"
+        title="Criar perfil"
         description="Crie um pacote reutilizável de acesso para usuários."
         onClose={() => setOpenCreate(false)}
       >
@@ -148,13 +148,13 @@ export function ProfilesPage() {
 
       <AdminEditorSheet
         open={openGrant}
-        title="Vincular capability"
-        description="Associe uma capability dinâmica a um profile existente."
+        title="Vincular permissão"
+        description="Associe uma permissão dinâmica a um perfil existente."
         onClose={() => setOpenGrant(false)}
       >
-        <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
+        <div className="grid gap-4">
           <div className="space-y-2">
-            <Label htmlFor="grant-profile-inline">Profile</Label>
+            <Label htmlFor="grant-profile-inline">Perfil</Label>
             <Select id="grant-profile-inline" value={selectedProfileId?.toString() ?? ''} onChange={(e) => setSelectedProfileId(Number(e.target.value))}>
               <option value="">Selecione</option>
               {profiles.map((profile) => (
@@ -163,7 +163,7 @@ export function ProfilesPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="grant-capability-inline">Capability</Label>
+            <Label htmlFor="grant-capability-inline">Permissão</Label>
             <Select id="grant-capability-inline" value={selectedCapabilityId?.toString() ?? ''} onChange={(e) => setSelectedCapabilityId(Number(e.target.value))}>
               <option value="">Selecione</option>
               {capabilities.map((capability) => (
@@ -171,7 +171,7 @@ export function ProfilesPage() {
               ))}
             </Select>
           </div>
-          <div className="flex items-end">
+          <div className="flex items-start">
             <Button type="button" variant="metal" onClick={handleGrant} disabled={grantMutation.isPending || !selectedProfileId || !selectedCapabilityId}>
               Vincular
             </Button>
