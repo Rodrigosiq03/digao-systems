@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { accentActionButtonClass } from '@/presentation/components/accentActionButtonClass';
 import { StatusBadge } from '@/presentation/components/statusBadge';
 import type { UserSystemAccessView } from '@/presentation/hooks/useUserSystemAccessView';
 import type { AuthorizationUserProfile } from '@/domain/authorization';
@@ -76,7 +77,12 @@ export function UserSystemAccessSheet({
           </Select>
         </div>
         <div className="flex items-end">
-          <Button type="submit" variant="metal" disabled={isSubmitting || selectedSystem.availableProfiles.length === 0}>
+          <Button
+            type="submit"
+            variant="ghost"
+            className={accentActionButtonClass}
+            disabled={isSubmitting || selectedSystem.availableProfiles.length === 0}
+          >
             {selectedSystem.hasAccess ? 'Trocar acesso' : 'Conceder acesso'}
           </Button>
         </div>

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,7 +73,24 @@ public class UserVpnAccessSyncService {
             }
 
             String keycloakUserId = matchedUser.getId().toString();
-            UserVpnAccessEntity entity = userVpnAccessRepository.findByKeycloakUserIdAndProvider(keycloakUserId, properties.provider())
+            Optional<UserVpnAccessEntity> existingEntity = userVpnAccessRepository.findByKeycloakUserIdAndProvider(keycloakUserId, properties.provider());
+            String auditAction;
+            if (existingEntity.isEmpty()) {
+                auditAction = "user_vpn_access.detected";
+            } else {
+                UserVpnAccessEntity existing = existingEntity.get();
+                boolean wasActive = "active".equals(existing.getState());
+                String previousRole = existing.getProviderRole();
+                if (!wasActive) {
+                    auditAction = "user_vpn_access.activated";
+                } else if (!Objects.equals(previousRole, observedUser.role())) {
+                    auditAction = "user_vpn_access.role_changed";
+                } else {
+                    auditAction = null;
+                }
+            }
+
+            UserVpnAccessEntity entity = existingEntity
                 .map(existing -> {
                     if (!"active".equals(existing.getState())) {
                         existing.apply("active", existing.getInviteLink(), existing.getNotes(), actor);
@@ -94,7 +112,9 @@ public class UserVpnAccessSyncService {
                 });
 
             userVpnAccessRepository.save(entity);
-            auditLogService.record(actor, "user_vpn_access.provider_synced", "user_vpn_access", keycloakUserId + ":" + properties.provider());
+            if (auditAction != null) {
+                auditLogService.record(actor, auditAction, "user_vpn_access", keycloakUserId + ":" + properties.provider());
+            }
             updatedUsers++;
         }
 

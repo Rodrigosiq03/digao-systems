@@ -22,7 +22,14 @@ public class AdminAuditLogsController {
     @GetMapping
     public List<AuditLogResponse> list() {
         return auditLogService.list().stream()
-            .map(entity -> new AuditLogResponse(entity.getId(), entity.getAction(), entity.getTargetType(), entity.getTargetId()))
+            .map(entity -> new AuditLogResponse(
+                entity.getId(),
+                entity.getAction(),
+                entity.getTargetType(),
+                entity.getTargetId(),
+                entity.getActorEmail(),
+                entity.getCreatedAt()
+            ))
             .toList();
     }
 }

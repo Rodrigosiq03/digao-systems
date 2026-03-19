@@ -69,4 +69,12 @@ public class AuditLogEntity {
     public String getTargetId() {
         return targetId;
     }
+
+    public String getActorEmail() {
+        return actorEmail;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
 }

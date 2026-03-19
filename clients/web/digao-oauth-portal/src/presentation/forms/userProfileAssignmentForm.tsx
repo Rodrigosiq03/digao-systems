@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { accentActionButtonClass } from '@/presentation/components/accentActionButtonClass';
 import type { AssignUserProfileInput, AuthorizationProfile } from '@/domain/authorization';
 
 const schema = z.object({
@@ -58,7 +59,7 @@ export function UserProfileAssignmentForm({ profiles, onSubmit, isSubmitting, fi
         {errors.profileId && <p className="text-xs text-red-400">{errors.profileId.message}</p>}
       </div>
       <div className="flex items-end">
-        <Button type="submit" variant="metal" disabled={isSubmitting || profiles.length === 0}>
+        <Button type="submit" variant="ghost" className={accentActionButtonClass} disabled={isSubmitting || profiles.length === 0}>
           Vincular perfil
         </Button>
       </div>

@@ -5,6 +5,7 @@ import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } from '@/presentation/components/adminLayout';
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
+import { accentActionButtonClass } from '@/presentation/components/accentActionButtonClass';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
 import { ResourceCard, ResourceCardHeader, ResourceCardMeta } from '@/presentation/components/resourceCard';
 import { ProfileForm } from '@/presentation/forms/profileForm';
@@ -76,7 +77,7 @@ export function ProfilesPage() {
         </div>
         {isAdminMaster && (
           <div className="flex flex-wrap gap-3">
-            <Button type="button" variant="outline" onClick={() => setOpenGrant(true)}>
+            <Button type="button" variant="ghost" className={accentActionButtonClass} onClick={() => setOpenGrant(true)}>
               Vincular permissão
             </Button>
             <Button type="button" variant="metal" onClick={() => setOpenCreate(true)}>
@@ -172,7 +173,13 @@ export function ProfilesPage() {
             </Select>
           </div>
           <div className="flex items-start">
-            <Button type="button" variant="metal" onClick={handleGrant} disabled={grantMutation.isPending || !selectedProfileId || !selectedCapabilityId}>
+            <Button
+              type="button"
+              variant="ghost"
+              className={accentActionButtonClass}
+              onClick={handleGrant}
+              disabled={grantMutation.isPending || !selectedProfileId || !selectedCapabilityId}
+            >
               Vincular
             </Button>
           </div>

@@ -41,6 +41,8 @@ export type AuthorizationAuditLog = {
   action: string;
   targetType: string;
   targetId: string | null;
+  actorEmail: string | null;
+  createdAt: string;
 };
 
 export type AuthorizationAccessProfile = {

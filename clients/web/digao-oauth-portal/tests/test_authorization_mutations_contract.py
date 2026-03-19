@@ -43,13 +43,30 @@ class AuthorizationMutationsContractTest(unittest.TestCase):
             self.assertIn('ADMIN_MASTER', source)
 
         page_expectations = {
-            'ProfilesPage.tsx': 'Desativar profile',
-            'CapabilitiesPage.tsx': 'Desativar capability',
+            'ProfilesPage.tsx': 'Desativar perfil',
+            'CapabilitiesPage.tsx': 'Desativar permissão',
             'AssignmentsPage.tsx': 'Revogar vínculo',
         }
         for filename, expected_text in page_expectations.items():
             source = (ROOT / 'src' / 'presentation' / 'pages' / filename).read_text()
             self.assertIn(expected_text, source)
+
+    def test_system_form_is_vertical_and_linkage_uses_shared_accent_style(self):
+        system_form = (ROOT / 'src' / 'presentation' / 'forms' / 'systemForm.tsx').read_text()
+        self.assertIn("className=\"grid gap-4\"", system_form)
+        self.assertNotIn('md:grid-cols', system_form)
+
+        accent_helper = ROOT / 'src' / 'presentation' / 'components' / 'accentActionButtonClass.ts'
+        self.assertTrue(accent_helper.exists(), f'Missing accent helper: {accent_helper}')
+        accent_source = accent_helper.read_text()
+        self.assertIn('c7a65a', accent_source)
+        self.assertIn('bg-[linear-gradient', accent_source)
+
+        assignment_form = (ROOT / 'src' / 'presentation' / 'forms' / 'userProfileAssignmentForm.tsx').read_text()
+        self.assertIn('accentActionButtonClass', assignment_form)
+
+        profiles_page = (ROOT / 'src' / 'presentation' / 'pages' / 'ProfilesPage.tsx').read_text()
+        self.assertIn('accentActionButtonClass', profiles_page)
 
 
 if __name__ == '__main__':

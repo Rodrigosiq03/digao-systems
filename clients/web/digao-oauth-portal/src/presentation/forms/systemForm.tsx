@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { accentActionButtonClass } from '@/presentation/components/accentActionButtonClass';
 import type { CreateAuthorizationSystemInput } from '@/domain/authorization';
 
 const schema = z.object({
@@ -40,7 +41,7 @@ export function SystemForm({ onSubmit, isSubmitting }: Props) {
   };
 
   return (
-    <form className="grid gap-4 md:grid-cols-[1fr_1fr_1.4fr_auto]" onSubmit={handleSubmit(submitHandler)}>
+    <form className="grid gap-4" onSubmit={handleSubmit(submitHandler)}>
       <div className="space-y-2">
         <Label htmlFor="system-key">Chave</Label>
         <Input id="system-key" placeholder="cloud-gaming" {...register('key')} />
@@ -56,8 +57,8 @@ export function SystemForm({ onSubmit, isSubmitting }: Props) {
         <Input id="system-entry-url" placeholder="https://cloud-dev.rodrigodsiqueira.dev.br:8443" {...register('entryUrl')} />
         {errors.entryUrl && <p className="text-xs text-red-400">{errors.entryUrl.message}</p>}
       </div>
-      <div className="flex items-end">
-        <Button type="submit" variant="metal" disabled={isSubmitting}>
+      <div className="flex items-start">
+        <Button type="submit" variant="ghost" className={accentActionButtonClass} disabled={isSubmitting}>
           Criar sistema
         </Button>
       </div>

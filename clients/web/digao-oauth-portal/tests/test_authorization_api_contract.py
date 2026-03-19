@@ -47,6 +47,11 @@ class AuthorizationApiContractTest(unittest.TestCase):
         for path in expected_paths:
             self.assertIn(path, source)
 
+    def test_audit_log_type_exposes_actor_and_timestamp(self):
+        source = (ROOT / 'src' / 'domain' / 'authorization.ts').read_text()
+        self.assertIn('actorEmail', source)
+        self.assertIn('createdAt', source)
+
 
 if __name__ == '__main__':
     unittest.main()

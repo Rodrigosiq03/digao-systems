@@ -33,6 +33,7 @@ public class UserVpnAccessAdminService {
         String notes,
         String actor
     ) {
+        String action = resolveAuditAction(status);
         UserVpnAccessEntity entity = userVpnAccessRepository.findByKeycloakUserIdAndProvider(keycloakUserId, provider)
             .map(existing -> {
                 existing.apply(status, inviteLink, notes, actor);
@@ -41,7 +42,16 @@ public class UserVpnAccessAdminService {
             .orElseGet(() -> UserVpnAccessEntity.create(keycloakUserId, provider, status, inviteLink, notes, actor));
 
         UserVpnAccessEntity saved = userVpnAccessRepository.save(entity);
-        auditLogService.record(actor, "user_vpn_access.upserted", "user_vpn_access", keycloakUserId + ":" + provider);
+        auditLogService.record(actor, action, "user_vpn_access", keycloakUserId + ":" + provider);
         return saved;
+    }
+
+    private String resolveAuditAction(String status) {
+        return switch (status) {
+            case "invite_pending" -> "user_vpn_access.invite_pending";
+            case "active" -> "user_vpn_access.activated_manually";
+            case "revoked" -> "user_vpn_access.revoked";
+            default -> "user_vpn_access.updated";
+        };
     }
 }

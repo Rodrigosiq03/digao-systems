@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } from '@/presentation/components/adminLayout';
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
+import { accentActionButtonClass } from '@/presentation/components/accentActionButtonClass';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
 import { ResourceCard, ResourceCardHeader } from '@/presentation/components/resourceCard';
 import { UserProfileAssignmentForm } from '@/presentation/forms/userProfileAssignmentForm';
@@ -57,7 +58,7 @@ export function AssignmentsPage() {
           <p className="text-sm text-[color:var(--muted)]">Perfis atribuídos ao usuário autenticado no momento.</p>
         </div>
         {isAdminMaster && (
-          <Button type="button" variant="metal" onClick={() => setOpenCreate(true)}>
+          <Button type="button" variant="ghost" className={accentActionButtonClass} onClick={() => setOpenCreate(true)}>
             Vincular perfil
           </Button>
         )}

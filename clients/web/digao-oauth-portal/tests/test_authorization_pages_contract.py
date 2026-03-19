@@ -30,6 +30,14 @@ class AuthorizationPagesContractTest(unittest.TestCase):
         source = (ROOT / 'src' / 'presentation' / 'pages' / 'CapabilitiesPage.tsx').read_text()
         self.assertIn('Permissões', source)
 
+    def test_audit_page_uses_humanized_timeline_fields(self):
+        source = (ROOT / 'src' / 'presentation' / 'pages' / 'AuditPage.tsx').read_text()
+        self.assertIn('createdAt', source)
+        self.assertIn('actorEmail', source)
+        self.assertIn('VPN', source)
+        self.assertIn('Permissões', source)
+        self.assertIn('Sistemas', source)
+
 
 if __name__ == '__main__':
     unittest.main()

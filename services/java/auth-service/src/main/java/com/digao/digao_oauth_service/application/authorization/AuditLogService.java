@@ -21,6 +21,6 @@ public class AuditLogService {
     }
 
     public List<AuditLogEntity> list() {
-        return auditLogRepository.findAll();
+        return auditLogRepository.findAllByOrderByCreatedAtDescIdDesc();
     }
 }

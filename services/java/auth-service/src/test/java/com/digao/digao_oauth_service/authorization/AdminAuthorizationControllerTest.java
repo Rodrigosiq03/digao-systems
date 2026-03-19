@@ -283,7 +283,9 @@ class AdminAuthorizationControllerTest {
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
                     .jwt(token -> token.subject("admin-viewer"))))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[*].action", hasItem("system.created")));
+            .andExpect(jsonPath("$[*].action", hasItem("system.created")))
+            .andExpect(jsonPath("$[*].actorEmail", hasItem("seed")))
+            .andExpect(jsonPath("$[0].createdAt").exists());
 
         mockMvc.perform(get("/admin/users/{userId}/vpn-access", "kc-user-" + suffix)
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
