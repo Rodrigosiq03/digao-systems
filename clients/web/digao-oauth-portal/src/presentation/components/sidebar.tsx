@@ -33,19 +33,19 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'top-0 flex h-auto flex-row items-center justify-between gap-4 overflow-x-auto border-b border-white/8 bg-[linear-gradient(180deg,rgba(15,22,36,0.92),rgba(15,22,36,0.7))] px-5 py-5 backdrop-blur-[20px] lg:sticky lg:h-screen lg:flex-col lg:items-stretch lg:justify-start lg:overflow-visible lg:border-b-0 lg:border-r lg:border-white/8 lg:px-6',
+        'top-0 flex h-auto flex-row items-center justify-between gap-4 overflow-x-auto border-b border-[color:var(--border)] bg-white/74 px-5 py-5 backdrop-blur-[20px] dark:border-white/8 dark:bg-[linear-gradient(180deg,rgba(15,22,36,0.92),rgba(15,22,36,0.7))] lg:sticky lg:h-screen lg:flex-col lg:items-stretch lg:justify-start lg:overflow-visible lg:border-b-0 lg:border-r lg:px-6',
         collapsed && 'lg:px-4'
       )}
     >
       <div className="flex items-center gap-3">
         <LockEmblem />
         <div className={cn(collapsed && 'lg:sr-only')}>
-          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">Digao Systems</p>
-          <h3 className="font-black text-brand">Control Center</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-[color:var(--muted)]">Digao Systems</p>
+          <h3 className="font-black text-slate-900 dark:text-brand">Control Center</h3>
         </div>
         <button
           type="button"
-          className="ml-auto inline-flex h-[34px] w-[34px] items-center justify-center rounded-full border border-white/10 bg-white/6 text-[color:var(--text)]"
+          className="ml-auto inline-flex h-[34px] w-[34px] items-center justify-center rounded-full border border-[color:var(--soft-border)] bg-[color:var(--soft-panel)] text-[color:var(--text)] dark:border-white/10 dark:bg-white/6"
           onClick={toggleCollapsed}
           aria-label="Alternar barra lateral"
         >
@@ -62,9 +62,9 @@ export function Sidebar() {
               type="button"
               onClick={() => setActive(item.id)}
               className={cn(
-                'inline-flex w-full items-center gap-3 rounded-2xl border border-transparent px-3.5 py-3 text-left text-[rgba(231,237,247,0.84)] transition duration-150 hover:bg-white/6 hover:text-white lg:hover:translate-x-0.5',
+                'inline-flex w-full items-center gap-3 rounded-2xl border border-transparent px-3.5 py-3 text-left text-slate-600 transition duration-150 hover:bg-[color:var(--soft-panel)] hover:text-slate-900 lg:hover:translate-x-0.5 dark:text-[rgba(231,237,247,0.84)] dark:hover:bg-white/6 dark:hover:text-white',
                 collapsed ? 'justify-center lg:px-0' : 'justify-start',
-                isActive && 'border-white/20 bg-white/12 text-white shadow-[0_10px_24px_rgba(0,0,0,0.25)]'
+                isActive && 'border-[color:var(--soft-border)] bg-[color:var(--soft-panel)] text-slate-900 shadow-[0_10px_24px_rgba(20,24,33,0.08)] dark:border-white/20 dark:bg-white/12 dark:text-white dark:shadow-[0_10px_24px_rgba(0,0,0,0.25)]'
               )}
             >
               <Icon className="h-4 w-4" />

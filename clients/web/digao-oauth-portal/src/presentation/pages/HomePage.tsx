@@ -8,7 +8,7 @@ export function HomePage() {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-2xl font-black">Plataforma Digao Systems</h2>
-        <p className="text-sm text-[color:var(--muted)]">
+        <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">
           Ponto central de identidade, acesso e governança dos sistemas do Digão.
         </p>
       </div>
@@ -16,7 +16,7 @@ export function HomePage() {
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">Sessão atual</p>
           <h3 className="text-xl font-bold">{profile?.firstName || profile?.username || 'Usuário autenticado'}</h3>
-          <p className="text-sm text-[color:var(--muted)]">{profile?.email || 'Sem e-mail disponível'}</p>
+          <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">{profile?.email || 'Sem e-mail disponível'}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {roles.map((role) => (

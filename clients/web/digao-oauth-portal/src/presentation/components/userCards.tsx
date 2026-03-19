@@ -131,7 +131,7 @@ function UserCard({
       </ResourceCardMeta>
 
       <div className="grid gap-3 md:grid-cols-3">
-        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+        <div className="rounded-2xl border border-[color:var(--soft-border)] bg-[color:var(--soft-panel)] p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
             <UserCog className="h-4 w-4" />
             Identidade
@@ -140,7 +140,7 @@ function UserCard({
             Role principal: <strong>{user.role ?? '-'}</strong>
           </p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+        <div className="rounded-2xl border border-[color:var(--soft-border)] bg-[color:var(--soft-panel)] p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
             <ShieldCheck className="h-4 w-4" />
             VPN
@@ -159,7 +159,7 @@ function UserCard({
             </a>
           )}
         </div>
-        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+        <div className="rounded-2xl border border-[color:var(--soft-border)] bg-[color:var(--soft-panel)] p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
             {user.enabled ? <UserRoundCheck className="h-4 w-4" /> : <UserRoundX className="h-4 w-4" />}
             Operação
