@@ -54,6 +54,14 @@ public class AdminCapabilitiesController {
     }
 
     private CapabilityResponse toResponse(CapabilityEntity entity) {
-        return new CapabilityResponse(entity.getId(), entity.getSystem().getId(), entity.getKey(), entity.getName(), entity.isEnabled());
+        return new CapabilityResponse(
+            entity.getId(),
+            entity.getSystem().getId(),
+            entity.getKey(),
+            entity.getName(),
+            entity.isEnabled(),
+            entity.getDisabledAt(),
+            entity.getDisabledBy()
+        );
     }
 }

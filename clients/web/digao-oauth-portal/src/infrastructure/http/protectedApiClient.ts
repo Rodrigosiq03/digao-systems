@@ -40,14 +40,21 @@ export const createProtectedApiClient = (auth: AuthPort): ProtectedApiClient => 
     return refreshPromise;
   };
 
+  const forceLogout = async () => {
+    auth.clearSession();
+    await auth.logout();
+  };
+
   const getFreshToken = async () => {
     const tokenParsed = await refresh();
     if (!tokenParsed) {
+      await forceLogout();
       throw new Error('Sessão expirada. Faça login novamente.');
     }
 
     const token = auth.getAccessToken();
     if (!token) {
+      await forceLogout();
       throw new Error('Sessão expirada. Faça login novamente.');
     }
 
@@ -90,7 +97,15 @@ export const createProtectedApiClient = (auth: AuthPort): ProtectedApiClient => 
         return (await retryResponse.json()) as T;
       }
 
+      if (retryResponse.status === 401) {
+        await forceLogout();
+      }
+
       throw new Error(await parseError(retryResponse));
+    }
+
+    if (response.status === 401) {
+      await forceLogout();
     }
 
     throw new Error(await parseError(response));

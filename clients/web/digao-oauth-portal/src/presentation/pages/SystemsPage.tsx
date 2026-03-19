@@ -10,13 +10,16 @@ import { SystemForm } from '@/presentation/forms/systemForm';
 import {
   useAuthorizationSystems,
   useCreateAuthorizationSystem,
+  useUpdateAuthorizationSystem,
   useDisableAuthorizationSystem
 } from '@/presentation/hooks/useAuthorizationData';
 import { useAuthStore } from '@/presentation/stores/authStore';
+import type { AuthorizationSystem } from '@/domain/authorization';
 
 export function SystemsPage() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [openEditor, setOpenEditor] = useState(false);
+  const [editingSystem, setEditingSystem] = useState<AuthorizationSystem | null>(null);
   const systemsQuery = useAuthorizationSystems();
   const roles = useAuthStore((state) => state.roles);
   const systems = systemsQuery.data ?? [];
@@ -25,6 +28,7 @@ export function SystemsPage() {
   const isReadOnly = roles.includes('ADMIN') && !roles.includes('ADMIN_MASTER');
   const isAdminMaster = roles.includes('ADMIN_MASTER');
   const createSystemMutation = useCreateAuthorizationSystem();
+  const updateSystemMutation = useUpdateAuthorizationSystem();
   const disableSystemMutation = useDisableAuthorizationSystem();
 
   const handleCreateSystem = async (payload: { key: string; name: string; entryUrl?: string }) => {
@@ -45,6 +49,19 @@ export function SystemsPage() {
       setFeedback({ type: 'success', message: `Sistema ${system.name} desativado.` });
     } catch (err) {
       setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao desativar sistema.' });
+    }
+  };
+
+  const handleUpdateSystem = async (payload: { name: string; entryUrl?: string }) => {
+    if (!editingSystem) return;
+    setFeedback(null);
+    try {
+      const system = await updateSystemMutation.mutateAsync({ systemId: editingSystem.id, payload });
+      setFeedback({ type: 'success', message: `Sistema ${system.name} atualizado.` });
+      setEditingSystem(null);
+      setOpenEditor(false);
+    } catch (err) {
+      setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao atualizar sistema.' });
     }
   };
 
@@ -89,6 +106,13 @@ export function SystemsPage() {
                 {isAdminMaster && system.enabled && (
                   <QuickActionsMenu
                     actions={[
+                      {
+                        label: 'Editar sistema',
+                        onClick: () => {
+                          setEditingSystem(system);
+                          setOpenEditor(true);
+                        }
+                      },
                       {
                         label: 'Desativar sistema',
                         onClick: () => handleDisableSystem(system.id),
@@ -136,11 +160,31 @@ export function SystemsPage() {
 
       <AdminEditorSheet
         open={openEditor}
-        title="Criar sistema"
-        description="Registre um novo sistema administrável no portal."
-        onClose={() => setOpenEditor(false)}
+        title={editingSystem ? 'Editar sistema' : 'Criar sistema'}
+        description={editingSystem ? 'Atualize o nome e a URL direta do sistema.' : 'Registre um novo sistema administrável no portal.'}
+        onClose={() => {
+          setOpenEditor(false);
+          setEditingSystem(null);
+        }}
       >
-        <SystemForm onSubmit={handleCreateSystem} isSubmitting={createSystemMutation.isPending} />
+        {editingSystem ? (
+          <SystemForm
+            mode="update"
+            initialValues={{
+              key: editingSystem.key,
+              name: editingSystem.name,
+              entryUrl: editingSystem.entryUrl
+            }}
+            onSubmit={handleUpdateSystem}
+            isSubmitting={updateSystemMutation.isPending}
+          />
+        ) : (
+          <SystemForm
+            mode="create"
+            onSubmit={handleCreateSystem}
+            isSubmitting={createSystemMutation.isPending}
+          />
+        )}
       </AdminEditorSheet>
     </AdminPageShell>
   );

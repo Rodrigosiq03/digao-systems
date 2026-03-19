@@ -57,7 +57,8 @@ public class ProfileAdminService {
     public ProfileEntity disable(Long profileId, String actor) {
         ProfileEntity entity = profileRepository.findById(profileId).orElseThrow();
         entity.disable(actor);
+        ProfileEntity saved = profileRepository.save(entity);
         auditLogService.record(actor, "profile.disabled", "profile", entity.getId().toString());
-        return entity;
+        return saved;
     }
 }

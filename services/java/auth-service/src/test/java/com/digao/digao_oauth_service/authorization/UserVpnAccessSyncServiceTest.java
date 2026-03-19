@@ -22,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.digao.digao_oauth_service.application.authorization.AuditLogService;
+import com.digao.digao_oauth_service.application.authorization.UserVpnAccessMetricsService;
+import com.digao.digao_oauth_service.application.metrics.AuthServiceMetrics;
 import com.digao.digao_oauth_service.application.vpn.UserVpnAccessSyncResult;
 import com.digao.digao_oauth_service.application.vpn.UserVpnAccessSyncService;
 import com.digao.digao_oauth_service.application.vpn.VpnObservedUser;
@@ -31,6 +33,8 @@ import com.digao.digao_oauth_service.core.ports.IdentityProviderPort;
 import com.digao.digao_oauth_service.domain.authorization.UserVpnAccessEntity;
 import com.digao.digao_oauth_service.domain.authorization.repository.UserVpnAccessRepository;
 import com.digao.digao_oauth_service.infra.vpn.VpnSyncProperties;
+
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 @ExtendWith(MockitoExtension.class)
 class UserVpnAccessSyncServiceTest {
@@ -47,6 +51,21 @@ class UserVpnAccessSyncServiceTest {
     @Mock
     private VpnProviderClient vpnProviderClient;
 
+    @Mock
+    private UserVpnAccessMetricsService userVpnAccessMetricsService;
+
+    private UserVpnAccessSyncService createService(VpnSyncProperties properties) {
+        return new UserVpnAccessSyncService(
+            properties,
+            identityProviderPort,
+            userVpnAccessRepository,
+            auditLogService,
+            userVpnAccessMetricsService,
+            new AuthServiceMetrics(new SimpleMeterRegistry()),
+            List.of(vpnProviderClient)
+        );
+    }
+
     @Test
     void promotesMatchedUserToActiveUsingEmailAndCreatesRecordWhenMissing() {
         VpnSyncProperties properties = new VpnSyncProperties(
@@ -58,13 +77,7 @@ class UserVpnAccessSyncServiceTest {
             "token",
             100
         );
-        UserVpnAccessSyncService service = new UserVpnAccessSyncService(
-            properties,
-            identityProviderPort,
-            userVpnAccessRepository,
-            auditLogService,
-            List.of(vpnProviderClient)
-        );
+        UserVpnAccessSyncService service = createService(properties);
 
         User keycloakUser = new User(
             UUID.randomUUID(),
@@ -117,13 +130,7 @@ class UserVpnAccessSyncServiceTest {
             "token",
             100
         );
-        UserVpnAccessSyncService service = new UserVpnAccessSyncService(
-            properties,
-            identityProviderPort,
-            userVpnAccessRepository,
-            auditLogService,
-            List.of(vpnProviderClient)
-        );
+        UserVpnAccessSyncService service = createService(properties);
 
         User keycloakUser = new User(
             UUID.randomUUID(),
@@ -180,13 +187,7 @@ class UserVpnAccessSyncServiceTest {
             "token",
             100
         );
-        UserVpnAccessSyncService service = new UserVpnAccessSyncService(
-            properties,
-            identityProviderPort,
-            userVpnAccessRepository,
-            auditLogService,
-            List.of(vpnProviderClient)
-        );
+        UserVpnAccessSyncService service = createService(properties);
 
         User keycloakUser = new User(
             UUID.randomUUID(),
@@ -221,13 +222,7 @@ class UserVpnAccessSyncServiceTest {
             "token",
             100
         );
-        UserVpnAccessSyncService service = new UserVpnAccessSyncService(
-            properties,
-            identityProviderPort,
-            userVpnAccessRepository,
-            auditLogService,
-            List.of(vpnProviderClient)
-        );
+        UserVpnAccessSyncService service = createService(properties);
 
         User keycloakUser = new User(
             UUID.randomUUID(),
@@ -288,13 +283,7 @@ class UserVpnAccessSyncServiceTest {
             "token",
             100
         );
-        UserVpnAccessSyncService service = new UserVpnAccessSyncService(
-            properties,
-            identityProviderPort,
-            userVpnAccessRepository,
-            auditLogService,
-            List.of(vpnProviderClient)
-        );
+        UserVpnAccessSyncService service = createService(properties);
 
         User keycloakUser = new User(
             UUID.randomUUID(),
@@ -353,13 +342,7 @@ class UserVpnAccessSyncServiceTest {
             "token",
             100
         );
-        UserVpnAccessSyncService service = new UserVpnAccessSyncService(
-            properties,
-            identityProviderPort,
-            userVpnAccessRepository,
-            auditLogService,
-            List.of(vpnProviderClient)
-        );
+        UserVpnAccessSyncService service = createService(properties);
 
         User keycloakUser = new User(
             UUID.randomUUID(),

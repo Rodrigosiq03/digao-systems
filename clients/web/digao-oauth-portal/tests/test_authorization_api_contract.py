@@ -20,6 +20,7 @@ class AuthorizationApiContractTest(unittest.TestCase):
         expected_methods = [
             'listSystems',
             'createSystem',
+            'updateSystem',
             'listCapabilities',
             'createCapability',
             'listProfiles',
@@ -37,6 +38,7 @@ class AuthorizationApiContractTest(unittest.TestCase):
         source = (ROOT / 'src' / 'infrastructure' / 'authorization' / 'authorizationApiClient.ts').read_text()
         expected_paths = [
             '/admin/systems',
+            '/admin/systems/',
             '/admin/capabilities',
             '/admin/profiles',
             '/admin/profile-capabilities',

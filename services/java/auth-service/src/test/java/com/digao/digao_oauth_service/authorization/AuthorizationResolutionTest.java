@@ -50,7 +50,10 @@ class AuthorizationResolutionTest {
     @EntityScan(basePackages = "com.digao.digao_oauth_service.domain.authorization")
     @EnableJpaRepositories(basePackages = "com.digao.digao_oauth_service.domain.authorization.repository")
     @ComponentScans({
-        @ComponentScan(basePackages = "com.digao.digao_oauth_service.application.authorization"),
+        @ComponentScan(basePackages = {
+            "com.digao.digao_oauth_service.application.authorization",
+            "com.digao.digao_oauth_service.application.metrics"
+        }),
         @ComponentScan(
             basePackages = "com.digao.digao_oauth_service.presentation.controllers",
             useDefaultFilters = false,

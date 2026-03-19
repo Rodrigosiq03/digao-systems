@@ -32,11 +32,21 @@ public class SystemAdminService {
     }
 
     @Transactional
+    public SystemEntity update(Long systemId, String name, String entryUrl, String actor) {
+        SystemEntity entity = systemRepository.findById(systemId).orElseThrow();
+        entity.update(name, entryUrl, actor);
+        SystemEntity saved = systemRepository.save(entity);
+        auditLogService.record(actor, "system.updated", "system", entity.getId().toString());
+        return saved;
+    }
+
+    @Transactional
     public SystemEntity disable(Long systemId, String actor) {
         SystemEntity entity = systemRepository.findById(systemId).orElseThrow();
         entity.disable(actor);
+        SystemEntity saved = systemRepository.save(entity);
         auditLogService.record(actor, "system.disabled", "system", entity.getId().toString());
-        return systemRepository.save(entity);
+        return saved;
     }
 
     @Transactional(readOnly = true)

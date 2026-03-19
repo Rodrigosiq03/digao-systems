@@ -10,6 +10,7 @@ type AuthStore = AuthSession & {
   login: () => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
+  clearSession: () => void;
   getConfig: () => { url: string; realm: string; clientId: string };
 };
 
@@ -50,6 +51,16 @@ export const useAuthStore = create<AuthStore>((set) => ({
     if (tokenParsed) {
       set({ tokenParsed, roles: authUseCases.roles() });
     }
+  },
+  clearSession: () => {
+    authUseCases.clearSession();
+    set({
+      isReady: true,
+      isAuthenticated: false,
+      profile: null,
+      tokenParsed: null,
+      roles: []
+    });
   },
   getConfig: () => authUseCases.getConfig()
 }));

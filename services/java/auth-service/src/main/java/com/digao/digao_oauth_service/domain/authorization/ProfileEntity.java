@@ -29,6 +29,12 @@ public class ProfileEntity {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @Column(name = "disabled_at")
+    private OffsetDateTime disabledAt;
+
+    @Column(name = "disabled_by")
+    private String disabledBy;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt = OffsetDateTime.now();
 
@@ -67,9 +73,19 @@ public class ProfileEntity {
         return enabled;
     }
 
+    public OffsetDateTime getDisabledAt() {
+        return disabledAt;
+    }
+
+    public String getDisabledBy() {
+        return disabledBy;
+    }
+
     public void disable(String updatedBy) {
         this.enabled = false;
         this.updatedAt = OffsetDateTime.now();
         this.updatedBy = updatedBy;
+        this.disabledAt = this.updatedAt;
+        this.disabledBy = updatedBy;
     }
 }

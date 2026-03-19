@@ -88,6 +88,8 @@ export const keycloakAuthClient: AuthPort = {
   },
   logout: async () => {
     const client = getKeycloak();
+    initResult = null;
+    keycloakInstance = null;
     await client.logout({ redirectUri: window.location.origin });
   },
   refresh: async () => {
@@ -101,6 +103,11 @@ export const keycloakAuthClient: AuthPort = {
     } catch {
       return null;
     }
+  },
+  clearSession: () => {
+    initPromise = null;
+    initResult = null;
+    keycloakInstance = null;
   },
   getAccessToken: () => {
     const client = getKeycloak();

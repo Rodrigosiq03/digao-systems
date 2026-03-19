@@ -13,10 +13,16 @@ public class UserVpnAccessAdminService {
 
     private final UserVpnAccessRepository userVpnAccessRepository;
     private final AuditLogService auditLogService;
+    private final UserVpnAccessMetricsService userVpnAccessMetricsService;
 
-    public UserVpnAccessAdminService(UserVpnAccessRepository userVpnAccessRepository, AuditLogService auditLogService) {
+    public UserVpnAccessAdminService(
+        UserVpnAccessRepository userVpnAccessRepository,
+        AuditLogService auditLogService,
+        UserVpnAccessMetricsService userVpnAccessMetricsService
+    ) {
         this.userVpnAccessRepository = userVpnAccessRepository;
         this.auditLogService = auditLogService;
+        this.userVpnAccessMetricsService = userVpnAccessMetricsService;
     }
 
     @Transactional(readOnly = true)
@@ -43,6 +49,7 @@ public class UserVpnAccessAdminService {
 
         UserVpnAccessEntity saved = userVpnAccessRepository.save(entity);
         auditLogService.record(actor, action, "user_vpn_access", keycloakUserId + ":" + provider);
+        userVpnAccessMetricsService.refreshTotals();
         return saved;
     }
 

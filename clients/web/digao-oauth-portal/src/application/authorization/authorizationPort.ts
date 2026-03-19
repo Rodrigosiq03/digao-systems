@@ -11,11 +11,13 @@ import type {
   CreateAuthorizationSystemInput,
   GrantProfileCapabilityInput,
   MyAccess,
+  UpdateAuthorizationSystemInput,
 } from '@/domain/authorization';
 
 export interface AuthorizationPort {
   listSystems: () => Promise<AuthorizationSystem[]>;
   createSystem: (payload: CreateAuthorizationSystemInput) => Promise<AuthorizationSystem>;
+  updateSystem: (systemId: number, payload: UpdateAuthorizationSystemInput) => Promise<AuthorizationSystem>;
   disableSystem: (systemId: number) => Promise<AuthorizationSystem>;
   listCapabilities: () => Promise<AuthorizationCapability[]>;
   createCapability: (payload: CreateAuthorizationCapabilityInput) => Promise<AuthorizationCapability>;

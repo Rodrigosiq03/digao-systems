@@ -49,6 +49,13 @@ public class AdminProfilesController {
     }
 
     private ProfileResponse toResponse(ProfileEntity entity) {
-        return new ProfileResponse(entity.getId(), entity.getKey(), entity.getName(), entity.isEnabled());
+        return new ProfileResponse(
+            entity.getId(),
+            entity.getKey(),
+            entity.getName(),
+            entity.isEnabled(),
+            entity.getDisabledAt(),
+            entity.getDisabledBy()
+        );
     }
 }

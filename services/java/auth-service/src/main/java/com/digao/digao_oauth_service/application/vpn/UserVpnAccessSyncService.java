@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.digao.digao_oauth_service.core.domain.entities.User;
 import com.digao.digao_oauth_service.core.ports.IdentityProviderPort;
 import com.digao.digao_oauth_service.application.authorization.AuditLogService;
+import com.digao.digao_oauth_service.application.authorization.UserVpnAccessMetricsService;
+import com.digao.digao_oauth_service.application.metrics.AuthServiceMetrics;
 import com.digao.digao_oauth_service.domain.authorization.UserVpnAccessEntity;
 import com.digao.digao_oauth_service.domain.authorization.repository.UserVpnAccessRepository;
 import com.digao.digao_oauth_service.infra.vpn.VpnSyncProperties;
@@ -24,6 +26,8 @@ public class UserVpnAccessSyncService {
     private final IdentityProviderPort identityProviderPort;
     private final UserVpnAccessRepository userVpnAccessRepository;
     private final AuditLogService auditLogService;
+    private final UserVpnAccessMetricsService userVpnAccessMetricsService;
+    private final AuthServiceMetrics metrics;
     private final List<VpnProviderClient> providerClients;
 
     public UserVpnAccessSyncService(
@@ -31,25 +35,33 @@ public class UserVpnAccessSyncService {
         IdentityProviderPort identityProviderPort,
         UserVpnAccessRepository userVpnAccessRepository,
         AuditLogService auditLogService,
+        UserVpnAccessMetricsService userVpnAccessMetricsService,
+        AuthServiceMetrics metrics,
         List<VpnProviderClient> providerClients
     ) {
         this.properties = properties;
         this.identityProviderPort = identityProviderPort;
         this.userVpnAccessRepository = userVpnAccessRepository;
         this.auditLogService = auditLogService;
+        this.userVpnAccessMetricsService = userVpnAccessMetricsService;
+        this.metrics = metrics;
         this.providerClients = providerClients;
     }
 
     @Transactional
     public UserVpnAccessSyncResult sync(String actor) {
         if (!properties.enabled()) {
+            metrics.recordVpnSyncRun(properties.provider(), "disabled");
             return UserVpnAccessSyncResult.disabled();
         }
 
         VpnProviderClient providerClient = providerClients.stream()
             .filter(client -> client.provider().equalsIgnoreCase(properties.provider()))
             .findFirst()
-            .orElseThrow(() -> new IllegalStateException("No VPN provider client registered for provider=" + properties.provider()));
+            .orElseThrow(() -> {
+                metrics.recordVpnSyncRun(properties.provider(), "missing_provider");
+                return new IllegalStateException("No VPN provider client registered for provider=" + properties.provider());
+            });
 
         Map<String, User> keycloakUsersByEmail = loadKeycloakUsersByEmail();
         List<VpnObservedUser> observedUsers = providerClient.listObservedUsers();
@@ -116,6 +128,14 @@ public class UserVpnAccessSyncService {
                 auditLogService.record(actor, auditAction, "user_vpn_access", keycloakUserId + ":" + properties.provider());
             }
             updatedUsers++;
+        }
+
+        metrics.recordVpnSyncObservedUsers(properties.provider(), observedUsers.size());
+        metrics.recordVpnSyncMatchedUsers(properties.provider(), matchedUsers);
+        metrics.recordVpnSyncUpdatedUsers(properties.provider(), updatedUsers);
+        metrics.recordVpnSyncRun(properties.provider(), "success");
+        if (updatedUsers > 0) {
+            userVpnAccessMetricsService.refreshTotals();
         }
 
         return new UserVpnAccessSyncResult(observedUsers.size(), matchedUsers, updatedUsers);

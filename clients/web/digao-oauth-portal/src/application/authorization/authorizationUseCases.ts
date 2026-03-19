@@ -3,6 +3,7 @@ import type { AuthorizationPort } from './authorizationPort';
 export const createAuthorizationUseCases = (port: AuthorizationPort) => ({
   listSystems: () => port.listSystems(),
   createSystem: (payload: Parameters<AuthorizationPort['createSystem']>[0]) => port.createSystem(payload),
+  updateSystem: (systemId: number, payload: Parameters<AuthorizationPort['updateSystem']>[1]) => port.updateSystem(systemId, payload),
   disableSystem: (systemId: number) => port.disableSystem(systemId),
   listCapabilities: () => port.listCapabilities(),
   createCapability: (payload: Parameters<AuthorizationPort['createCapability']>[0]) => port.createCapability(payload),

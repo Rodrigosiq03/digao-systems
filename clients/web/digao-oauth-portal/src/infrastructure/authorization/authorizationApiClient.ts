@@ -13,6 +13,7 @@ import type {
   CreateAuthorizationSystemInput,
   GrantProfileCapabilityInput,
   MyAccess,
+  UpdateAuthorizationSystemInput,
 } from '@/domain/authorization';
 import { createProtectedApiClient } from '@/infrastructure/http/protectedApiClient';
 
@@ -24,6 +25,11 @@ export const createAuthorizationApiClient = (auth: AuthPort): AuthorizationPort 
     createSystem: (payload: CreateAuthorizationSystemInput) =>
       request<AuthorizationSystem>('/admin/systems', {
         method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    updateSystem: (systemId: number, payload: UpdateAuthorizationSystemInput) =>
+      request<AuthorizationSystem>(`/admin/systems/${systemId}`, {
+        method: 'PUT',
         body: JSON.stringify(payload),
       }),
     disableSystem: (systemId: number) =>

@@ -49,6 +49,32 @@ class AuthorizationSchemaSmokeTest {
             }
 
             assertTrue(systemColumnNames.contains("entry_url"));
+            assertTrue(systemColumnNames.contains("disabled_at"));
+            assertTrue(systemColumnNames.contains("disabled_by"));
+        }
+
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+             ResultSet columns = connection.createStatement().executeQuery("select * from profiles where 1 = 0")) {
+            ResultSetMetaData profileMetaData = columns.getMetaData();
+            Set<String> profileColumnNames = new java.util.HashSet<>();
+            for (int i = 1; i <= profileMetaData.getColumnCount(); i++) {
+                profileColumnNames.add(profileMetaData.getColumnName(i).toLowerCase());
+            }
+
+            assertTrue(profileColumnNames.contains("disabled_at"));
+            assertTrue(profileColumnNames.contains("disabled_by"));
+        }
+
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+             ResultSet columns = connection.createStatement().executeQuery("select * from capabilities where 1 = 0")) {
+            ResultSetMetaData capabilityMetaData = columns.getMetaData();
+            Set<String> capabilityColumnNames = new java.util.HashSet<>();
+            for (int i = 1; i <= capabilityMetaData.getColumnCount(); i++) {
+                capabilityColumnNames.add(capabilityMetaData.getColumnName(i).toLowerCase());
+            }
+
+            assertTrue(capabilityColumnNames.contains("disabled_at"));
+            assertTrue(capabilityColumnNames.contains("disabled_by"));
         }
 
         try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");

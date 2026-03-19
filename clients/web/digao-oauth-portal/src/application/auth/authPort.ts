@@ -11,6 +11,7 @@ export interface AuthPort {
   login: () => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<Record<string, unknown> | null>;
+  clearSession: () => void;
   getAccessToken: () => string | null;
   getRoles: () => string[];
   getConfig: () => { url: string; realm: string; clientId: string };

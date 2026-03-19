@@ -32,6 +32,12 @@ public class SystemEntity {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @Column(name = "disabled_at")
+    private OffsetDateTime disabledAt;
+
+    @Column(name = "disabled_by")
+    private String disabledBy;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt = OffsetDateTime.now();
 
@@ -71,13 +77,38 @@ public class SystemEntity {
         return entryUrl;
     }
 
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public OffsetDateTime getDisabledAt() {
+        return disabledAt;
+    }
+
+    public String getDisabledBy() {
+        return disabledBy;
+    }
+
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public void update(String name, String entryUrl, String updatedBy) {
+        this.name = name;
+        this.entryUrl = entryUrl;
+        this.updatedBy = updatedBy;
+        this.updatedAt = OffsetDateTime.now();
     }
 
     public void disable(String updatedBy) {
         this.enabled = false;
         this.updatedBy = updatedBy;
         this.updatedAt = OffsetDateTime.now();
+        this.disabledBy = updatedBy;
+        this.disabledAt = this.updatedAt;
     }
 }

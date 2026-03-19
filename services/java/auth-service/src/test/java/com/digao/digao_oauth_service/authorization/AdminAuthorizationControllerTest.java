@@ -59,7 +59,10 @@ class AdminAuthorizationControllerTest {
     @EnableAutoConfiguration
     @EntityScan(basePackages = "com.digao.digao_oauth_service.domain.authorization")
     @EnableJpaRepositories(basePackages = "com.digao.digao_oauth_service.domain.authorization.repository")
-    @ComponentScan(basePackages = "com.digao.digao_oauth_service.application.authorization")
+    @ComponentScan(basePackages = {
+        "com.digao.digao_oauth_service.application.authorization",
+        "com.digao.digao_oauth_service.application.metrics"
+    })
     @Import({
         AdminSystemsController.class,
         AdminCapabilitiesController.class,
@@ -112,14 +115,34 @@ class AdminAuthorizationControllerTest {
             .andExpect(jsonPath("$.entryUrl").value("https://cloud-" + suffix + ".example.com"))
             .andExpect(jsonPath("$.enabled").value(true));
 
-        SystemEntity seeded = systemAdminService.create("disable-system-" + suffix, "Disable System " + suffix, "seed");
+        SystemEntity seeded = systemAdminService.create("update-system-" + suffix, "Update System " + suffix, "https://old-" + suffix + ".example.com", "seed");
 
-        mockMvc.perform(patch("/admin/systems/{systemId}/disable", seeded.getId())
+        mockMvc.perform(put("/admin/systems/{systemId}", seeded.getId())
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
+                    .jwt(token -> token.subject("admin-master")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "name": "Update System %s v2",
+                      "entryUrl": "https://new-%s.example.com"
+                    }
+                    """.formatted(suffix, suffix)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(seeded.getId()))
+            .andExpect(jsonPath("$.key").value("update-system-" + suffix))
+            .andExpect(jsonPath("$.name").value("Update System " + suffix + " v2"))
+            .andExpect(jsonPath("$.entryUrl").value("https://new-" + suffix + ".example.com"));
+
+        SystemEntity disableSeeded = systemAdminService.create("disable-system-" + suffix, "Disable System " + suffix, "seed");
+
+        mockMvc.perform(patch("/admin/systems/{systemId}/disable", disableSeeded.getId())
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
                     .jwt(token -> token.subject("admin-master"))))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(seeded.getId()))
-            .andExpect(jsonPath("$.enabled").value(false));
+            .andExpect(jsonPath("$.id").value(disableSeeded.getId()))
+            .andExpect(jsonPath("$.enabled").value(false))
+            .andExpect(jsonPath("$.disabledAt").exists())
+            .andExpect(jsonPath("$.disabledBy").value("admin-master"));
     }
 
     @Test

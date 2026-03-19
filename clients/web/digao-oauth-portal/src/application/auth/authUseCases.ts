@@ -5,6 +5,7 @@ export const createAuthUseCases = (port: AuthPort) => ({
   login: () => port.login(),
   logout: () => port.logout(),
   refresh: () => port.refresh(),
+  clearSession: () => port.clearSession(),
   roles: () => port.getRoles(),
   getConfig: () => port.getConfig()
 });

@@ -62,6 +62,15 @@ export const useCreateAuthorizationSystem = () => {
   });
 };
 
+export const useUpdateAuthorizationSystem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ systemId, payload }: { systemId: number; payload: { name: string; entryUrl?: string } }) =>
+      authorizationClient.updateSystem(systemId, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['authorization', 'systems'] }),
+  });
+};
+
 export const useDisableAuthorizationSystem = () => {
   const queryClient = useQueryClient();
   return useMutation({
