@@ -41,6 +41,17 @@ class AuthorizationSchemaSmokeTest {
         }
 
         try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+             ResultSet columns = connection.createStatement().executeQuery("select * from systems where 1 = 0")) {
+            ResultSetMetaData systemMetaData = columns.getMetaData();
+            Set<String> systemColumnNames = new java.util.HashSet<>();
+            for (int i = 1; i <= systemMetaData.getColumnCount(); i++) {
+                systemColumnNames.add(systemMetaData.getColumnName(i).toLowerCase());
+            }
+
+            assertTrue(systemColumnNames.contains("entry_url"));
+        }
+
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
              ResultSet columns = connection.createStatement().executeQuery("select * from user_vpn_access where 1 = 0")) {
             ResultSetMetaData metaData = columns.getMetaData();
             Set<String> columnNames = new java.util.HashSet<>();

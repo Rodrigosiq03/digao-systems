@@ -4,6 +4,7 @@ public record SystemResponse(
     Long id,
     String key,
     String name,
+    String entryUrl,
     boolean enabled
 ) {
 }

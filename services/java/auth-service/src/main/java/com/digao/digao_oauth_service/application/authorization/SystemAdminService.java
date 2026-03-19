@@ -20,10 +20,15 @@ public class SystemAdminService {
     }
 
     @Transactional
-    public SystemEntity create(String key, String name, String actor) {
-        SystemEntity entity = systemRepository.save(SystemEntity.create(key, name));
+    public SystemEntity create(String key, String name, String entryUrl, String actor) {
+        SystemEntity entity = systemRepository.save(SystemEntity.create(key, name, entryUrl));
         auditLogService.record(actor, "system.created", "system", entity.getId().toString());
         return entity;
+    }
+
+    @Transactional
+    public SystemEntity create(String key, String name, String actor) {
+        return create(key, name, null, actor);
     }
 
     @Transactional

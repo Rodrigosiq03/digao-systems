@@ -26,6 +26,9 @@ public class SystemEntity {
     @Column
     private String description;
 
+    @Column(name = "entry_url")
+    private String entryUrl;
+
     @Column(nullable = false)
     private boolean enabled = true;
 
@@ -44,10 +47,11 @@ public class SystemEntity {
     protected SystemEntity() {
     }
 
-    public static SystemEntity create(String key, String name) {
+    public static SystemEntity create(String key, String name, String entryUrl) {
         SystemEntity entity = new SystemEntity();
         entity.key = key;
         entity.name = name;
+        entity.entryUrl = entryUrl;
         return entity;
     }
 
@@ -61,6 +65,10 @@ public class SystemEntity {
 
     public String getName() {
         return name;
+    }
+
+    public String getEntryUrl() {
+        return entryUrl;
     }
 
     public boolean isEnabled() {

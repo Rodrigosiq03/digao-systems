@@ -64,7 +64,7 @@ class AuthorizationRepositoryTest {
 
     @Test
     void persistsSystemsCapabilitiesProfilesAndAssignments() {
-        SystemEntity system = systemRepository.save(SystemEntity.create("cloud-gaming", "Cloud Gaming"));
+        SystemEntity system = systemRepository.save(SystemEntity.create("cloud-gaming", "Cloud Gaming", null));
         CapabilityEntity capability = capabilityRepository.save(CapabilityEntity.create(system, "catalog.manage", "Catalog manage"));
         ProfileEntity profile = profileRepository.save(ProfileEntity.create("cloud-gaming-curator", "Cloud Gaming Curator"));
 

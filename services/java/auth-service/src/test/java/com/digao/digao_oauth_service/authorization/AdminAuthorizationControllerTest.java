@@ -103,11 +103,13 @@ class AdminAuthorizationControllerTest {
                 .content("""
                     {
                       "key": "cloud-gaming-%s",
-                      "name": "Cloud Gaming %s"
+                      "name": "Cloud Gaming %s",
+                      "entryUrl": "https://cloud-%s.example.com"
                     }
-                    """.formatted(suffix, suffix)))
+                    """.formatted(suffix, suffix, suffix)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.key").value("cloud-gaming-" + suffix))
+            .andExpect(jsonPath("$.entryUrl").value("https://cloud-" + suffix + ".example.com"))
             .andExpect(jsonPath("$.enabled").value(true));
 
         SystemEntity seeded = systemAdminService.create("disable-system-" + suffix, "Disable System " + suffix, "seed");

@@ -41,7 +41,7 @@ public class AdminSystemsController {
 
     @PostMapping
     public ResponseEntity<SystemResponse> create(@RequestBody @Valid CreateSystemRequest request, Authentication authentication) {
-        SystemEntity entity = systemAdminService.create(request.key(), request.name(), authentication.getName());
+        SystemEntity entity = systemAdminService.create(request.key(), request.name(), request.entryUrl(), authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(entity));
     }
 
@@ -51,6 +51,6 @@ public class AdminSystemsController {
     }
 
     private SystemResponse toResponse(SystemEntity entity) {
-        return new SystemResponse(entity.getId(), entity.getKey(), entity.getName(), entity.isEnabled());
+        return new SystemResponse(entity.getId(), entity.getKey(), entity.getName(), entity.getEntryUrl(), entity.isEnabled());
     }
 }
