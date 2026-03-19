@@ -38,13 +38,13 @@ digao:
   cors:
     allowed-origins: ${DIGAO_PORTAL_ORIGINS:http://localhost:3000}
   vpn-sync:
-    enabled: ${DIGAO_VPN_SYNC_ENABLED:false}
-    cron: ${DIGAO_VPN_SYNC_CRON:0 */15 * * * *}
-    provider: ${DIGAO_VPN_SYNC_PROVIDER:tailscale}
-    api-base-url: ${DIGAO_VPN_SYNC_API_BASE_URL:https://api.tailscale.com}
-    tailnet: ${DIGAO_VPN_SYNC_TAILNET:}
-    api-token: ${DIGAO_VPN_SYNC_API_TOKEN:}
-    user-page-size: ${DIGAO_VPN_SYNC_USER_PAGE_SIZE:200}
+    enabled: ${VPN_SYNC_ENABLED:false}
+    cron: ${VPN_SYNC_CRON:0 */15 * * * *}
+    provider: ${VPN_SYNC_PROVIDER:tailscale}
+    api-base-url: ${VPN_SYNC_API_BASE_URL:https://api.tailscale.com}
+    tailnet: ${VPN_SYNC_TAILNET:}
+    api-token: ${VPN_SYNC_API_TOKEN:}
+    user-page-size: ${VPN_SYNC_USER_PAGE_SIZE:200}
 
 logging:
   level:
