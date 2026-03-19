@@ -34,7 +34,7 @@ export function AuthPanel() {
         </CardHeader>
         <CardContent className="space-y-4">
           <Button variant="metal" onClick={login}>
-            Entrar com Digao Systems
+            Entrar com DigãoOAuth
           </Button>
         </CardContent>
       </Card>
