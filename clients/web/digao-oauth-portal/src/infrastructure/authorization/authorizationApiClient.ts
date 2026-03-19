@@ -50,6 +50,8 @@ export const createAuthorizationApiClient = (auth: AuthPort): AuthorizationPort 
       request<AuthorizationProfile>(`/admin/profiles/${profileId}/disable`, {
         method: 'PATCH',
       }),
+    listProfileCapabilities: () =>
+      request<AuthorizationProfileCapability[]>('/admin/profile-capabilities'),
     grantProfileCapability: (payload: GrantProfileCapabilityInput) =>
       request<AuthorizationProfileCapability>('/admin/profile-capabilities', {
         method: 'POST',

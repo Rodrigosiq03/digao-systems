@@ -26,6 +26,10 @@ class AuthorizationPagesContractTest(unittest.TestCase):
             source = (ROOT / 'src' / 'presentation' / 'pages' / filename).read_text()
             self.assertIn('Somente leitura', source)
 
+    def test_capabilities_page_uses_permissions_wording(self):
+        source = (ROOT / 'src' / 'presentation' / 'pages' / 'CapabilitiesPage.tsx').read_text()
+        self.assertIn('Permissões', source)
+
 
 if __name__ == '__main__':
     unittest.main()

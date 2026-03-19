@@ -9,6 +9,7 @@ import type { CreateAuthorizationSystemInput } from '@/domain/authorization';
 const schema = z.object({
   key: z.string().min(1, 'Informe a chave do sistema'),
   name: z.string().min(1, 'Informe o nome do sistema'),
+  entryUrl: z.union([z.string().url('Informe uma URL válida'), z.literal('')]).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -26,16 +27,20 @@ export function SystemForm({ onSubmit, isSubmitting }: Props) {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { key: '', name: '' },
+    defaultValues: { key: '', name: '', entryUrl: '' },
   });
 
   const submitHandler = async (values: FormValues) => {
-    await onSubmit(values);
+    await onSubmit({
+      key: values.key,
+      name: values.name,
+      entryUrl: values.entryUrl || undefined,
+    });
     reset();
   };
 
   return (
-    <form className="grid gap-4 md:grid-cols-[1fr_1fr_auto]" onSubmit={handleSubmit(submitHandler)}>
+    <form className="grid gap-4 md:grid-cols-[1fr_1fr_1.4fr_auto]" onSubmit={handleSubmit(submitHandler)}>
       <div className="space-y-2">
         <Label htmlFor="system-key">Chave</Label>
         <Input id="system-key" placeholder="cloud-gaming" {...register('key')} />
@@ -45,6 +50,11 @@ export function SystemForm({ onSubmit, isSubmitting }: Props) {
         <Label htmlFor="system-name">Nome</Label>
         <Input id="system-name" placeholder="Cloud Gaming" {...register('name')} />
         {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="system-entry-url">URL direta</Label>
+        <Input id="system-entry-url" placeholder="https://cloud-dev.rodrigodsiqueira.dev.br:8443" {...register('entryUrl')} />
+        {errors.entryUrl && <p className="text-xs text-red-400">{errors.entryUrl.message}</p>}
       </div>
       <div className="flex items-end">
         <Button type="submit" variant="metal" disabled={isSubmitting}>

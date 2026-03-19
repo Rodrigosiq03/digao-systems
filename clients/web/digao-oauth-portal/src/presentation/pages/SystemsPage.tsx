@@ -5,6 +5,7 @@ import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } fr
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
 import { ResourceCard, ResourceCardHeader, ResourceCardMeta } from '@/presentation/components/resourceCard';
+import { StatusBadge } from '@/presentation/components/statusBadge';
 import { SystemForm } from '@/presentation/forms/systemForm';
 import {
   useAuthorizationSystems,
@@ -26,7 +27,7 @@ export function SystemsPage() {
   const createSystemMutation = useCreateAuthorizationSystem();
   const disableSystemMutation = useDisableAuthorizationSystem();
 
-  const handleCreateSystem = async (payload: { key: string; name: string }) => {
+  const handleCreateSystem = async (payload: { key: string; name: string; entryUrl?: string }) => {
     setFeedback(null);
     try {
       const system = await createSystemMutation.mutateAsync(payload);
@@ -97,6 +98,12 @@ export function SystemsPage() {
                   />
                 )}
               </ResourceCardHeader>
+              <div className="flex flex-wrap gap-2">
+                <StatusBadge tone={system.enabled ? 'success' : 'danger'}>
+                  {system.enabled ? 'Ativo' : 'Desativado'}
+                </StatusBadge>
+                {system.entryUrl && <StatusBadge tone="brand">URL direta disponível</StatusBadge>}
+              </div>
               <ResourceCardMeta>
                 <div>
                   <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Status</p>
@@ -105,6 +112,21 @@ export function SystemsPage() {
                 <div>
                   <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Identificador</p>
                   <strong>{system.id}</strong>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">URL direta</p>
+                  {system.entryUrl ? (
+                    <a
+                      href={system.entryUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold text-brand underline-offset-4 hover:underline"
+                    >
+                      Abrir sistema
+                    </a>
+                  ) : (
+                    <strong>-</strong>
+                  )}
                 </div>
               </ResourceCardMeta>
             </ResourceCard>

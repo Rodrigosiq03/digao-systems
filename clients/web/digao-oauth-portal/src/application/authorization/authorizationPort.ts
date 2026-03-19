@@ -23,6 +23,7 @@ export interface AuthorizationPort {
   listProfiles: () => Promise<AuthorizationProfile[]>;
   createProfile: (payload: CreateAuthorizationProfileInput) => Promise<AuthorizationProfile>;
   disableProfile: (profileId: number) => Promise<AuthorizationProfile>;
+  listProfileCapabilities: () => Promise<AuthorizationProfileCapability[]>;
   grantProfileCapability: (payload: GrantProfileCapabilityInput) => Promise<AuthorizationProfileCapability>;
   listUserProfiles: (keycloakUserId: string) => Promise<AuthorizationUserProfile[]>;
   assignUserProfile: (payload: AssignUserProfileInput) => Promise<AuthorizationUserProfile>;

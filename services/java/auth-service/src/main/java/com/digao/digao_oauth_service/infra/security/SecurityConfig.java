@@ -32,6 +32,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/admin/systems/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
             .requestMatchers(HttpMethod.GET, "/admin/capabilities/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
             .requestMatchers(HttpMethod.GET, "/admin/profiles/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
+            .requestMatchers(HttpMethod.GET, "/admin/profile-capabilities/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
             .requestMatchers(HttpMethod.GET, "/admin/user-profiles/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
             .requestMatchers(HttpMethod.GET, "/admin/audit-logs/**").hasAnyRole("ADMIN_MASTER", "ADMIN")
             .requestMatchers(HttpMethod.GET, "/admin/users/**").hasAnyRole("ADMIN_MASTER", "ADMIN")

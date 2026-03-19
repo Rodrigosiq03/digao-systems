@@ -52,18 +52,18 @@ export function CapabilitiesPage() {
     <AdminPageShell>
       <AdminPageHeader>
         <div className="space-y-2">
-          <h2 className="text-2xl font-black">Capabilities</h2>
+          <h2 className="text-2xl font-black">Permissões</h2>
           <p className="text-sm text-[color:var(--muted)]">Permissões dinâmicas por sistema para evoluir fluxos e responsabilidades.</p>
         </div>
         {isAdminMaster && (
           <Button type="button" variant="metal" onClick={() => setOpenCreate(true)}>
-            Nova capability
+            Nova permissão
           </Button>
         )}
       </AdminPageHeader>
       {isReadOnly && (
         <div className="glass-card p-4 text-sm text-amber-100">
-          <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar capabilities.
+          <strong>Somente leitura.</strong> Apenas <strong>ADMIN_MASTER</strong> pode alterar permissões.
         </div>
       )}
       {feedback && <InlineFeedback tone={feedback.type}>{feedback.message}</InlineFeedback>}
@@ -76,7 +76,7 @@ export function CapabilitiesPage() {
       ) : capabilitiesQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(capabilitiesQuery.error as Error).message}</div>
       ) : capabilities.length === 0 ? (
-        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhuma capability cadastrada ainda.</div>
+        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhuma permissão cadastrada ainda.</div>
       ) : (
         <AdminResourceGrid>
           {capabilities.map((capability) => (
@@ -90,7 +90,7 @@ export function CapabilitiesPage() {
                   <QuickActionsMenu
                     actions={[
                       {
-                        label: 'Desativar capability',
+                        label: 'Desativar permissão',
                         onClick: () => handleDisableCapability(capability.id),
                         disabled: disableCapabilityMutation.isPending
                       }
@@ -115,8 +115,8 @@ export function CapabilitiesPage() {
 
       <AdminEditorSheet
         open={openCreate}
-        title="Criar capability"
-        description="Adicione uma nova capability dinâmica a um sistema."
+        title="Criar permissão"
+        description="Adicione uma nova permissão dinâmica a um sistema."
         onClose={() => setOpenCreate(false)}
       >
         <CapabilityForm

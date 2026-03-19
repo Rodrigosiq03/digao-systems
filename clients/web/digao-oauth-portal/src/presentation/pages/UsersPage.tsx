@@ -4,9 +4,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AdminPageHeader, AdminPageShell, AdminResourceGrid, InlineFeedback } from '@/presentation/components/adminLayout';
 import { AdminEditorSheet } from '@/presentation/components/adminEditorSheet';
 import { UserCards } from '@/presentation/components/userCards';
+import { UserSystemAccessList } from '@/presentation/components/userSystemAccessList';
+import { UserSystemAccessSheet } from '@/presentation/components/userSystemAccessSheet';
 import { UserFilterForm } from '@/presentation/forms/userFilterForm';
 import { UserForm } from '@/presentation/forms/userForm';
-import { UserProfileAssignmentForm } from '@/presentation/forms/userProfileAssignmentForm';
 import { ResetPasswordForm } from '@/presentation/forms/resetPasswordForm';
 import { UserVpnAccessForm } from '@/presentation/forms/userVpnAccessForm';
 import {
@@ -20,9 +21,13 @@ import {
 import {
   useAssignAuthorizationUserProfile,
   useAuthorizationAssignments,
+  useAuthorizationCapabilities,
+  useAuthorizationProfileCapabilities,
   useAuthorizationProfiles,
+  useAuthorizationSystems,
   useRevokeAuthorizationUserProfile
 } from '@/presentation/hooks/useAuthorizationData';
+import { useUserSystemAccessView, type UserSystemAccessView } from '@/presentation/hooks/useUserSystemAccessView';
 import { useAuthStore } from '@/presentation/stores/authStore';
 import type {
   AdminCreateUserInput,
@@ -36,7 +41,7 @@ type PanelState =
   | { type: 'create' }
   | { type: 'edit'; user: AdminUser }
   | { type: 'vpn'; user: AdminUser }
-  | { type: 'access'; user: AdminUser }
+  | { type: 'access'; user: AdminUser; selectedSystem: UserSystemAccessView | null }
   | { type: 'password'; user: AdminUser }
   | null;
 
@@ -49,7 +54,10 @@ export function UsersPage() {
   const canViewSensitive = roles.includes('ADMIN_MASTER') || roles.includes('ADMIN');
 
   const usersQuery = useAdminUsers();
+  const systemsQuery = useAuthorizationSystems();
+  const capabilitiesQuery = useAuthorizationCapabilities();
   const profilesQuery = useAuthorizationProfiles();
+  const profileCapabilitiesQuery = useAuthorizationProfileCapabilities();
   const assignmentsQuery = useAuthorizationAssignments(panel?.type === 'access' ? panel.user.id : undefined);
   const vpnAccessQuery = useAdminUserVpnAccess(panel?.type === 'vpn' ? panel.user.id : '');
   const createUserMutation = useCreateUser();
@@ -61,6 +69,9 @@ export function UsersPage() {
 
   const users = usersQuery.data ?? [];
   const profiles = profilesQuery.data ?? [];
+  const systems = systemsQuery.data ?? [];
+  const capabilities = capabilitiesQuery.data ?? [];
+  const profileCapabilities = profileCapabilitiesQuery.data ?? [];
   const assignments = assignmentsQuery.data ?? [];
   const filtered = useMemo(() => {
     const term = query.toLowerCase();
@@ -76,6 +87,13 @@ export function UsersPage() {
 
   const setSuccess = (message: string) => setFeedback({ type: 'success', message });
   const setError = (message: string) => setFeedback({ type: 'error', message });
+  const systemAccessViews = useUserSystemAccessView({
+    systems,
+    capabilities,
+    profiles,
+    profileCapabilities,
+    assignments,
+  });
 
   const handleCreateUser = async (payload: AdminCreateUserInput) => {
     setFeedback(null);
@@ -194,7 +212,7 @@ export function UsersPage() {
           canViewSensitive={canViewSensitive}
           onEditUser={(user) => setPanel({ type: 'edit', user })}
           onManageVpn={(user) => setPanel({ type: 'vpn', user })}
-          onManageAccess={(user) => setPanel({ type: 'access', user })}
+          onManageAccess={(user) => setPanel({ type: 'access', user, selectedSystem: null })}
           onResetPassword={(user) => setPanel({ type: 'password', user })}
           onToggleEnabled={handleToggleEnabled}
           isBusy={updateUserMutation.isPending}
@@ -261,8 +279,8 @@ export function UsersPage() {
 
       <AdminEditorSheet
         open={panel?.type === 'access'}
-        title="Gerenciar acessos"
-        description="Atribua ou revogue profiles do usuário selecionado."
+        title="Acessos por sistema"
+        description="Use Conceder acesso ou Trocar acesso por sistema sem criar vínculo direto no banco."
         onClose={() => setPanel(null)}
       >
         {panel?.type === 'access' && (
@@ -270,43 +288,24 @@ export function UsersPage() {
             <div className="rounded-2xl border border-white/10 bg-black/10 p-4 text-sm text-[color:var(--muted)]">
               Usuário alvo: <strong className="text-[color:var(--text)]">{panel.user.email}</strong>
             </div>
-            <UserProfileAssignmentForm
-              profiles={profiles}
-              fixedUserId={panel.user.id}
-              onSubmit={(payload) => handleAssignProfile(panel.user, payload.profileId)}
-              isSubmitting={assignMutation.isPending}
-            />
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">
-                Profiles ativos
-              </h3>
-              {assignmentsQuery.isLoading ? (
-                <Skeleton className="h-24" />
-              ) : assignments.length === 0 ? (
-                <div className="rounded-2xl border border-white/10 bg-black/10 p-4 text-sm text-[color:var(--muted)]">
-                  Nenhum profile ativo para este usuário.
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {assignments.map((assignment) => (
-                    <div key={assignment.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/10 p-4">
-                      <div>
-                        <div className="font-semibold">{assignment.profileKey}</div>
-                        <div className="text-sm text-[color:var(--muted)]">{assignment.keycloakUserId}</div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={revokeMutation.isPending}
-                        onClick={() => handleRevokeProfile(assignment.id, assignment.keycloakUserId, panel.user.email)}
-                      >
-                        Revogar
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {assignmentsQuery.isLoading || systemsQuery.isLoading || capabilitiesQuery.isLoading || profileCapabilitiesQuery.isLoading ? (
+              <Skeleton className="h-48" />
+            ) : (
+              <>
+                <UserSystemAccessList
+                  systems={systemAccessViews}
+                  onManage={(selectedSystem) => setPanel({ type: 'access', user: panel.user, selectedSystem })}
+                />
+                <UserSystemAccessSheet
+                  selectedSystem={panel.selectedSystem}
+                  currentAssignments={assignments}
+                  isSubmitting={assignMutation.isPending}
+                  isRevoking={revokeMutation.isPending}
+                  onAssign={(profileId) => handleAssignProfile(panel.user, profileId)}
+                  onRevoke={(assignmentId) => handleRevokeProfile(assignmentId, panel.user.id, panel.user.email)}
+                />
+              </>
+            )}
           </>
         )}
       </AdminEditorSheet>

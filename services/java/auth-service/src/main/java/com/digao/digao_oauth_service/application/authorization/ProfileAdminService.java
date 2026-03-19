@@ -48,6 +48,11 @@ public class ProfileAdminService {
         return profileRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<ProfileCapabilityEntity> listGrantedCapabilities() {
+        return profileCapabilityRepository.findAll();
+    }
+
     @Transactional
     public ProfileEntity disable(Long profileId, String actor) {
         ProfileEntity entity = profileRepository.findById(profileId).orElseThrow();

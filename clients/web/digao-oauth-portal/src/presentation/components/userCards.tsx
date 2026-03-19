@@ -1,9 +1,9 @@
 import { ShieldCheck, UserCog, UserRoundCheck, UserRoundX } from 'lucide-react';
 import type { AdminUser } from '@/domain/admin';
-import { cn } from '@/lib/utils';
 import { AdminResourceGrid } from '@/presentation/components/adminLayout';
 import { QuickActionsMenu } from '@/presentation/components/quickActionsMenu';
 import { ResourceCard, ResourceCardHeader, ResourceCardMeta } from '@/presentation/components/resourceCard';
+import { StatusBadge } from '@/presentation/components/statusBadge';
 import { useAdminUserVpnAccess } from '@/presentation/hooks/useAdminData';
 
 type Props = {
@@ -18,16 +18,16 @@ type Props = {
   isBusy?: boolean;
 };
 
-const userStatusMap: Record<'active' | 'blocked', { label: string; className: string }> = {
-  active: { label: 'Ativo', className: 'bg-emerald-400/20 text-emerald-100' },
-  blocked: { label: 'Bloqueado', className: 'bg-rose-400/20 text-rose-100' }
+const userStatusMap: Record<'active' | 'blocked', { label: string; tone: 'success' | 'danger' }> = {
+  active: { label: 'Ativo', tone: 'success' },
+  blocked: { label: 'Bloqueado', tone: 'danger' }
 };
 
-const vpnStatusMap: Record<string, { label: string; className: string }> = {
-  none: { label: 'Sem acesso', className: 'bg-slate-400/20 text-slate-100' },
-  invite_pending: { label: 'Convite pendente', className: 'bg-amber-400/20 text-amber-100' },
-  active: { label: 'Ativo', className: 'bg-emerald-400/20 text-emerald-100' },
-  revoked: { label: 'Revogado', className: 'bg-rose-400/20 text-rose-100' }
+const vpnStatusMap: Record<string, { label: string; tone: 'neutral' | 'warning' | 'success' | 'danger' }> = {
+  none: { label: 'Sem acesso', tone: 'neutral' },
+  invite_pending: { label: 'Convite pendente', tone: 'warning' },
+  active: { label: 'Ativo', tone: 'success' },
+  revoked: { label: 'Revogado', tone: 'danger' }
 };
 
 export function UserCards({
@@ -102,15 +102,11 @@ function UserCard({
       </ResourceCardHeader>
 
       <div className="flex flex-wrap gap-2">
-        <span className={cn('rounded-full px-3 py-1 text-xs font-semibold', userStatusMap[userStatus].className)}>
-          {userStatusMap[userStatus].label}
-        </span>
-        <span className={cn('rounded-full px-3 py-1 text-xs font-semibold', vpnStatusMap[vpnStatus].className)}>
+        <StatusBadge tone={userStatusMap[userStatus].tone}>{userStatusMap[userStatus].label}</StatusBadge>
+        <StatusBadge tone={vpnStatusMap[vpnStatus].tone}>
           Status VPN: {vpnStatusMap[vpnStatus].label}
-        </span>
-        <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-[color:var(--muted)]">
-          Role: {user.role ?? '-'}
-        </span>
+        </StatusBadge>
+        <StatusBadge tone="brand">Role: {user.role ?? '-'}</StatusBadge>
       </div>
 
       <ResourceCardMeta>
@@ -140,7 +136,7 @@ function UserCard({
             <UserCog className="h-4 w-4" />
             Identidade
           </div>
-          <p className="text-sm text-[color:var(--muted)]">
+          <p className="text-sm text-[color:var(--text)]/82">
             Role principal: <strong>{user.role ?? '-'}</strong>
           </p>
         </div>
@@ -149,7 +145,7 @@ function UserCard({
             <ShieldCheck className="h-4 w-4" />
             VPN
           </div>
-          <p className="text-sm text-[color:var(--muted)]">
+          <p className="text-sm text-[color:var(--text)]/82">
             {vpnAccess?.notes || 'Sem observações registradas para o provider.'}
           </p>
           {vpnAccess?.inviteLink && (
@@ -168,7 +164,7 @@ function UserCard({
             {user.enabled ? <UserRoundCheck className="h-4 w-4" /> : <UserRoundX className="h-4 w-4" />}
             Operação
           </div>
-          <p className="text-sm text-[color:var(--muted)]">
+          <p className="text-sm text-[color:var(--text)]/82">
             Use o menu de ações para editar, trocar role, gerenciar acessos e alterar o status do usuário.
           </p>
         </div>

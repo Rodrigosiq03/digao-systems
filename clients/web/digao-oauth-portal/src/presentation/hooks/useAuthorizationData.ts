@@ -5,6 +5,7 @@ import { useAuthStore } from '@/presentation/stores/authStore';
 import type {
   AuthorizationAuditLog,
   AuthorizationCapability,
+  AuthorizationProfileCapability,
   AuthorizationProfile,
   AuthorizationSystem,
   AuthorizationUserProfile,
@@ -33,6 +34,12 @@ export const useAuthorizationCapabilities = () =>
 
 export const useAuthorizationProfiles = () =>
   useAuthorizedQuery<AuthorizationProfile[]>(['authorization', 'profiles'], () => authorizationClient.listProfiles());
+
+export const useAuthorizationProfileCapabilities = () =>
+  useAuthorizedQuery<AuthorizationProfileCapability[]>(
+    ['authorization', 'profile-capabilities'],
+    () => authorizationClient.listProfileCapabilities()
+  );
 
 export const useAuthorizationAssignments = (keycloakUserId?: string) =>
   useAuthorizedQuery<AuthorizationUserProfile[]>(
@@ -102,6 +109,7 @@ export const useGrantAuthorizationProfileCapability = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['authorization', 'profiles'] });
       queryClient.invalidateQueries({ queryKey: ['authorization', 'capabilities'] });
+      queryClient.invalidateQueries({ queryKey: ['authorization', 'profile-capabilities'] });
     },
   });
 };

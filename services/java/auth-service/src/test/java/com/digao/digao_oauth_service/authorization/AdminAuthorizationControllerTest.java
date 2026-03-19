@@ -174,6 +174,13 @@ class AdminAuthorizationControllerTest {
             .andExpect(jsonPath("$.profileKey").value("grant-profile-" + suffix))
             .andExpect(jsonPath("$.capabilityKey").value("grant.capability." + suffix));
 
+        mockMvc.perform(get("/admin/profile-capabilities")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
+                    .jwt(token -> token.subject("admin-master"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[*].profileKey", hasItem("grant-profile-" + suffix)))
+            .andExpect(jsonPath("$[*].capabilityKey", hasItem("grant.capability." + suffix)));
+
         mockMvc.perform(post("/admin/user-profiles")
                 .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN_MASTER"))
                     .jwt(token -> token.subject("admin-master")))
@@ -259,6 +266,11 @@ class AdminAuthorizationControllerTest {
                     .jwt(token -> token.subject("admin-viewer"))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[*].key", hasItem("read-profile-" + suffix)));
+
+        mockMvc.perform(get("/admin/profile-capabilities")
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                    .jwt(token -> token.subject("admin-viewer"))))
+            .andExpect(status().isOk());
 
         mockMvc.perform(get("/admin/user-profiles")
                 .param("keycloakUserId", "kc-user-" + suffix)

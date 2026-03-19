@@ -3,6 +3,7 @@ export type AuthorizationSystem = {
   key: string;
   name: string;
   enabled: boolean;
+  entryUrl: string | null;
 };
 
 export type AuthorizationCapability = {
@@ -64,6 +65,7 @@ export type MyAccess = {
 export type CreateAuthorizationSystemInput = {
   key: string;
   name: string;
+  entryUrl?: string;
 };
 
 export type CreateAuthorizationCapabilityInput = {

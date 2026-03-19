@@ -23,7 +23,11 @@ export function Topbar() {
           </Button>
         )}
         {isAuthenticated && (
-          <Button variant="ghost" onClick={logout}>
+          <Button
+            variant="ghost"
+            onClick={logout}
+            className="border border-rose-400/20 bg-rose-500/8 text-rose-200 hover:bg-rose-500/14 hover:text-rose-100"
+          >
             {profile?.firstName || 'Conta'} • Sair
           </Button>
         )}
