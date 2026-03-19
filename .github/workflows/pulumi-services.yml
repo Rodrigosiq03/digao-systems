@@ -239,6 +239,13 @@ jobs:
           AUTH_SERVICE_AUTHORIZATION_DB_JDBC_URL: ${{ vars.AUTH_SERVICE_AUTHORIZATION_DB_JDBC_URL }}
           AUTH_SERVICE_AUTHORIZATION_DB_USER: ${{ vars.AUTH_SERVICE_AUTHORIZATION_DB_USER }}
           AUTH_SERVICE_AUTHORIZATION_DB_PASSWORD: ${{ secrets.AUTH_SERVICE_AUTHORIZATION_DB_PASSWORD }}
+          AUTH_SERVICE_VPN_SYNC_ENABLED: ${{ vars.AUTH_SERVICE_VPN_SYNC_ENABLED }}
+          AUTH_SERVICE_VPN_SYNC_CRON: ${{ vars.AUTH_SERVICE_VPN_SYNC_CRON }}
+          AUTH_SERVICE_VPN_SYNC_PROVIDER: ${{ vars.AUTH_SERVICE_VPN_SYNC_PROVIDER }}
+          AUTH_SERVICE_VPN_SYNC_API_BASE_URL: ${{ vars.AUTH_SERVICE_VPN_SYNC_API_BASE_URL }}
+          AUTH_SERVICE_VPN_SYNC_TAILNET: ${{ vars.AUTH_SERVICE_VPN_SYNC_TAILNET }}
+          AUTH_SERVICE_VPN_SYNC_USER_PAGE_SIZE: ${{ vars.AUTH_SERVICE_VPN_SYNC_USER_PAGE_SIZE }}
+          AUTH_SERVICE_VPN_SYNC_API_TOKEN: ${{ secrets.AUTH_SERVICE_VPN_SYNC_API_TOKEN }}
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
           PULUMI_PYTHON_CMD: /data/apps/.venvs/pulumi-services-${{ matrix.project }}/bin/python
         run: |
@@ -252,6 +259,30 @@ jobs:
           pulumi -C pulumi/auth-service config set auth-service:authorizationDbJdbcUrl "$AUTH_SERVICE_AUTHORIZATION_DB_JDBC_URL"
           pulumi -C pulumi/auth-service config set auth-service:authorizationDbUser "$AUTH_SERVICE_AUTHORIZATION_DB_USER"
           pulumi -C pulumi/auth-service config set --secret auth-service:authorizationDbPassword "$AUTH_SERVICE_AUTHORIZATION_DB_PASSWORD"
+          pulumi -C pulumi/auth-service config set auth-service:vpnSyncEnabled "${AUTH_SERVICE_VPN_SYNC_ENABLED:-false}"
+
+          if [[ "${AUTH_SERVICE_VPN_SYNC_ENABLED,,}" == "true" ]]; then
+            if [[ -z "$AUTH_SERVICE_VPN_SYNC_TAILNET" || -z "$AUTH_SERVICE_VPN_SYNC_API_TOKEN" ]]; then
+              echo "Missing VPN sync config for $STACK"
+              exit 1
+            fi
+
+            pulumi -C pulumi/auth-service config set auth-service:vpnSyncTailnet "$AUTH_SERVICE_VPN_SYNC_TAILNET"
+            pulumi -C pulumi/auth-service config set --secret auth-service:vpnSyncApiToken "$AUTH_SERVICE_VPN_SYNC_API_TOKEN"
+          fi
+
+          if [[ -n "$AUTH_SERVICE_VPN_SYNC_CRON" ]]; then
+            pulumi -C pulumi/auth-service config set auth-service:vpnSyncCron "$AUTH_SERVICE_VPN_SYNC_CRON"
+          fi
+          if [[ -n "$AUTH_SERVICE_VPN_SYNC_PROVIDER" ]]; then
+            pulumi -C pulumi/auth-service config set auth-service:vpnSyncProvider "$AUTH_SERVICE_VPN_SYNC_PROVIDER"
+          fi
+          if [[ -n "$AUTH_SERVICE_VPN_SYNC_API_BASE_URL" ]]; then
+            pulumi -C pulumi/auth-service config set auth-service:vpnSyncApiBaseUrl "$AUTH_SERVICE_VPN_SYNC_API_BASE_URL"
+          fi
+          if [[ -n "$AUTH_SERVICE_VPN_SYNC_USER_PAGE_SIZE" ]]; then
+            pulumi -C pulumi/auth-service config set auth-service:vpnSyncUserPageSize "$AUTH_SERVICE_VPN_SYNC_USER_PAGE_SIZE"
+          fi
 
       - name: Select stack
         env:

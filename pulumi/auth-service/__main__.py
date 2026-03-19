@@ -38,6 +38,13 @@ issuer_url = config.require("issuerUrl")
 authorization_db_url = config.require("authorizationDbJdbcUrl")
 authorization_db_user = config.require("authorizationDbUser")
 authorization_db_password = config.require_secret("authorizationDbPassword")
+vpn_sync_enabled = config.get_bool("vpnSyncEnabled")
+vpn_sync_cron = config.get("vpnSyncCron")
+vpn_sync_provider = config.get("vpnSyncProvider")
+vpn_sync_api_base_url = config.get("vpnSyncApiBaseUrl")
+vpn_sync_tailnet = config.get("vpnSyncTailnet")
+vpn_sync_api_token = config.get_secret("vpnSyncApiToken")
+vpn_sync_user_page_size = config.get_int("vpnSyncUserPageSize")
 
 attach_npm = (config.get("attachToNpm") or "true").lower() == "true"
 npm_network = config.get("npmNetworkName") or NETWORK_BY_STACK.get(stack, "npm_default")
@@ -68,7 +75,21 @@ envs = [
     f"SPRING_DATASOURCE_URL={authorization_db_url}",
     f"SPRING_DATASOURCE_USERNAME={authorization_db_user}",
     pulumi.Output.concat("SPRING_DATASOURCE_PASSWORD=", authorization_db_password),
+    f"VPN_SYNC_ENABLED={str(vpn_sync_enabled).lower() if vpn_sync_enabled is not None else 'false'}",
 ]
+
+if vpn_sync_cron:
+    envs.append(f"VPN_SYNC_CRON={vpn_sync_cron}")
+if vpn_sync_provider:
+    envs.append(f"VPN_SYNC_PROVIDER={vpn_sync_provider}")
+if vpn_sync_api_base_url:
+    envs.append(f"VPN_SYNC_API_BASE_URL={vpn_sync_api_base_url}")
+if vpn_sync_tailnet:
+    envs.append(f"VPN_SYNC_TAILNET={vpn_sync_tailnet}")
+if vpn_sync_user_page_size is not None:
+    envs.append(f"VPN_SYNC_USER_PAGE_SIZE={vpn_sync_user_page_size}")
+if vpn_sync_api_token is not None:
+    envs.append(pulumi.Output.concat("VPN_SYNC_API_TOKEN=", vpn_sync_api_token))
 
 container_kwargs = dict(
     image=image.repo_digest,
