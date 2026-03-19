@@ -60,7 +60,7 @@ export function AppShell() {
             <div className="gate-brand">
               <LockEmblem />
               <div>
-                <p className="gate-eyebrow">Digao Systems</p>
+                <p className="gate-eyebrow">Digão Systems</p>
                 <h1 className="gate-title">Acesso unificado, controle total</h1>
               </div>
             </div>

@@ -28,7 +28,7 @@ export function AuthPanel() {
       <Card>
         <CardHeader>
           <CardTitle>Entrar na plataforma</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-slate-600 dark:text-[color:var(--muted)]">
             Faça login para acessar seus sistemas, equipes e controles administrativos.
           </CardDescription>
         </CardHeader>
@@ -45,28 +45,28 @@ export function AuthPanel() {
     <Card>
       <CardHeader>
         <CardTitle>Bem-vindo de volta</CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-600 dark:text-[color:var(--muted)]">
           {profile?.firstName || profile?.username || 'Usuário'} • {profile?.email || 'sem email'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <p className="text-xs text-[color:var(--muted)]">Usuário</p>
+            <p className="text-xs text-slate-600 dark:text-[color:var(--muted)]">Usuário</p>
             <strong>{profile?.username || '-'}</strong>
           </div>
           <div>
-            <p className="text-xs text-[color:var(--muted)]">Status da sessão</p>
+            <p className="text-xs text-slate-600 dark:text-[color:var(--muted)]">Status da sessão</p>
             <strong>Ativa</strong>
           </div>
           <div>
-            <p className="text-xs text-[color:var(--muted)]">Papéis</p>
+            <p className="text-xs text-slate-600 dark:text-[color:var(--muted)]">Papéis</p>
             <strong>{roles.length}</strong>
           </div>
         </div>
         <Separator />
         <div className="flex flex-wrap gap-2">
-          {roles.length === 0 && <span className="text-xs text-[color:var(--muted)]">Nenhuma role.</span>}
+          {roles.length === 0 && <span className="text-xs text-slate-600 dark:text-[color:var(--muted)]">Nenhum papel.</span>}
           {roles.map((role) => (
             <span key={role} className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold">
               {role}

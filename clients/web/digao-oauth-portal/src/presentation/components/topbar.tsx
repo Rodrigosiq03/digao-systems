@@ -9,9 +9,9 @@ export function Topbar() {
   return (
     <header className="relative z-[1] flex flex-col items-start justify-between gap-4 border-b border-white/8 px-6 py-5 backdrop-blur-[16px] md:flex-row md:items-center md:px-8">
       <div className="flex items-center gap-3">
-        <img src={logo} alt="Digao Systems" className="h-10 w-10" />
+        <img src={logo} alt="Digão Systems" className="h-10 w-10" />
         <div>
-          <strong className="block font-extrabold">Digao Systems</strong>
+          <strong className="block font-extrabold">Digão Systems</strong>
           <span className="text-xs text-[color:var(--muted)]">Plataforma de acesso</span>
         </div>
       </div>

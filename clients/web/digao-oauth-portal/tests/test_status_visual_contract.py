@@ -41,6 +41,21 @@ class StatusVisualContractTest(unittest.TestCase):
         self.assertIn('border-[rgba(43,58,85,0.14)]', badge)
         self.assertIn('bg-[rgba(43,58,85,0.06)]', badge)
 
+    def test_public_landing_uses_digao_brand_and_light_mode_support_copy(self):
+        shell = (ROOT / 'src' / 'presentation' / 'pages' / 'AppShell.tsx').read_text()
+        self.assertIn('Digão Systems', shell)
+        self.assertIn('gate-subtitle', shell)
+
+        auth_panel = (ROOT / 'src' / 'presentation' / 'components' / 'authPanel.tsx').read_text()
+        self.assertIn('text-slate-600', auth_panel)
+        self.assertIn('Entrar com DigãoOAuth', auth_panel)
+
+        hero = (ROOT / 'src' / 'presentation' / 'components' / 'heroSection.tsx').read_text()
+        self.assertIn('text-slate-600', hero)
+
+        features = (ROOT / 'src' / 'presentation' / 'components' / 'featureGrid.tsx').read_text()
+        self.assertIn('bg-[color:var(--soft-panel)]', features)
+
 
 if __name__ == '__main__':
     unittest.main()

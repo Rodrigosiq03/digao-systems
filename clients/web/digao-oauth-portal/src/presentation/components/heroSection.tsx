@@ -14,7 +14,7 @@ export function HeroSection() {
         <h1 className="text-3xl font-black leading-tight text-[color:var(--text)] md:text-4xl">
           Plataforma central de acesso.
         </h1>
-        <p className="max-w-xl text-base text-[color:var(--muted)]">
+        <p className="max-w-xl text-base text-slate-600 dark:text-[color:var(--muted)]">
           Entre uma vez e administre pessoas, acessos e sistemas em uma experiência única.
         </p>
       </div>

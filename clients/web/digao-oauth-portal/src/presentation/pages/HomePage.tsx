@@ -7,7 +7,7 @@ export function HomePage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-2xl font-black">Plataforma Digao Systems</h2>
+        <h2 className="text-2xl font-black">Plataforma Digão Systems</h2>
         <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">
           Ponto central de identidade, acesso e governança dos sistemas do Digão.
         </p>
