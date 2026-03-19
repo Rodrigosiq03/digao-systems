@@ -3,7 +3,6 @@ create table if not exists systems (
     "key" varchar(120) not null unique,
     name varchar(200) not null,
     description text,
-    entry_url text,
     enabled boolean not null default true,
     created_at timestamp with time zone not null default now(),
     created_by varchar(255),
