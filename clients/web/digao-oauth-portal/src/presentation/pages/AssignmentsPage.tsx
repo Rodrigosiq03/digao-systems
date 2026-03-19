@@ -55,7 +55,7 @@ export function AssignmentsPage() {
       <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Acessos</h2>
-          <p className="text-sm text-[color:var(--muted)]">Perfis atribuídos ao usuário autenticado no momento.</p>
+          <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">Perfis atribuídos ao usuário autenticado no momento.</p>
         </div>
         {isAdminMaster && (
           <Button type="button" variant="ghost" className={accentActionButtonClass} onClick={() => setOpenCreate(true)}>
@@ -70,7 +70,7 @@ export function AssignmentsPage() {
       )}
       {feedback && <InlineFeedback tone={feedback.type}>{feedback.message}</InlineFeedback>}
       {!profile?.id ? (
-        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">
+        <div className="glass-card p-4 text-sm text-slate-600 dark:text-[color:var(--muted)]">
           Não foi possível resolver o identificador do usuário autenticado.
         </div>
       ) : assignmentsQuery.isLoading ? (
@@ -82,7 +82,7 @@ export function AssignmentsPage() {
       ) : assignmentsQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(assignmentsQuery.error as Error).message}</div>
       ) : assignments.length === 0 ? (
-        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhuma atribuição ativa encontrada.</div>
+        <div className="glass-card p-4 text-sm text-slate-600 dark:text-[color:var(--muted)]">Nenhuma atribuição ativa encontrada.</div>
       ) : (
         <AdminResourceGrid>
           {assignments.map((assignment) => (
@@ -90,7 +90,7 @@ export function AssignmentsPage() {
               <ResourceCardHeader>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">{assignment.profileKey}</h3>
-                  <p className="text-sm text-[color:var(--muted)]">{assignment.keycloakUserId}</p>
+                  <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">{assignment.keycloakUserId}</p>
                 </div>
                 {isAdminMaster && (
                   <QuickActionsMenu

@@ -78,7 +78,7 @@ export function AuditPage() {
     <div className="space-y-6">
       <div className="space-y-2">
         <h2 className="text-2xl font-black">Auditoria</h2>
-        <p className="text-sm text-[color:var(--muted)]">
+        <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">
           Eventos administrativos registrados pelo domínio de autorização do portal.
         </p>
       </div>
@@ -96,13 +96,13 @@ export function AuditPage() {
       ) : auditQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(auditQuery.error as Error).message}</div>
       ) : auditLogs.length === 0 ? (
-        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhum evento de auditoria registrado ainda.</div>
+        <div className="glass-card p-4 text-sm text-slate-600 dark:text-[color:var(--muted)]">Nenhum evento de auditoria registrado ainda.</div>
       ) : (
         <div className="space-y-6">
           {groupedLogs.map((group) => (
             <section key={group.category} className="space-y-3">
               <div className="space-y-1">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--muted)]">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-700 dark:text-[color:var(--muted)]">
                   {group.category}
                 </h3>
               </div>
@@ -112,9 +112,9 @@ export function AuditPage() {
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="space-y-1">
                         <h4 className="font-semibold text-[color:var(--text)]">{getAuditTitle(log)}</h4>
-                        <p className="text-sm text-[color:var(--muted)]">{getAuditDescription(log)}</p>
+                        <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">{getAuditDescription(log)}</p>
                       </div>
-                      <div className="text-right text-xs text-[color:var(--muted)]">
+                      <div className="text-right text-xs text-slate-600 dark:text-[color:var(--muted)]">
                         <div>{auditFormatter.format(new Date(log.createdAt))}</div>
                         {log.actorEmail && <div>{log.actorEmail}</div>}
                       </div>

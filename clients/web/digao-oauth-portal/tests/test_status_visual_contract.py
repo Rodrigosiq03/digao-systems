@@ -52,9 +52,25 @@ class StatusVisualContractTest(unittest.TestCase):
 
         hero = (ROOT / 'src' / 'presentation' / 'components' / 'heroSection.tsx').read_text()
         self.assertIn('text-slate-600', hero)
+        self.assertIn('text-slate-950', hero)
 
         features = (ROOT / 'src' / 'presentation' / 'components' / 'featureGrid.tsx').read_text()
         self.assertIn('bg-[color:var(--soft-panel)]', features)
+
+    def test_admin_pages_use_stronger_light_mode_support_copy(self):
+        for relative_path in [
+            ('src', 'presentation', 'pages', 'SystemsPage.tsx'),
+            ('src', 'presentation', 'pages', 'ProfilesPage.tsx'),
+            ('src', 'presentation', 'pages', 'CapabilitiesPage.tsx'),
+            ('src', 'presentation', 'pages', 'AssignmentsPage.tsx'),
+            ('src', 'presentation', 'pages', 'AuditPage.tsx'),
+            ('src', 'presentation', 'pages', 'UsersPage.tsx'),
+        ]:
+            source = (ROOT.joinpath(*relative_path)).read_text()
+            self.assertIn('text-slate-600', source)
+
+        audit = (ROOT / 'src' / 'presentation' / 'pages' / 'AuditPage.tsx').read_text()
+        self.assertIn('text-slate-700', audit)
 
 
 if __name__ == '__main__':

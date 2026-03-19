@@ -182,7 +182,7 @@ export function UsersPage() {
       <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Usuários</h2>
-          <p className="text-sm text-[color:var(--muted)]">
+          <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">
             Gerencie pessoas, papel global da plataforma, acesso VPN e perfis sem ficar preso a um formulário fixo.
           </p>
         </div>

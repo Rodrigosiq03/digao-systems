@@ -73,7 +73,7 @@ export function ProfilesPage() {
       <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Perfis</h2>
-          <p className="text-sm text-[color:var(--muted)]">Pacotes reutilizáveis de permissões atribuíveis a usuários.</p>
+          <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">Pacotes reutilizáveis de permissões atribuíveis a usuários.</p>
         </div>
         {isAdminMaster && (
           <div className="flex flex-wrap gap-3">
@@ -101,7 +101,7 @@ export function ProfilesPage() {
       ) : profilesQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(profilesQuery.error as Error).message}</div>
       ) : profiles.length === 0 ? (
-        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhum perfil cadastrado ainda.</div>
+        <div className="glass-card p-4 text-sm text-slate-600 dark:text-[color:var(--muted)]">Nenhum perfil cadastrado ainda.</div>
       ) : (
         <AdminResourceGrid>
           {profiles.map((profile) => (
@@ -109,7 +109,7 @@ export function ProfilesPage() {
               <ResourceCardHeader>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">{profile.name}</h3>
-                  <p className="text-sm text-[color:var(--muted)]">{profile.key}</p>
+                  <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">{profile.key}</p>
                 </div>
                 {isAdminMaster && profile.enabled && (
                   <QuickActionsMenu

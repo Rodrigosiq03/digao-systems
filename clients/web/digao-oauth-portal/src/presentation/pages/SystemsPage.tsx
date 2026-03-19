@@ -53,7 +53,7 @@ export function SystemsPage() {
       <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Sistemas</h2>
-          <p className="text-sm text-[color:var(--muted)]">Catálogo de sistemas administráveis do portal.</p>
+          <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">Catálogo de sistemas administráveis do portal.</p>
         </div>
         {isAdminMaster && (
           <Button type="button" variant="metal" onClick={() => setOpenEditor(true)}>
@@ -76,7 +76,7 @@ export function SystemsPage() {
       ) : error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{error.message}</div>
       ) : systems.length === 0 ? (
-        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhum sistema cadastrado ainda.</div>
+        <div className="glass-card p-4 text-sm text-slate-600 dark:text-[color:var(--muted)]">Nenhum sistema cadastrado ainda.</div>
       ) : (
         <AdminResourceGrid>
           {systems.map((system) => (
@@ -84,7 +84,7 @@ export function SystemsPage() {
               <ResourceCardHeader>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">{system.name}</h3>
-                  <p className="text-sm text-[color:var(--muted)]">{system.key}</p>
+                  <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">{system.key}</p>
                 </div>
                 {isAdminMaster && system.enabled && (
                   <QuickActionsMenu

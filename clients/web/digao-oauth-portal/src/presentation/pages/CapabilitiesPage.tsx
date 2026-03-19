@@ -53,7 +53,7 @@ export function CapabilitiesPage() {
       <AdminPageHeader>
         <div className="space-y-2">
           <h2 className="text-2xl font-black">Permissões</h2>
-          <p className="text-sm text-[color:var(--muted)]">Permissões dinâmicas por sistema para evoluir fluxos e responsabilidades.</p>
+          <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">Permissões dinâmicas por sistema para evoluir fluxos e responsabilidades.</p>
         </div>
         {isAdminMaster && (
           <Button type="button" variant="metal" onClick={() => setOpenCreate(true)}>
@@ -76,7 +76,7 @@ export function CapabilitiesPage() {
       ) : capabilitiesQuery.error ? (
         <div className="glass-card p-4 text-sm text-rose-100">{(capabilitiesQuery.error as Error).message}</div>
       ) : capabilities.length === 0 ? (
-        <div className="glass-card p-4 text-sm text-[color:var(--muted)]">Nenhuma permissão cadastrada ainda.</div>
+        <div className="glass-card p-4 text-sm text-slate-600 dark:text-[color:var(--muted)]">Nenhuma permissão cadastrada ainda.</div>
       ) : (
         <AdminResourceGrid>
           {capabilities.map((capability) => (
@@ -84,7 +84,7 @@ export function CapabilitiesPage() {
               <ResourceCardHeader>
                 <div className="space-y-1">
                   <h3 className="text-lg font-semibold">{capability.name}</h3>
-                  <p className="text-sm text-[color:var(--muted)]">{capability.key}</p>
+                  <p className="text-sm text-slate-600 dark:text-[color:var(--muted)]">{capability.key}</p>
                 </div>
                 {isAdminMaster && capability.enabled && (
                   <QuickActionsMenu
