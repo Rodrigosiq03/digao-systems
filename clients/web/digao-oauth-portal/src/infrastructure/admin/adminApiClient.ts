@@ -9,55 +9,10 @@ import type {
 } from '@/domain/admin';
 import type { AdminPort } from '@/application/admin/adminPort';
 import type { AuthPort } from '@/application/auth/authPort';
-
-type ApiError = {
-  message?: string;
-};
-
-const apiBase = import.meta.env.VITE_API_URL;
-
-if (!apiBase) {
-  throw new Error('VITE_API_URL não configurada para o portal.');
-}
-
-const parseError = async (response: Response): Promise<string> => {
-  try {
-    const data = (await response.json()) as ApiError;
-    if (data?.message) return data.message;
-  } catch {
-    // ignore
-  }
-  return `Erro HTTP ${response.status}`;
-};
+import { createProtectedApiClient } from '@/infrastructure/http/protectedApiClient';
 
 export const createAdminApiClient = (auth: AuthPort): AdminPort => {
-  const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
-    await auth.refresh();
-    const token = auth.getAccessToken();
-    if (!token) {
-      throw new Error('Sessão expirada. Faça login novamente.');
-    }
-
-    const response = await fetch(`${apiBase}${path}`, {
-      ...init,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        ...(init?.headers || {})
-      }
-    });
-
-    if (!response.ok) {
-      const message = await parseError(response);
-      throw new Error(message);
-    }
-
-    if (response.status === 204) {
-      return undefined as T;
-    }
-
-    return (await response.json()) as T;
-  };
+  const { request } = createProtectedApiClient(auth);
 
   return {
     listUsers: async (page = 0, limit = 50) =>
