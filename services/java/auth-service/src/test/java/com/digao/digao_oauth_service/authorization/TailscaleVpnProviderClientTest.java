@@ -19,7 +19,6 @@ import org.springframework.web.client.RestClient;
 import com.digao.digao_oauth_service.application.vpn.VpnObservedUser;
 import com.digao.digao_oauth_service.infra.vpn.TailscaleVpnProviderClient;
 import com.digao.digao_oauth_service.infra.vpn.VpnSyncProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 class TailscaleVpnProviderClientTest {
 
@@ -36,7 +35,7 @@ class TailscaleVpnProviderClientTest {
         );
         RestClient.Builder builder = RestClient.builder();
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
-        TailscaleVpnProviderClient client = new TailscaleVpnProviderClient(builder, new ObjectMapper(), properties);
+        TailscaleVpnProviderClient client = new TailscaleVpnProviderClient(builder, properties);
 
         server.expect(requestTo("https://api.tailscale.com/api/v2/tailnet/tailnet.example.ts.net/users"))
             .andExpect(method(HttpMethod.GET))

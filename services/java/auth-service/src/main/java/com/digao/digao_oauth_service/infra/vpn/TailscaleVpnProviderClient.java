@@ -15,6 +15,7 @@ import com.digao.digao_oauth_service.application.vpn.VpnObservedUser;
 import com.digao.digao_oauth_service.application.vpn.VpnProviderClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 @Component
 public class TailscaleVpnProviderClient implements VpnProviderClient {
@@ -23,9 +24,9 @@ public class TailscaleVpnProviderClient implements VpnProviderClient {
     private final ObjectMapper objectMapper;
     private final VpnSyncProperties properties;
 
-    public TailscaleVpnProviderClient(RestClient.Builder restClientBuilder, ObjectMapper objectMapper, VpnSyncProperties properties) {
+    public TailscaleVpnProviderClient(RestClient.Builder restClientBuilder, VpnSyncProperties properties) {
         this.restClient = restClientBuilder.build();
-        this.objectMapper = objectMapper;
+        this.objectMapper = JsonMapper.builder().findAndAddModules().build();
         this.properties = properties;
     }
 
