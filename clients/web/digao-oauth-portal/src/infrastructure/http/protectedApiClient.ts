@@ -41,7 +41,6 @@ export const createProtectedApiClient = (auth: AuthPort): ProtectedApiClient => 
   };
 
   const forceLogout = async () => {
-    auth.clearSession();
     await auth.logout();
   };
 
