@@ -25,6 +25,7 @@ let keycloakInstance: Keycloak | null = null;
 let activeConfig: KeycloakConfig = defaultConfig;
 let initPromise: Promise<AuthInitResult> | null = null;
 let initResult: AuthInitResult | null = null;
+const INIT_TIMEOUT_MS = 8000;
 
 const buildKeycloak = () => {
   activeConfig = defaultConfig;
@@ -55,7 +56,9 @@ export const keycloakAuthClient: AuthPort = {
     if (initResult) return initResult;
     if (initPromise) return initPromise;
 
-    initPromise = client
+    const resolveUnauthenticated = () => ({ authenticated: false } as AuthInitResult);
+
+    const boot = client
       .init({
         onLoad: 'check-sso',
         pkceMethod: 'S256',
@@ -64,17 +67,26 @@ export const keycloakAuthClient: AuthPort = {
       })
       .then(async (authenticated) => {
         if (!authenticated) {
-          initResult = { authenticated: false };
-          return initResult;
+          return resolveUnauthenticated();
         }
 
         const profile = await client.loadUserProfile();
-        initResult = {
+        return {
           authenticated,
           profile: mapProfile(profile),
           tokenParsed: client.tokenParsed || null
         };
-        return initResult;
+      })
+      .catch(() => resolveUnauthenticated());
+
+    const timeout = new Promise<AuthInitResult>((resolve) => {
+      window.setTimeout(() => resolve(resolveUnauthenticated()), INIT_TIMEOUT_MS);
+    });
+
+    initPromise = Promise.race([boot, timeout])
+      .then((result) => {
+        initResult = result;
+        return result;
       })
       .finally(() => {
         initPromise = null;

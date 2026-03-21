@@ -48,6 +48,12 @@ class AuthSessionContractTest(unittest.TestCase):
             r'finally\s*\{\s*initPromise = null;\s*initResult = null;\s*keycloakInstance = null;\s*\}',
         )
 
+    def test_keycloak_init_has_timeout_fallback_to_avoid_infinite_loading(self):
+        keycloak = (ROOT / 'src' / 'infrastructure' / 'auth' / 'keycloakClient.ts').read_text()
+        self.assertIn('Promise.race', keycloak)
+        self.assertIn('window.setTimeout', keycloak)
+        self.assertIn('authenticated: false', keycloak)
+
 
 if __name__ == '__main__':
     unittest.main()
