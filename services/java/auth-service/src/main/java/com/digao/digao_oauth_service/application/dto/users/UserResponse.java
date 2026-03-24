@@ -12,6 +12,7 @@ public record UserResponse(
     String role,
     boolean enabled,
     List<String> roles,
-    List<String> groups
+    List<String> groups,
+    boolean emailSent
 ) {
 }

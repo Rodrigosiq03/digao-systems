@@ -26,7 +26,7 @@ rabbit_password = config.require_secret("rabbitPassword")
 rabbit_vhost = config.get("rabbitVhost") or f"/{stack}"
 
 rabbit_exchange = config.get("rabbitExchange") or "notification.exchange"
-rabbit_routing_key = config.get("rabbitRoutingKey") or "digao.notification.email.send"
+rabbit_routing_key = config.get("rabbitRoutingKey") or "digao.auth.email.send"
 rabbit_queue = config.get("rabbitQueue") or "notification.email.queue"
 
 redis_host = config.get("redisHost") or "redis"

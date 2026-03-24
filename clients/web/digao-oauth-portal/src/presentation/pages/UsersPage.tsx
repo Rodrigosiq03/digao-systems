@@ -73,6 +73,7 @@ export function UsersPage() {
   const capabilities = capabilitiesQuery.data ?? [];
   const profileCapabilities = profileCapabilitiesQuery.data ?? [];
   const assignments = assignmentsQuery.data ?? [];
+
   const filtered = useMemo(() => {
     const term = query.toLowerCase();
     if (!term) {
@@ -99,7 +100,11 @@ export function UsersPage() {
     setFeedback(null);
     try {
       const user = await createUserMutation.mutateAsync(payload);
-      setSuccess(`Usuário ${user.email} criado. Email de primeiro acesso enviado.`);
+      if (user.emailSent === false) {
+        setError(`Usuário ${user.email} criado, mas o email de primeiro acesso falhou. Verifique os logs do auth-service.`);
+      } else {
+        setSuccess(`Usuário ${user.email} criado. Email de primeiro acesso enviado.`);
+      }
       setPanel(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Falha ao criar usuário.');

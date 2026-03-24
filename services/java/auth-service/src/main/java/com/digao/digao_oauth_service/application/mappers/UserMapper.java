@@ -41,6 +41,10 @@ public final class UserMapper {
     }
 
     public static UserResponse toResponse(User user, List<String> roles, List<String> groups) {
+        return toResponse(user, roles, groups, true);
+    }
+
+    public static UserResponse toResponse(User user, List<String> roles, List<String> groups, boolean emailSent) {
         List<String> safeRoles = roles == null ? List.of() : new ArrayList<>(roles);
         List<String> safeGroups = groups == null ? List.of() : new ArrayList<>(groups);
 
@@ -57,7 +61,8 @@ public final class UserMapper {
             primaryRole,
             user.isEnabled(),
             safeRoles,
-            safeGroups
+            safeGroups,
+            emailSent
         );
     }
 

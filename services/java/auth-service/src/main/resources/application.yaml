@@ -13,9 +13,10 @@ spring:
           issuer-uri: http://localhost:8080/realms/digao-oauth-dev
   rabbitmq:
     port: ${RABBIT_PORT:5672}
-    username: ${RABBIT_USER:user}
+    username: ${RABBIT_USER:dev}
     password: ${RABBIT_PASS:password}
     host: ${RABBIT_HOST:localhost}
+    virtual-host: ${SPRING_RABBITMQ_VIRTUAL_HOST:/dev}
 
   web:
     error:
@@ -27,7 +28,7 @@ keycloak:
     server-url: http://localhost:8080
     realm: digao-oauth-dev
     client-id: digao-oauth-backend-admin
-    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:9gFZYhgDykv0QQvieUgd4yMOXRlpgcx0}
+    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET}
 
 digao:
   rabbitmq:

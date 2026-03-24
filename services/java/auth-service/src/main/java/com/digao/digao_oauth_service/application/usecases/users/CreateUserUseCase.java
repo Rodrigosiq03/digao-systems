@@ -2,6 +2,8 @@ package com.digao.digao_oauth_service.application.usecases.users;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.digao.digao_oauth_service.application.dto.users.CreateUserRequest;
@@ -15,6 +17,7 @@ import com.digao.digao_oauth_service.core.ports.NotificationPort;
 
 @Service
 public class CreateUserUseCase {
+    private static final Logger logger = LoggerFactory.getLogger(CreateUserUseCase.class);
     private final IdentityProviderPort identityProvider;
     private final NotificationPort notificationPort;
 
@@ -34,14 +37,20 @@ public class CreateUserUseCase {
         List<String> roles = identityProvider.getUserRoles(userId);
         List<String> groups = identityProvider.getUserGroups(userId);
 
-        notificationPort.sendFirstAccessEmail(
-            baseUser.getEmail(),
-            baseUser.getFirstName() + " " + baseUser.getLastName(),
-            baseUser.getUsername(),
-            tempPassword
-        );
+        boolean emailSent = false;
+        try {
+            notificationPort.sendFirstAccessEmail(
+                baseUser.getEmail(),
+                baseUser.getFirstName() + " " + baseUser.getLastName(),
+                baseUser.getUsername(),
+                tempPassword
+            );
+            emailSent = true;
+        } catch (Exception e) {
+            logger.error("Falha ao enviar email de primeiro acesso para {}: {}", baseUser.getEmail(), e.getMessage(), e);
+        }
 
-        return UserMapper.toResponse(baseUser, roles, groups);
+        return UserMapper.toResponse(baseUser, roles, groups, emailSent);
     }
 
     private String generateTempPassword() {

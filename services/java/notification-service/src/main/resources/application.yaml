@@ -23,9 +23,10 @@ spring:
 
   rabbitmq:
     port: 5672
-    username: ${RABBIT_USER:user}
+    username: ${RABBIT_USER:dev}
     password: ${RABBIT_PASS:password}
     host: ${RABBIT_HOST:localhost}
+    virtual-host: ${SPRING_RABBITMQ_VIRTUAL_HOST:/dev}
 
   data:
     redis:
@@ -34,9 +35,9 @@ spring:
 
 digao:
   rabbitmq:
-    exchange: ${RABBIT_EXCHANGE}
-    routingkey: ${RABBIT_ROUTING_KEY}
-    queue: ${RABBIT_QUEUE}
+    exchange: ${RABBIT_EXCHANGE:notification.exchange}
+    routingkey: ${RABBIT_ROUTING_KEY:digao.auth.email.send}
+    queue: ${RABBIT_QUEUE:notification.email.queue}
 
 management:
   endpoints:
@@ -61,4 +62,3 @@ management:
   observations:
     key-values:
       application: ${spring.application.name}
-    
