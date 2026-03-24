@@ -77,6 +77,13 @@ def apply_keycloak(config: configparser.ConfigParser, env: str, project_dir: Pat
     pulumi_set(project_dir, stack, "keycloak:adminPassword", env_block[admin_pass_key], True)
     pulumi_set(project_dir, stack, "keycloak:rabbitPassword", env_block[rabbit_pass_key], True)
 
+    google_id_key = f"GOOGLE_CLIENT_ID_{env.upper()}"
+    google_secret_key = f"GOOGLE_CLIENT_SECRET_{env.upper()}"
+    if google_id_key in env_block:
+        pulumi_set(project_dir, stack, "keycloak:googleClientId", env_block[google_id_key], True)
+    if google_secret_key in env_block:
+        pulumi_set(project_dir, stack, "keycloak:googleClientSecret", env_block[google_secret_key], True)
+
 
 def apply_notification(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
     shared = config["shared"]

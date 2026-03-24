@@ -28,7 +28,7 @@
   "enabled" : true,
   "sslRequired" : "external",
   "registrationAllowed" : false,
-  "registrationEmailAsUsername" : false,
+  "registrationEmailAsUsername" : true,
   "rememberMe" : false,
   "verifyEmail" : false,
   "loginWithEmailAllowed" : true,
@@ -1089,8 +1089,28 @@
   "enabledEventTypes" : [ ],
   "adminEventsEnabled" : false,
   "adminEventsDetailsEnabled" : false,
-  "identityProviders" : [ ],
+  "identityProviders" : [ {
+    "alias" : "google",
+    "displayName" : "Google",
+    "providerId" : "google",
+    "enabled" : true,
+    "updateProfileFirstLoginMode" : "on",
+    "trustEmail" : true,
+    "storeToken" : false,
+    "addReadTokenRoleOnCreate" : false,
+    "authenticateByDefault" : false,
+    "linkOnly" : false,
+    "firstBrokerLoginFlowAlias" : "Auto Link First Broker Login",
+    "config" : {
+      "clientId" : "${GOOGLE_CLIENT_ID}",
+      "clientSecret" : "${GOOGLE_CLIENT_SECRET}",
+      "defaultScope" : "openid email profile",
+      "syncMode" : "FORCE",
+      "useJwksUrl" : "true"
+    }
+  } ],
   "identityProviderMappers" : [ ],
+
   "components" : {
     "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy" : [ {
       "id" : "7283d50e-f292-499c-9b22-c7a3ce5798a6",
@@ -1648,6 +1668,28 @@
       "authenticatorFlow" : false,
       "requirement" : "REQUIRED",
       "priority" : 10,
+      "autheticatorFlow" : false,
+      "userSetupAllowed" : false
+    } ]
+  }, {
+    "id" : "f1e2d3c4-b5a6-4789-0123-456789abcdef",
+    "alias" : "Auto Link First Broker Login",
+    "description" : "Automatically links broker account to existing pre-registered user by email. Rejects login if no matching user exists.",
+    "providerId" : "basic-flow",
+    "topLevel" : true,
+    "builtIn" : false,
+    "authenticationExecutions" : [ {
+      "authenticator" : "idp-detect-existing-broker-user",
+      "authenticatorFlow" : false,
+      "requirement" : "REQUIRED",
+      "priority" : 10,
+      "autheticatorFlow" : false,
+      "userSetupAllowed" : false
+    }, {
+      "authenticator" : "idp-auto-link",
+      "authenticatorFlow" : false,
+      "requirement" : "REQUIRED",
+      "priority" : 20,
       "autheticatorFlow" : false,
       "userSetupAllowed" : false
     } ]
