@@ -34,6 +34,9 @@ postgres_user = config.get("dbUser") or "postgres"
 postgres_password = config.require_secret("dbPassword")
 postgres_db = config.get("dbName") or "keycloak"
 
+google_client_id = config.get_secret("googleClientId")
+google_client_secret = config.get_secret("googleClientSecret")
+
 proxy_mode = config.get("proxy") or "edge"
 http_enabled = (config.get("httpEnabled") or "true").lower()
 hostname = config.get("hostname") or (DEV_HOSTNAME if stack == "dev" else None)
@@ -108,6 +111,11 @@ envs = [
     "KC_METRICS_ENABLED=true",
     f"KC_SPI_EMAIL_TEMPLATE_PROVIDER={email_template_provider}",
 ]
+
+if google_client_id:
+    envs.append(pulumi.Output.concat("GOOGLE_CLIENT_ID=", google_client_id))
+if google_client_secret:
+    envs.append(pulumi.Output.concat("GOOGLE_CLIENT_SECRET=", google_client_secret))
 
 if hostname:
     envs.append(f"KC_HOSTNAME={hostname}")

@@ -39,7 +39,7 @@ public class KeycloakIdentityProviderAdapter implements IdentityProviderPort {
     public String createUser(User user, String tempPassword) {
         return withAdminAuth("createUser", () -> {
             UserRepresentation rep = new UserRepresentation();
-            rep.setUsername(user.getUsername());
+            rep.setUsername(user.getEmail());
             rep.setEmail(user.getEmail());
             rep.setFirstName(user.getFirstName());
             rep.setLastName(user.getLastName());
@@ -113,7 +113,7 @@ public class KeycloakIdentityProviderAdapter implements IdentityProviderPort {
         withAdminAuth("updateUser", () -> {
             UserResource resource = keycloak.realm(properties.realm()).users().get(user.getId().toString());
             UserRepresentation rep = resource.toRepresentation();
-            rep.setUsername(user.getUsername());
+            rep.setUsername(user.getEmail());
             rep.setEmail(user.getEmail());
             rep.setFirstName(user.getFirstName());
             rep.setLastName(user.getLastName());

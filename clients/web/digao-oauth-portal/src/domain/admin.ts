@@ -15,6 +15,7 @@ export type AdminUser = {
   enabled: boolean;
   roles: string[];
   groups: string[];
+  emailSent?: boolean;
 };
 
 export type AdminGroup = {
