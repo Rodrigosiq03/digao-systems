@@ -29,7 +29,8 @@ rabbit_exchange = config.get("rabbitExchange") or "notification.exchange"
 rabbit_routing_key = config.get("rabbitRoutingKey") or "digao.auth.email.send"
 rabbit_queue = config.get("rabbitQueue") or "notification.email.queue"
 
-redis_host = config.get("redisHost") or "redis"
+redis_host = config.get("redisHost") or f"redis-{stack}"
+redis_password = config.get_secret("redisPassword")
 
 mail_user = config.get("mailUser") or ""
 mail_password = config.require_secret("mailPassword")
@@ -56,6 +57,12 @@ envs = [
     f"RABBIT_ROUTING_KEY={rabbit_routing_key}",
     f"RABBIT_QUEUE={rabbit_queue}",
     f"REDIS_HOST={redis_host}",
+]
+
+if redis_password:
+    envs.append(pulumi.Output.concat("REDIS_PASSWORD=", redis_password))
+
+envs += [
     f"MAIL_USERNAME={mail_user}",
     pulumi.Output.concat("MAIL_PASSWORD=", mail_password),
 ]
@@ -70,10 +77,10 @@ container_kwargs = dict(
 if expose_port:
     container_kwargs["ports"] = [docker.ContainerPortArgs(internal=8082, external=http_port)]
 
+networks_advanced = [docker.ContainerNetworksAdvancedArgs(name="bridge")]
 if attach_npm:
-    container_kwargs["networks_advanced"] = [
-        docker.ContainerNetworksAdvancedArgs(name=npm_network)
-    ]
+    networks_advanced.append(docker.ContainerNetworksAdvancedArgs(name=npm_network))
+container_kwargs["networks_advanced"] = networks_advanced
 
 container = docker.Container("notification", **container_kwargs)
 

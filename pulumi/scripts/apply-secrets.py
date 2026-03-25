@@ -90,9 +90,13 @@ def apply_notification(config: configparser.ConfigParser, env: str, project_dir:
     env_block = config[env]
     rabbit_pass_key = f"RABBITMQ_{env.upper()}_PASS"
 
+    redis_pass_key = f"REDIS_PASS_{env.upper()}"
+
     pulumi_set(project_dir, stack, "notification-service:rabbitPassword", env_block[rabbit_pass_key], True)
     pulumi_set(project_dir, stack, "notification-service:mailUser", shared["MAIL_USERNAME"], False)
     pulumi_set(project_dir, stack, "notification-service:mailPassword", shared["MAIL_PASSWORD"], True)
+    if redis_pass_key in env_block:
+        pulumi_set(project_dir, stack, "notification-service:redisPassword", env_block[redis_pass_key], True)
 
 
 def apply_auth(config: configparser.ConfigParser, env: str, project_dir: Path, stack: str) -> None:
