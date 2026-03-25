@@ -7,7 +7,7 @@ export function Topbar() {
   const { isAuthenticated, profile, login, logout } = useAuthStore();
 
   return (
-    <header className="relative z-[1] flex flex-col items-start justify-between gap-4 border-b border-white/8 px-6 py-5 backdrop-blur-[16px] md:flex-row md:items-center md:px-8">
+    <header className="relative z-[1] flex flex-col items-start justify-between gap-4 border-b border-[color:var(--border)] px-6 py-5 backdrop-blur-[16px] md:flex-row md:items-center md:px-8">
       <div className="flex items-center gap-3">
         <img src={logo} alt="Digão Systems" className="h-10 w-10" />
         <div>
@@ -26,7 +26,7 @@ export function Topbar() {
           <Button
             variant="ghost"
             onClick={logout}
-            className="border border-rose-400/20 bg-rose-500/8 text-rose-200 hover:bg-rose-500/14 hover:text-rose-100"
+            className="border border-rose-400/20 bg-rose-500/8 text-rose-700 hover:bg-rose-500/14 hover:text-rose-800 dark:text-rose-200 dark:hover:text-rose-100"
           >
             {profile?.firstName || 'Conta'} • Sair
           </Button>

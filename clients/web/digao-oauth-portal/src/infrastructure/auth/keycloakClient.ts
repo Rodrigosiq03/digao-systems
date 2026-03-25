@@ -134,7 +134,10 @@ export const keycloakAuthClient: AuthPort = {
     const realmRoles = client.tokenParsed?.realm_access?.roles ?? [];
     const clientId = activeConfig.clientId;
     const clientRoles = client.tokenParsed?.resource_access?.[clientId]?.roles ?? [];
-    return Array.from(new Set([...(realmRoles as string[]), ...(clientRoles as string[])]));
+    const APP_ROLES = new Set(['ADMIN_MASTER', 'ADMIN', 'COMMON']);
+    return Array.from(new Set([...(realmRoles as string[]), ...(clientRoles as string[])])).filter(
+      (r) => APP_ROLES.has(r)
+    );
   },
   getConfig: () => ({ ...activeConfig }),
 };
