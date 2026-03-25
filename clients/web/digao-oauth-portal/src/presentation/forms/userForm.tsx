@@ -8,7 +8,6 @@ import { Select } from '@/components/ui/select';
 import type { AdminCreateUserInput, AdminUser, AdminUpdateUserInput } from '@/domain/admin';
 
 const userSchema = z.object({
-  username: z.string().min(1, 'Informe o username'),
   email: z.string().email('Email inválido'),
   firstName: z.string().min(1, 'Informe o nome'),
   lastName: z.string().min(1, 'Informe o sobrenome'),
@@ -39,7 +38,6 @@ export function UserForm({ mode, user, onSubmit, isSubmitting }: Props) {
   } = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     values: {
-      username: user?.username ?? '',
       email: user?.email ?? '',
       firstName: user?.firstName ?? '',
       lastName: user?.lastName ?? '',
@@ -51,12 +49,7 @@ export function UserForm({ mode, user, onSubmit, isSubmitting }: Props) {
   return (
     <form className="space-y-5" onSubmit={handleSubmit((values) => onSubmit(values))}>
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="user-username">Username</Label>
-          <Input id="user-username" placeholder="digao" {...register('username')} />
-          {errors.username && <p className="text-xs text-red-400">{errors.username.message}</p>}
-        </div>
-        <div className="space-y-2">
+        <div className="space-y-2 md:col-span-2">
           <Label htmlFor="user-email">Email</Label>
           <Input id="user-email" placeholder="digao@email.com" {...register('email')} />
           {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}

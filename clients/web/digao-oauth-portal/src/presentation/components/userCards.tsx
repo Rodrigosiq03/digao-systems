@@ -111,10 +111,6 @@ function UserCard({
 
       <ResourceCardMeta>
         <div>
-          <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Username</p>
-          <strong>{user.username}</strong>
-        </div>
-        <div>
           <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--muted)]">Sistemas</p>
           <strong>{user.groups.join(', ') || '-'}</strong>
         </div>

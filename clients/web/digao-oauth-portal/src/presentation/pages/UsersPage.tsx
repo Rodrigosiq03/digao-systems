@@ -126,7 +126,6 @@ export function UsersPage() {
     await handleUpdateUser(
       user.id,
       {
-        username: user.username,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
