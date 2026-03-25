@@ -26,7 +26,6 @@ export type AdminGroup = {
 };
 
 export type AdminCreateUserInput = {
-  username: string;
   email: string;
   firstName: string;
   lastName: string;

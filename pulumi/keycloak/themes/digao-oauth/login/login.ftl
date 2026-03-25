@@ -97,6 +97,23 @@
             <input type="hidden" id="id-hidden-input" name="credentialId" <#if auth?has_content && auth.selectedCredential?has_content>value="${auth.selectedCredential}"</#if>/>
           </form>
 
+          <#-- Social / Identity Provider login (Google, etc.) -->
+          <#if social?? && social.providers?has_content>
+            <div class="digao-social-divider">
+              <span>ou</span>
+            </div>
+            <div class="digao-social-providers">
+              <#list social.providers as p>
+                <a class="digao-social-btn digao-social-btn--${p.alias}" href="${p.loginUrl}">
+                  <#if p.iconClasses?has_content>
+                    <i class="${p.iconClasses}" aria-hidden="true"></i>
+                  </#if>
+                  <span>Entrar com ${p.displayName}</span>
+                </a>
+              </#list>
+            </div>
+          </#if>
+
         </div>
       </div>
     </div>
