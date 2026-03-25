@@ -1,7 +1,6 @@
 import { StatCard } from '@/presentation/components/statCard';
 import { AuthPanel } from '@/presentation/components/authPanel';
 import { HeroSection } from '@/presentation/components/heroSection';
-import { FeatureGrid } from '@/presentation/components/featureGrid';
 import { useMemo } from 'react';
 import { useAdminGroups, useAdminUsers } from '@/presentation/hooks/useAdminData';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,7 +27,6 @@ export function AdminPage() {
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.6fr)]">
       <section className="space-y-6">
         <HeroSection />
-        <FeatureGrid />
         {isLoading ? (
           <div className="grid gap-4 md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
@@ -36,7 +34,7 @@ export function AdminPage() {
             ))}
           </div>
         ) : error ? (
-          <div className="glass-card p-4 text-sm text-rose-100">{error.message}</div>
+          <div className="glass-card p-4 text-sm text-rose-800 dark:text-rose-100">{error.message}</div>
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
             {stats.map((stat) => (

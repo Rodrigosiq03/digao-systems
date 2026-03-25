@@ -34,8 +34,8 @@ export function InlineFeedback({ tone, children }: FeedbackProps) {
       className={cn(
         'rounded-[14px] border px-3 py-3 text-sm',
         tone === 'success'
-          ? 'border-emerald-400/20 bg-emerald-500/10 text-emerald-100'
-          : 'border-rose-400/20 bg-rose-500/10 text-rose-100'
+          ? 'border-emerald-400/20 bg-emerald-500/10 text-emerald-800 dark:text-emerald-100'
+          : 'border-rose-400/20 bg-rose-500/10 text-rose-800 dark:text-rose-100'
       )}
     >
       {children}

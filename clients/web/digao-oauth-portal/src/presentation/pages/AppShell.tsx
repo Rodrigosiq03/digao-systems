@@ -94,11 +94,12 @@ export function AppShell() {
       <div
         className="relative flex min-w-0 flex-col overflow-hidden"
         style={{
-          background:
-            'radial-gradient(900px 500px at 10% -20%, rgba(88,102,255,0.12), transparent 60%), radial-gradient(900px 500px at 90% -30%, rgba(82,212,255,0.12), transparent 65%), linear-gradient(180deg, rgba(6,10,18,0.55), rgba(6,10,18,0.92))'
+          background: theme === 'dark'
+            ? 'radial-gradient(900px 500px at 10% -20%, rgba(88,102,255,0.12), transparent 60%), radial-gradient(900px 500px at 90% -30%, rgba(82,212,255,0.12), transparent 65%), linear-gradient(180deg, rgba(6,10,18,0.55), rgba(6,10,18,0.92))'
+            : 'radial-gradient(900px 500px at 10% -20%, rgba(88,102,255,0.06), transparent 60%), radial-gradient(900px 500px at 90% -30%, rgba(82,212,255,0.06), transparent 65%), var(--bg)'
         }}
       >
-        <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="pointer-events-none absolute inset-0 z-0 hidden dark:block">
           <span className="absolute left-[-120px] top-[-120px] h-[480px] w-[480px] animate-[flashDrift_18s_ease-in-out_infinite] rounded-full bg-[radial-gradient(circle,rgba(120,160,255,0.22),rgba(120,160,255,0)_70%)] opacity-40 blur-[12px]" />
           <span className="absolute bottom-[-160px] right-[-120px] h-[480px] w-[480px] animate-[flashDrift_18s_ease-in-out_infinite] rounded-full bg-[radial-gradient(circle,rgba(90,240,210,0.18),rgba(90,240,210,0)_70%)] opacity-40 blur-[12px] [animation-delay:3s]" />
           <span className="absolute right-[15%] top-[20%] h-[360px] w-[360px] animate-[flashDrift_18s_ease-in-out_infinite] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.12),rgba(255,255,255,0)_70%)] opacity-40 blur-[12px] [animation-delay:7s]" />

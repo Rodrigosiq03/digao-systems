@@ -68,7 +68,7 @@ export function AuthPanel() {
         <div className="flex flex-wrap gap-2">
           {roles.length === 0 && <span className="text-xs text-slate-600 dark:text-[color:var(--muted)]">Nenhum papel.</span>}
           {roles.map((role) => (
-            <span key={role} className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold">
+            <span key={role} className="rounded-full border border-[color:var(--soft-border)] bg-[color:var(--soft-panel)] px-3 py-1 text-xs font-semibold">
               {role}
             </span>
           ))}
