@@ -52,10 +52,6 @@ export function AuthPanel() {
       <CardContent className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <p className="text-xs text-slate-600 dark:text-[color:var(--muted)]">Usuário</p>
-            <strong>{profile?.username || '-'}</strong>
-          </div>
-          <div>
             <p className="text-xs text-slate-600 dark:text-[color:var(--muted)]">Status da sessão</p>
             <strong>Ativa</strong>
           </div>
