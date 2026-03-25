@@ -19,7 +19,7 @@ public final class UserMapper {
     public static User toDomain(CreateUserRequest request) {
         return new User(
             null,
-            request.username(),
+            request.email(),
             request.email(),
             request.firstName(),
             request.lastName(),
@@ -31,7 +31,7 @@ public final class UserMapper {
     public static User toDomain(String id, UpdateUserRequest request) {
         return new User(
             parseUuidOrThrow(id),
-            request.username(),
+            request.email(),
             request.email(),
             request.firstName(),
             request.lastName(),
